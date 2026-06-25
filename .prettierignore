@@ -1,0 +1,8 @@
+.next/
+node_modules/
+supabase/
+_bmad/
+_bmad-output/
+.claude/
+docs/
+*.md
