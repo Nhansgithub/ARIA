@@ -1,0 +1,38 @@
+# Team override for bmad-ux — integrates the ui-ux-pro-max knowledge base.
+#
+# Merged OVER .claude/skills/bmad-ux/customize.toml via the 3-layer resolver
+# (skill defaults -> this file -> bmad-ux.user.toml). Arrays APPEND to the
+# shipped defaults — do NOT restate base entries here. Scalars override.
+#
+# Interpreter note: on this machine `python3` is a non-functional Windows
+# Store stub. Every embedded command uses `python` (fallback `py`).
+#
+# Integration stance: ui-ux-pro-max is an EVIDENCE / OPTIONS engine. bmad-ux
+# stays a facilitator — it presents concrete grounded options and the user
+# picks. DESIGN.md / EXPERIENCE.md remain the contract and win on conflict.
+
+[workflow]
+
+# 1) Prime the facilitator with a compact guide on the KB + how to query it.
+#    (A small cheat-sheet — NOT the raw CSVs, which are meant to be searched.)
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/ux-knowledge/ui-ux-pro-max-guide.md",
+]
+
+# 2) New creative tool: generates GROUNDED candidate palettes / styles / fonts
+#    as option sets at color/style/typography decision moments. The user picks.
+creative_tools = [
+  "file:{project-root}/_bmad/custom/ux-knowledge/creative-tool-design-system.md",
+]
+
+# 3) On-demand research source so Discovery can reach the KB for charts, UX
+#    rules, landing patterns, stack guidance, etc.
+external_sources = [
+  "UI/UX design intelligence — ui-ux-pro-max KB (96 palettes, 67 styles, 57 font pairings, 25 charts, 99 UX rules, 13 stacks). Query with `python {project-root}/.claude/skills/ui-ux-pro-max/scripts/search.py \"<keywords>\" --domain <product|style|typography|color|landing|chart|ux> [-n N]`, or a full system with `--design-system -f markdown [-p \"Name\"]`; stack guidance via `--stack <html-tailwind|react|nextjs|vue|svelte|shadcn|nuxtjs|astro|swiftui|react-native|flutter|jetpack-compose>`. Use `python` (fallback `py`), never `python3`. Treat results as grounded CANDIDATE options to present to the user, never as final verdicts.",
+]
+
+# 4) Finalize reviewer lens: validate the spines against the KB's
+#    accessibility / touch / layout rules + pre-delivery checklist. Opt-in.
+finalize_reviewers = [
+  "file:{project-root}/_bmad/custom/ux-knowledge/reviewer-uiuxpromax.md",
+]

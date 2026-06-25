@@ -1,0 +1,13 @@
+# Team override for bmad-dev-story — ground UI implementation in ui-ux-pro-max.
+#
+# Merged OVER .claude/skills/bmad-dev-story/customize.toml. Arrays APPEND to
+# the shipped defaults; scalars override. Base file is untouched.
+
+[workflow]
+
+# Carried as foundational context for the run. Tells the dev agent to consult
+# ui-ux-pro-max stack guidelines while building UI and apply its pre-delivery
+# checklist before marking a UI task done.
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/ux-knowledge/dev-ui-guidance.md",
+]

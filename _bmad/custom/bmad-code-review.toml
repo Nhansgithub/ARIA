@@ -1,0 +1,12 @@
+# Team override for bmad-code-review — add a UI/UX review lens via ui-ux-pro-max.
+#
+# Merged OVER .claude/skills/bmad-code-review/customize.toml. Arrays APPEND to
+# the shipped defaults; scalars override. Base file is untouched.
+
+[workflow]
+
+# Carried as foundational context for the run. Adds a UI/UX lens to the
+# adversarial review layers for any changed front-end files.
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/ux-knowledge/review-ui-lens.md",
+]

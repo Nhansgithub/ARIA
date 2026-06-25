@@ -1,0 +1,122 @@
+# generated: 2026-06-25
+# last_updated: 2026-06-25
+# project: ARIA
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+
+generated: 2026-06-25
+last_updated: 2026-06-25
+project: ARIA
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ─── Epic 0: Foundation ───────────────────────────────────────────────────
+  epic-0: in-progress
+  0-1-project-scaffold-ci-and-vercel-deploy: in-progress
+  0-2-supabase-project-schema-and-owner-id-on-every-table: backlog
+  0-3-row-level-security-policies-on-all-tables: backlog
+  0-4-emailpassword-authentication-and-protected-session: backlog
+  0-5-server-side-secret-custody: backlog
+  0-6-authservice-role-boundary-no-service-role-on-owner-data-paths: backlog
+  0-7-ai-call-wrapper-token-logging-cache-contract-and-degradation-envelope: backlog
+  0-8-data-retention-deletion-ai-processing-privacy-notice: backlog
+  epic-0-retrospective: optional
+
+  # ─── Epic 1: Consultant Core ──────────────────────────────────────────────
+  epic-1: backlog
+  1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: backlog
+  1-2-orchestrator-intent-classification-and-routing: backlog
+  1-3-bilingual-detection-and-language-mirroring: backlog
+  1-4-business-context-injection: backlog
+  1-5-guidance-stance-enforcement: backlog
+  1-6-graceful-degradation-envelope-and-ui-banner: backlog
+  1-7-conversational-stub-creation: backlog
+  1-8-deal-intelligence-four-layer-synthesis-with-omission-boundary: backlog
+  1-9-vision-input-screenshot-extraction-and-crm-integration: backlog
+  1-10-decision-maker-tracking-and-stall-diagnosis: backlog
+  1-11-pricing-floor-awareness: backlog
+  1-12-strategy-advisor-and-cross-deal-pattern-detection: backlog
+  1-13-conversation-context-management-and-start-new-topic: backlog
+  1-14-first-run-and-empty-state-onboarding: backlog
+  epic-1-retrospective: optional
+
+  # ─── Epic 2: CRM & Memory ─────────────────────────────────────────────────
+  epic-2: backlog
+  2-1-owner-scoped-persistence-with-append-only-activity-log: backlog
+  2-2-core-crm-tool-surface-create-read-update-via-conversation: backlog
+  2-3-stub-lifecycle-deduplication-enrichment-gate-and-archival: backlog
+  2-4-similar-deal-matching-with-stated-similarity-reason: backlog
+  2-5-ai-maintained-intelligence-fields-idempotent-updates-with-provenance: backlog
+  2-6-conversational-data-maintenance-full-client-and-deal-lifecycle-via-chat: backlog
+  2-7-intelligence-field-persistence-across-sessions: backlog
+  epic-2-retrospective: optional
+
+  # ─── Epic 3: Documents ────────────────────────────────────────────────────
+  epic-3: backlog
+  3-1-document-data-layer-status-lifecycle-and-versioning: backlog
+  3-2-elicitation-outline-generate-flow: backlog
+  3-3-document-viewer-read-edit-and-version-history: backlog
+  3-4-pdf-export-to-storage: backlog
+  3-5-missing-document-detection-and-teaching: backlog
+  3-6-inline-document-edit-and-conversational-re-generation: backlog
+  epic-3-retrospective: optional
+
+  # ─── Epic 4: Briefing & Proactivity ──────────────────────────────────────
+  epic-4: backlog
+  4-1-pipeline-status-synthesis-stage-aware-next-action: backlog
+  4-2-stale-deal-detection-follow-up-cadence-engine: backlog
+  4-3-briefing-generation-job-pg-cron-scheduler-caching: backlog
+  4-4-briefing-structure-detection-logic-ranking: backlog
+  4-5-briefing-panel-ui-app-open-on-demand-item-to-chat-pre-queue: backlog
+  4-6-proactive-check-in-scheduler-trigger-criteria-job: backlog
+  4-7-check-in-delivery-quick-reply-ui-answer-capture: backlog
+  4-8-check-in-cadence-configuration-per-deal-pause: backlog
+  epic-4-retrospective: optional
+
+  # ─── Epic 5: Delivery Channels ───────────────────────────────────────────
+  epic-5: backlog
+  5-1-in-app-delivery-record-notification-indicator: backlog
+  5-2-email-delivery-briefing-and-check-in-formats: backlog
+  5-3-zalo-oa-setup-owner-follow-token-refresh-job: backlog
+  5-4-zalo-oa-chat-send-with-quick-reply-as-numbered-text: backlog
+  5-5-delivery-orchestration-in-app-zalo-email-priorityfallback: backlog
+  5-6-delivery-channel-settings-zalo-not-set-up-graceful-state: backlog
+  epic-5-retrospective: optional
