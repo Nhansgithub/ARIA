@@ -4,7 +4,7 @@ baseline_commit: 8bfde0bb8a66f7d9db9bfad7c7a7fe43af4bdc40
 
 # Story 0.6: Auth/Service-Role Boundary — No Service-Role on Owner-Data Paths (AD-13)
 
-Status: review
+Status: done
 
 ## Story
 

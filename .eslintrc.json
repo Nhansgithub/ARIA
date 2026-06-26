@@ -24,6 +24,23 @@
           }
         ]
       }
+    },
+    {
+      "files": ["app/**/*.ts", "app/**/*.tsx", "lib/**/*.ts", "lib/**/*.tsx"],
+      "excludedFiles": ["lib/ai/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@anthropic-ai/sdk",
+                "message": "AD-1/AD-5: Use callAI() from @/lib/ai instead of the Anthropic SDK directly."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
