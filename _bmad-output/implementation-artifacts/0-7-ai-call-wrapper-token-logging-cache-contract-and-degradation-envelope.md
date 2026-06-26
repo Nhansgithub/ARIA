@@ -4,7 +4,7 @@ baseline_commit: 062ae122b870cb95023da60c29b2e5f33393222c
 
 # Story 0.7: AI Call Wrapper — Token Logging, Cache Contract, and Degradation Envelope (AD-5, AD-6)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

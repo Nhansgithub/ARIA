@@ -57,11 +57,11 @@ development_status:
   0-5-server-side-secret-custody: done
   0-6-authservice-role-boundary-no-service-role-on-owner-data-paths: done
   0-7-ai-call-wrapper-token-logging-cache-contract-and-degradation-envelope: done
-  0-8-data-retention-deletion-ai-processing-privacy-notice: in-progress
+  0-8-data-retention-deletion-ai-processing-privacy-notice: done
   epic-0-retrospective: optional
 
   # ─── Epic 1: Consultant Core ──────────────────────────────────────────────
-  epic-1: backlog
+  epic-1: in-progress
   1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: backlog
   1-2-orchestrator-intent-classification-and-routing: backlog
   1-3-bilingual-detection-and-language-mirroring: backlog

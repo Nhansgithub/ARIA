@@ -4,7 +4,7 @@ baseline_commit: 33d6177989defbbe22a50ebd982a9ddb6ad82da0
 
 # Story 0.8: Data Retention, Deletion & AI-Processing Privacy Notice (PDPL)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
