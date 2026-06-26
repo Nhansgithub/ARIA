@@ -87,26 +87,29 @@ export async function classifyIntent(messages: ChatTurn[]): Promise<Classificati
       model: ARIA_MODELS.economical, // AD-4: cheap/fast for classification
       specialist: 'orchestrator_classify',
       systemPrompt: ORCHESTRATOR_SYSTEM_PROMPT,
-      messages: messages as Parameters<typeof callAI>[0]['messages'],
+      // Slice to last 3 turns — classifier only needs the latest user intent
+      messages: messages.slice(-3) as Parameters<typeof callAI>[0]['messages'],
       maxTokens: 50, // classification JSON is ~30 chars
       timeoutMs: 5_000, // fail fast — user is waiting for the stream to start
     })
 
     if (result.status !== 'ok' || !result.data) {
-      return FALLBACK // AD-6: degraded/error → silent fallback
+      return { ...FALLBACK } // AD-6: degraded/error → silent fallback
     }
 
     // Strip markdown fences if the model ignored the no-fence instruction
-    const raw = result.data.replace(/```json\n?|```/g, '').trim()
+    const raw = result.data.replace(/^```[\w]*\n?|\n?```$/gm, '').trim()
     const parsed = JSON.parse(raw) as { intent?: unknown; confidence?: unknown }
 
     const intent = parsed.intent as IntentBucket
-    if (!VALID_BUCKETS.includes(intent)) return FALLBACK
+    if (!VALID_BUCKETS.includes(intent)) return { ...FALLBACK }
 
-    const confidence = typeof parsed.confidence === 'number' ? parsed.confidence : 1
+    // Default to 0 (unknown) when confidence is absent; clamp to [0, 1]
+    const rawConf = typeof parsed.confidence === 'number' ? parsed.confidence : 0
+    const confidence = Math.min(1, Math.max(0, rawConf))
 
     return { intent, confidence }
   } catch {
-    return FALLBACK // AD-6: parse error or unexpected exception → silent fallback
+    return { ...FALLBACK } // AD-6: parse error or unexpected exception → silent fallback
   }
 }

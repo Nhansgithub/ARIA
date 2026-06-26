@@ -39,14 +39,15 @@ const FALLBACK: ClassificationResult = { intent: 'general_chat', confidence: 0 }
 
 function parseClassification(raw: string): ClassificationResult {
   try {
-    const cleaned = raw.replace(/```json\n?|```/g, '').trim()
+    const cleaned = raw.replace(/^```[\w]*\n?|\n?```$/gm, '').trim()
     const parsed = JSON.parse(cleaned) as { intent?: unknown; confidence?: unknown }
     const intent = parsed.intent as IntentBucket
-    if (!VALID_BUCKETS.includes(intent)) return FALLBACK
-    const confidence = typeof parsed.confidence === 'number' ? parsed.confidence : 1
+    if (!VALID_BUCKETS.includes(intent)) return { ...FALLBACK }
+    const rawConf = typeof parsed.confidence === 'number' ? parsed.confidence : 0
+    const confidence = Math.min(1, Math.max(0, rawConf))
     return { intent, confidence }
   } catch {
-    return FALLBACK
+    return { ...FALLBACK }
   }
 }
 
@@ -94,10 +95,10 @@ test('A3 — parses crm_action bucket', () => {
   assert.strictEqual(r.intent, 'crm_action')
 })
 
-test('A4 — defaults confidence to 1 when field missing', () => {
+test('A4 — defaults confidence to 0 when field missing (unknown, not assumed high)', () => {
   const r = parseClassification('{"intent":"general_chat"}')
   assert.strictEqual(r.intent, 'general_chat')
-  assert.strictEqual(r.confidence, 1)
+  assert.strictEqual(r.confidence, 0)
 })
 
 // ── B: Fallback / error cases ──────────────────────────────────────────────

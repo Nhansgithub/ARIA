@@ -1,7 +1,7 @@
 ---
 story: 1.2
 epic: 1
-status: review
+status: done
 baseline_commit: ed419d4d059cbea7d7a69f752ae0c17369ac0562
 ---
 
@@ -616,3 +616,27 @@ claude-sonnet-4-6
 | 2026-06-26 | Added 13-test suite in `lib/__tests__/orchestrator.test.ts` |
 | 2026-06-26 | Fixed unused `ARIA_MODELS` import in `streamChat.ts` (lint) |
 | 2026-06-26 | Rewrote test as self-contained to fix ts-node ESM module resolution |
+| 2026-06-26 | Code review applied: confidence default 0, clamp, message slice, FALLBACK clone, fence regex |
+
+---
+
+## Senior Developer Review (AI)
+
+**Review Date:** 2026-06-26
+**Outcome:** Changes Requested
+**Reviewers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor
+
+### Review Follow-ups (AI)
+
+- [x] [Review][Patch] Confidence defaults to 1 on missing field — should be 0 (semantically unknown) [orchestrator.ts:106] — update test A4
+- [x] [Review][Patch] Confidence not clamped to [0,1] — add Math.min/Math.max guard [orchestrator.ts:106]
+- [x] [Review][Patch] Full conversation history forwarded to classifier — slice to last 3 messages [orchestrator.ts:87]
+- [x] [Review][Patch] FALLBACK returned by reference — clone on return to prevent mutation [orchestrator.ts]
+- [x] [Review][Patch] Markdown fence regex fragile — improve to handle ` ```json ` with spaces/uppercase [orchestrator.ts:102]
+- [x] [Review][Defer] req.json() body not validated — null messages crashes route [route.ts:33] — deferred, pre-existing
+- [x] [Review][Defer] Empty messages array crashes Anthropic API — no guard in streamChat [streamChat.ts] — deferred, pre-existing
+- [x] [Review][Defer] Classifier serializes before stream — user sees latency [orchestrator.ts] — deferred, architectural
+- [x] [Review][Defer] max_tokens hardcoded 4096 in streamChat regardless of model — deferred, pre-existing Story 1.1
+- [x] [Review][Defer] No rate-limit before AI calls — deferred, out of scope
+- [x] [Review][Defer] streamChat error sentinel visible to user — deferred, pre-existing Story 1.1
+- [x] [Review][Defer] businessContext synthetic 'Understood.' turn concerns — deferred, pre-existing Story 1.1

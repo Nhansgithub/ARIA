@@ -1,5 +1,5 @@
 # generated: 2026-06-25
-# last_updated: 2026-06-26
+# last_updated: 2026-06-26 (story 1.2 done)
 # project: ARIA
 # project_key: NOKEY
 # tracking_system: file-system
@@ -63,7 +63,7 @@ development_status:
   # ─── Epic 1: Consultant Core ──────────────────────────────────────────────
   epic-1: in-progress
   1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: done
-  1-2-orchestrator-intent-classification-and-routing: backlog
+  1-2-orchestrator-intent-classification-and-routing: done
   1-3-bilingual-detection-and-language-mirroring: backlog
   1-4-business-context-injection: backlog
   1-5-guidance-stance-enforcement: backlog
