@@ -1,7 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { getAnthropicApiKey } from '@/lib/secrets'
-import { ARIA_MODELS } from './models'
+import type { AriaModel } from './models'
 
 export interface ChatTurn {
   role: 'user' | 'assistant'
@@ -9,6 +9,8 @@ export interface ChatTurn {
 }
 
 export interface StreamChatOptions {
+  model: AriaModel
+  specialist: string
   systemPrompt: string
   businessContext?: string
   messages: ChatTurn[]
@@ -53,7 +55,7 @@ export function streamChat(options: StreamChatOptions): ReadableStream<Uint8Arra
         // so a client Stop cancels server-side token consumption too.
         const stream = client.messages.stream(
           {
-            model: ARIA_MODELS.highJudgment,
+            model: options.model,
             max_tokens: 4096,
             system,
             messages,
@@ -80,8 +82,8 @@ export function streamChat(options: StreamChatOptions): ReadableStream<Uint8Arra
         console.log(
           '[ARIA/stream]',
           JSON.stringify({
-            model: ARIA_MODELS.highJudgment,
-            specialist: 'chat',
+            model: options.model,
+            specialist: options.specialist,
             input_tokens: usage.input_tokens,
             output_tokens: usage.output_tokens,
             cache_read_input_tokens: usage.cache_read_input_tokens ?? 0,

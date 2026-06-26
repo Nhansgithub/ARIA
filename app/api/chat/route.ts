@@ -2,11 +2,11 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { isPrivacyNoticeAcknowledged } from '@/lib/privacy/checkPrivacyNotice'
 import { streamChat } from '@/lib/ai/streamChat'
+import { classifyIntent, SPECIALIST_SYSTEM_PROMPTS, INTENT_MODEL_MAP } from '@/lib/ai/orchestrator'
 import type { ChatTurn } from '@/lib/ai/streamChat'
 
-const CHAT_SYSTEM_PROMPT = `You are ARIA, an AI business consultant for a Vietnamese service agency founder.
-Answer helpfully in the same language as the user's message (Vietnamese or English).
-Be direct, analytical, and explain your reasoning.`
+// NOTE: CHAT_SYSTEM_PROMPT removed — each intent bucket has its own specialist
+// prompt in lib/ai/orchestrator.ts (AC-8, Story 1.2).
 
 export async function POST(req: NextRequest) {
   const supabase = createServerClient()
@@ -33,9 +33,16 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const messages = body.messages as ChatTurn[]
 
-  // AD-1: streaming call routed through lib/ai/streamChat.ts — no SDK usage in app/
+  // AD-1: orchestrator intercept — classify intent before streaming.
+  // Uses callAI() with the economical model (AD-4: cheap/fast).
+  // Never throws: any failure silently falls back to general_chat (AD-6).
+  const classification = await classifyIntent(messages)
+
+  // Route to specialist: system prompt + model selected by orchestrator (AC-8)
   const stream = streamChat({
-    systemPrompt: CHAT_SYSTEM_PROMPT,
+    model: INTENT_MODEL_MAP[classification.intent],
+    specialist: classification.intent,
+    systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
     messages,
   })
 
