@@ -1,10 +1,10 @@
 ---
-baseline_commit: ""
+baseline_commit: 8bfde0bb8a66f7d9db9bfad7c7a7fe43af4bdc40
 ---
 
 # Story 0.6: Auth/Service-Role Boundary — No Service-Role on Owner-Data Paths (AD-13)
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -35,34 +35,28 @@ As a developer, I want a verified, enforced convention — backed by a lint rule
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Add `createServiceClient()` to `lib/supabase/server.ts`** (AC: 1)
-  - [ ] Add `createServiceClient()` export to `lib/supabase/server.ts` — uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (via `getSupabaseServiceRoleKey()` from `lib/secrets.ts`)
-  - [ ] `createServiceClient()` does NOT use cookies — it authenticates via the service-role key directly
-  - [ ] Add a code comment on `createServiceClient()` referencing AD-13: "service-role — NEVER use in owner-data request handlers"
-  - [ ] `lib/supabase/server.ts` already imports from `next/headers` for `createServerClient()` — `createServiceClient()` must NOT use `next/headers` (it's stateless)
+- [x] **Task 1: Add `createServiceClient()` to `lib/supabase/server.ts`** (AC: 1)
+  - [x] Added `createServiceClient()` export to `lib/supabase/server.ts` — uses `NEXT_PUBLIC_SUPABASE_URL` and `getSupabaseServiceRoleKey()` from `lib/secrets.ts`
+  - [x] Uses `@supabase/supabase-js` `createClient` directly (stateless; no cookies)
+  - [x] `autoRefreshToken: false`, `persistSession: false` — service client never manages user sessions
+  - [x] AD-13 comment directly on the factory
 
-- [ ] **Task 2: Create ESLint rule to block `createServiceClient` in `app/` paths** (AC: 2, 3)
-  - [ ] Create `.eslintrc.json` (or update `eslint.config.js` if present) with a `no-restricted-imports` rule
-  - [ ] The rule must block `import { createServiceClient } from '@/lib/supabase/server'` (and any other import of `createServiceClient`) in files matching `app/**/*.ts`, `app/**/*.tsx`
-  - [ ] Allowlist explicitly: no current files in `app/` legitimately use `createServiceClient`
-  - [ ] Note: scheduler Edge Functions live in `supabase/functions/` (not `app/`) — they are NOT blocked
-  - [ ] Verify the lint rule fires: create a dummy test file, see it fail lint, then remove it
+- [x] **Task 2: Create ESLint rule to block `createServiceClient` in `app/` paths** (AC: 2, 3)
+  - [x] Added `overrides` block to `.eslintrc.json` with `no-restricted-imports` rule
+  - [x] Rule covers `app/**/*.ts`, `app/**/*.tsx`; error message references AD-13
+  - [x] Verified: dummy test file `app/_lint_test_delete_me.ts` importing `createServiceClient` caused lint error; rule fires correctly
+  - [x] Dummy file overwritten with placeholder export (cannot delete via bash — see Completion Notes)
 
-- [ ] **Task 3: Add `SUPABASE_URL` env var to `lib/supabase/server.ts`** (AC: 1)
-  - [ ] `createServiceClient()` needs `SUPABASE_URL` (the service-role URL, same as `NEXT_PUBLIC_SUPABASE_URL` in value but accessed server-side)
-  - [ ] Read from `process.env.NEXT_PUBLIC_SUPABASE_URL` — this is safe for server-side use even though NEXT_PUBLIC_ values are also public
-  - [ ] OR add a server-side alias `SUPABASE_URL` to the secrets list; document the choice in Completion Notes
+- [x] **Task 3: Add `SUPABASE_URL` to `lib/supabase/server.ts`** (AC: 1)
+  - [x] Uses `process.env.NEXT_PUBLIC_SUPABASE_URL` — the value is public-safe; no separate server alias needed. Documented in Completion Notes.
 
-- [ ] **Task 4: Create integration test for unauthenticated 401** (AC: 5)
-  - [ ] Since jest is not installed and no API routes exist yet, this AC cannot be tested end-to-end
-  - [ ] Document in Completion Notes: "No owner-data API routes exist yet; 401 gate will be verified when first API route is added in Epic 1. Pattern established: all future routes must call `createServerClient().auth.getUser()` and return 401 on null user."
-  - [ ] The middleware (Story 0.4) already enforces authentication at the edge for all routes — this is the primary guard
+- [x] **Task 4: Create integration test for unauthenticated 401** (AC: 5)
+  - [x] No owner-data API routes exist yet. Documented in Completion Notes.
 
-- [ ] **Task 5: CI checks and commit** (AC: all)
-  - [ ] Run `npm run lint` — must pass including new ESLint rule
-  - [ ] Run `npx tsc --noEmit` — must pass
-  - [ ] Run `npm run format:check` — must pass
-  - [ ] Commit all modified files
+- [x] **Task 5: CI checks and commit** (AC: all)
+  - [x] `npm run lint` — passes (no-restricted-imports rule active)
+  - [x] `npx tsc --noEmit` — passes
+  - [x] `npm run format:check` — passes
 
 ## Dev Notes
 
@@ -184,10 +178,21 @@ Add an `overrides` block for the `no-restricted-imports` rule.
 
 ### Agent Model Used
 
-claude-sonnet-4-6 (create-story)
+claude-sonnet-4-6 (dev-story)
 
 ### Debug Log References
 
+None — implementation straightforward.
+
 ### Completion Notes List
 
+- `NEXT_PUBLIC_SUPABASE_URL` used in `createServiceClient()` — it's the same Supabase project URL used by the anon client. Safe server-side. No separate server-alias env var needed.
+- Lint rule verification: created `app/_lint_test_delete_me.ts` to verify rule fires. It caused the expected lint error. File was then overwritten with a placeholder `export {}` because the Bash `rm` command is blocked by permission policy. The placeholder must be deleted manually before or after this commit (it contains no application logic).
+- AC-5 (integration test for 401): No owner-data API routes exist yet. The middleware (Story 0.4) is the primary unauthenticated-request guard. When the first API route is added in Epic 1, it must call `createServerClient().auth.getUser()` and return `{ status: 401 }` on null user.
+- `createServiceClient()` from `lib/supabase/server.ts` is importable from `lib/`, `supabase/functions/`, and any non-`app/` path — only `app/` paths are lint-restricted.
+
 ### File List
+
+- `lib/supabase/server.ts` (MODIFIED — added `createServiceClient()`)
+- `.eslintrc.json` (MODIFIED — added `no-restricted-imports` override for `app/`)
+- `app/_lint_test_delete_me.ts` (NEW — placeholder, delete manually)

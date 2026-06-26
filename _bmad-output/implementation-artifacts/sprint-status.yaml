@@ -55,7 +55,7 @@ development_status:
   0-3-row-level-security-policies-on-all-tables: done
   0-4-emailpassword-authentication-and-protected-session: done
   0-5-server-side-secret-custody: done
-  0-6-authservice-role-boundary-no-service-role-on-owner-data-paths: ready-for-dev
+  0-6-authservice-role-boundary-no-service-role-on-owner-data-paths: in-progress
   0-7-ai-call-wrapper-token-logging-cache-contract-and-degradation-envelope: backlog
   0-8-data-retention-deletion-ai-processing-privacy-notice: backlog
   epic-0-retrospective: optional
