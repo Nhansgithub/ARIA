@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, RotateCcw } from 'lucide-react'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { detectLanguage } from '@/lib/language/detectLanguage'
 
@@ -11,6 +11,7 @@ export interface Message {
   content: string
   timestamp: Date
   stopped?: boolean
+  degraded?: boolean
 }
 
 interface MessageBubbleProps {
@@ -19,6 +20,7 @@ interface MessageBubbleProps {
   isLastMessage?: boolean
   expanded: boolean
   onExpand: () => void
+  onRetry?: () => void
 }
 
 const COLLAPSE_THRESHOLD = 400
@@ -62,6 +64,7 @@ export function MessageBubble({
   isLastMessage,
   expanded,
   onExpand,
+  onRetry,
 }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false)
 
@@ -204,6 +207,32 @@ export function MessageBubble({
               }}
             >
               Read more
+            </button>
+          )}
+
+          {/* Retry button — visible only for degraded messages when not streaming */}
+          {message.degraded && !isStreaming && onRetry && (
+            <button
+              onClick={onRetry}
+              aria-label="Retry AI response"
+              style={{
+                marginTop: 8,
+                background: 'transparent',
+                border: '1px solid rgba(245,158,11,0.40)',
+                color: '#F59E0B',
+                fontSize: 12,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 500,
+                cursor: 'pointer',
+                padding: '4px 10px',
+                borderRadius: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <RotateCcw size={12} aria-hidden="true" />
+              Retry
             </button>
           )}
         </div>
