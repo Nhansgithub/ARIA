@@ -51,7 +51,7 @@ development_status:
   # ─── Epic 0: Foundation ───────────────────────────────────────────────────
   epic-0: in-progress
   0-1-project-scaffold-ci-and-vercel-deploy: done
-  0-2-supabase-project-schema-and-owner-id-on-every-table: review
+  0-2-supabase-project-schema-and-owner-id-on-every-table: done
   0-3-row-level-security-policies-on-all-tables: backlog
   0-4-emailpassword-authentication-and-protected-session: backlog
   0-5-server-side-secret-custody: backlog

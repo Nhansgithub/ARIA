@@ -4,7 +4,7 @@ baseline_commit: 3c4b4092f564a6be468d654b29a887e80ae45a6f
 
 # Story 0.2: Supabase Project, Schema, and owner_id on Every Table
 
-Status: review
+Status: done
 
 ## Story
 
