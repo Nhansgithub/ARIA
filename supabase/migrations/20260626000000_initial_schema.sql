@@ -121,7 +121,7 @@ CREATE TABLE activity_log (
 );
 
 CREATE INDEX activity_log_owner_id_idx ON activity_log (owner_id);
-CREATE INDEX activity_log_entity_id_idx ON activity_log (entity_id);
+CREATE INDEX activity_log_entity_type_id_idx ON activity_log (entity_type, entity_id);
 
 -- ------------------------------------
 -- briefings
@@ -137,7 +137,8 @@ CREATE TABLE briefings (
   UNIQUE (owner_id, date)
 );
 
-CREATE INDEX briefings_owner_id_idx ON briefings (owner_id);
+-- Note: UNIQUE(owner_id, date) already creates an index with owner_id as leftmost key;
+-- no separate owner_id-only index needed.
 
 -- ------------------------------------
 -- check_ins
@@ -181,4 +182,4 @@ CREATE TABLE settings (
   UNIQUE (owner_id)
 );
 
-CREATE INDEX settings_owner_id_idx ON settings (owner_id);
+-- Note: UNIQUE(owner_id) already creates an index; no separate owner_id index needed.
