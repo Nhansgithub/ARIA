@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npx ts-node lib/__tests__/crypto.test.ts && npx ts-node lib/__tests__/callAI.test.ts && npx ts-node lib/__tests__/orchestrator.test.ts && npx ts-node lib/__tests__/detectLanguage.test.ts"
+    "test": "npx ts-node lib/__tests__/crypto.test.ts && npx ts-node lib/__tests__/callAI.test.ts && npx ts-node lib/__tests__/orchestrator.test.ts && npx ts-node lib/__tests__/detectLanguage.test.ts && npx ts-node lib/__tests__/businessContext.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",

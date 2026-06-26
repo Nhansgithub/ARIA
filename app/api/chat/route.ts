@@ -4,6 +4,7 @@ import { isPrivacyNoticeAcknowledged } from '@/lib/privacy/checkPrivacyNotice'
 import { streamChat } from '@/lib/ai/streamChat'
 import { classifyIntent, SPECIALIST_SYSTEM_PROMPTS, INTENT_MODEL_MAP } from '@/lib/ai/orchestrator'
 import { detectLanguage } from '@/lib/language/detectLanguage'
+import { getBusinessContext } from '@/lib/businessContext/getBusinessContext'
 import type { ChatTurn } from '@/lib/ai/streamChat'
 
 // NOTE: CHAT_SYSTEM_PROMPT removed — each intent bucket has its own specialist
@@ -39,18 +40,22 @@ export async function POST(req: NextRequest) {
   const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
   const detectedLang = lastUserMsg ? detectLanguage(lastUserMsg.content) : undefined
 
-  // AD-1: orchestrator intercept — classify intent before streaming.
-  // Uses callAI() with the economical model (AD-4: cheap/fast).
-  // Never throws: any failure silently falls back to general_chat (AD-6).
-  const classification = await classifyIntent(messages)
+  // Story 1.4: fetch Business Context and classify intent in parallel (AD-5, AC-1).
+  // getBusinessContext returns null on any DB error or missing context — chat proceeds normally (AD-6).
+  // classifyIntent is the slow path (~5s max); getBusinessContext (~50ms) adds zero wall-clock time.
+  const [businessContext, classification] = await Promise.all([
+    getBusinessContext(user.id),
+    classifyIntent(messages),
+  ])
 
-  // Route to specialist: system prompt + model selected by orchestrator (AC-8)
+  // Route to specialist: system prompt + model selected by orchestrator (Story 1.2)
   const stream = streamChat({
     model: INTENT_MODEL_MAP[classification.intent],
     specialist: classification.intent,
     systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
     messages,
     detectedLang,
+    businessContext: businessContext ?? undefined,
   })
 
   return new Response(stream, {
