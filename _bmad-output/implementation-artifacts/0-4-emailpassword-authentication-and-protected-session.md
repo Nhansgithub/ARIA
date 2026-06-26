@@ -1,10 +1,10 @@
 ---
-baseline_commit: ""
+baseline_commit: 578c8d516abf8e39dacaa73459e134192936a2e9
 ---
 
 # Story 0.4: Email/Password Authentication and Protected Session
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -38,43 +38,40 @@ As an Owner, I want to sign up and sign in with email and password — and have 
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Install Supabase auth packages** (AC: all)
-  - [ ] Run `npm install @supabase/supabase-js @supabase/ssr`
-  - [ ] Verify both packages appear in `dependencies` in `package.json`
+- [x] **Task 1: Install Supabase auth packages** (AC: all)
+  - [x] Run `npm install @supabase/supabase-js @supabase/ssr`
+  - [x] Verify both packages appear in `dependencies` in `package.json`
 
-- [ ] **Task 2: Create Supabase client utilities** (AC: 1, 2, 4, 6)
-  - [ ] Create `lib/supabase/client.ts` — browser client factory using `createBrowserClient` from `@supabase/ssr`
-  - [ ] Create `lib/supabase/server.ts` — server client factory `createServerClient()` using `createServerClient` from `@supabase/ssr` with `next/headers` cookie store
-  - [ ] Note: `createServiceClient()` (service-role) is added in Story 0.6; do NOT add it here
+- [x] **Task 2: Create Supabase client utilities** (AC: 1, 2, 4, 6)
+  - [x] Create `lib/supabase/client.ts` — browser client factory using `createBrowserClient` from `@supabase/ssr`
+  - [x] Create `lib/supabase/server.ts` — server client factory `createServerClient()` using `createServerClient` from `@supabase/ssr` with `next/headers` cookie store
+  - [x] Note: `createServiceClient()` (service-role) is added in Story 0.6; do NOT add it here
 
-- [ ] **Task 3: Create Next.js middleware for route protection** (AC: 3)
-  - [ ] Create `middleware.ts` at project root
-  - [ ] Middleware refreshes the Supabase session (updates cookies) on every request
-  - [ ] If no authenticated user and path does NOT start with `/auth`, redirect to `/auth/login`
-  - [ ] Allow all `/auth/*` paths through without auth check
-  - [ ] Matcher config excludes `_next/static`, `_next/image`, `favicon.ico`
+- [x] **Task 3: Create Next.js middleware for route protection** (AC: 3)
+  - [x] Create `middleware.ts` at project root
+  - [x] Middleware refreshes the Supabase session (updates cookies) on every request
+  - [x] If no authenticated user and path does NOT start with `/auth`, redirect to `/auth/login`
+  - [x] Allow all `/auth/*` paths through without auth check
+  - [x] Matcher config excludes `_next/static`, `_next/image`, `favicon.ico`
 
-- [ ] **Task 4: Create auth pages** (AC: 1, 2)
-  - [ ] Create `app/auth/login/page.tsx` — Client Component with email/password form; calls `supabase.auth.signInWithPassword()`; redirects to `/` on success
-  - [ ] Create `app/auth/signup/page.tsx` — Client Component with email/password form; calls `supabase.auth.signUp()`; shows "Check your email" on success
-  - [ ] Create `app/auth/callback/route.ts` — Route Handler that exchanges `code` query param for a Supabase session (`exchangeCodeForSession`); redirects to `/` on success or `/auth/login?error=…` on failure
-  - [ ] Create `app/auth/layout.tsx` — minimal centered layout for auth pages (no navigation)
+- [x] **Task 4: Create auth pages** (AC: 1, 2)
+  - [x] Create `app/auth/login/page.tsx` — Client Component with email/password form; calls `supabase.auth.signInWithPassword()`; redirects to `/` on success
+  - [x] Create `app/auth/signup/page.tsx` — Client Component with email/password form; calls `supabase.auth.signUp()`; shows "Check your email" on success
+  - [x] Create `app/auth/callback/route.ts` — Route Handler that exchanges `code` query param for a Supabase session (`exchangeCodeForSession`); redirects to `/` on success or `/auth/login?error=…` on failure
+  - [x] Create `app/auth/layout.tsx` — minimal centered layout for auth pages (no navigation)
 
-- [ ] **Task 5: Update app home to authenticated stub** (AC: 3, 5, 6)
-  - [ ] Update `app/page.tsx` — Server Component showing signed-in user's email; includes logout form; adds server-side `supabase.auth.getUser()` redirect-to-login fallback (defense in depth)
-  - [ ] Create `app/actions/auth.ts` — Server Action `logout()` that calls `supabase.auth.signOut()` and redirects to `/auth/login`
+- [x] **Task 5: Update app home to authenticated stub** (AC: 3, 5, 6)
+  - [x] Update `app/page.tsx` — Server Component showing signed-in user's email; includes logout form; adds server-side `supabase.auth.getUser()` redirect-to-login fallback (defense in depth)
+  - [x] Create `app/actions/auth.ts` — Server Action `logout()` that calls `supabase.auth.signOut()` and redirects to `/auth/login`
 
-- [ ] **Task 6: Document environment variables** (AC: all)
-  - [ ] `.env.example` is blocked by deny rules — document as manual prerequisite:
-    - `NEXT_PUBLIC_SUPABASE_URL=<your-project-url>` (safe for client)
-    - `NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>` (safe for client; NOT the service role key)
-  - [ ] Note in Completion Notes that user must set these in `.env.local` and Vercel before auth works
+- [x] **Task 6: Document environment variables** (AC: all)
+  - [x] `.env.example` is blocked by deny rules — documented in Completion Notes as manual prerequisite
 
-- [ ] **Task 7: CI checks and commit** (AC: all)
-  - [ ] Run `npm run lint` — must pass
-  - [ ] Run `npx tsc --noEmit` — must pass
-  - [ ] Run `npm run format:check` — must pass
-  - [ ] Commit all new and modified files
+- [x] **Task 7: CI checks and commit** (AC: all)
+  - [x] Run `npm run lint` — passes
+  - [x] Run `npx tsc --noEmit` — passes
+  - [x] Run `npm run format:check` — passes
+  - [x] Commit all new and modified files
 
 ## Dev Notes
 
@@ -544,10 +541,32 @@ No automated tests yet. Manual verification (local with Docker / Supabase Studio
 
 ### Agent Model Used
 
-claude-sonnet-4-6 (create-story)
+claude-sonnet-4-6 (dev-story)
 
 ### Debug Log References
 
+None — all tasks completed cleanly. `npx tsc --noEmit` passes with no type errors.
+
 ### Completion Notes List
 
+- `npm audit` shows pre-existing vulnerabilities in Next.js 14.x (not in `@supabase/supabase-js` or `@supabase/ssr`). Fix requires Next.js 16 upgrade (breaking change, out of scope).
+- `.env.example` blocked by deny rules — user must manually add to `.env.local` before auth works:
+  - `NEXT_PUBLIC_SUPABASE_URL=<your-supabase-project-url>`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>`
+  - Also add to Vercel environment variables for production.
+- Supabase Auth callback redirect URL must be configured in Supabase Dashboard (Auth > URL Configuration): add `http://localhost:3000/auth/callback` for local and `<production-domain>/auth/callback` for prod.
+- Auth cannot be manually tested without Docker (Supabase local) or a cloud Supabase project. Test against the cloud project using the env vars above.
+- `createServiceClient()` (service-role key) is intentionally NOT added here — it belongs in Story 0.6.
+
 ### File List
+
+- `lib/supabase/client.ts` (NEW)
+- `lib/supabase/server.ts` (NEW)
+- `middleware.ts` (NEW)
+- `app/auth/layout.tsx` (NEW)
+- `app/auth/login/page.tsx` (NEW)
+- `app/auth/signup/page.tsx` (NEW)
+- `app/auth/callback/route.ts` (NEW)
+- `app/actions/auth.ts` (NEW)
+- `app/page.tsx` (MODIFIED — replaced placeholder with authenticated stub)
+- `package.json` (MODIFIED — added `@supabase/supabase-js`, `@supabase/ssr`)
