@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MAX_BUSINESS_CONTEXT_CHARS } from '@/lib/businessContext/constants'
 
 const PLACEHOLDER = `My agency overview:
@@ -25,10 +25,20 @@ export function BusinessContextPanel() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle')
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     fetch('/api/business-context')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('fetch failed')
+        return r.json()
+      })
       .then((data) => {
         const ctx = data.businessContext ?? ''
         setContent(ctx)
@@ -50,7 +60,7 @@ export function BusinessContextPanel() {
       if (!res.ok) throw new Error('save failed')
       setInitialContent(content)
       setStatus('saved')
-      setTimeout(() => setStatus('idle'), 2500)
+      savedTimerRef.current = setTimeout(() => setStatus('idle'), 2500)
     } catch {
       setStatus('error')
     } finally {

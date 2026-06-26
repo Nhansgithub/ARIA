@@ -1,7 +1,7 @@
 ---
 story: 1.4
 epic: 1
-status: review
+status: done
 baseline_commit: 9d42bc6242ba59d495c288855511663fd48cbf54
 ---
 
@@ -91,6 +91,25 @@ Note: ARIA-initiated calls to this function (AC-4 from spec) are triggered by fu
   - [x] `npm run lint` — clean
   - [x] `npm run format:check` — clean
   - [x] `npm run build` — succeeds; new `/api/business-context` route verified
+
+### Review Findings (Senior Developer Review — AI)
+
+**Date:** 2026-06-26 | **Outcome:** Changes Requested | **Layers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor
+
+**Dismissed: 20** (false positives and by-design behaviors — see triage notes below tasks)
+
+#### Patches
+
+- [x] [Review][Patch][Med] Wrap `req.json()` in try/catch in PUT handler — malformed JSON body returns 500 instead of 400 [`app/api/business-context/route.ts:39`]
+- [x] [Review][Patch][Low] Check `r.ok` before calling `.json()` in client GET fetch — non-2xx response body silently parsed as context, no error shown [`components/settings/BusinessContextPanel.tsx:13-22`]
+- [x] [Review][Patch][Low] Clear `setTimeout` on component unmount — timer fires after navigation, triggers React setState warning [`components/settings/BusinessContextPanel.tsx:53`]
+
+#### Deferred
+
+- [x] [Review][Defer] `content.trim()` before length check in PUT — cosmetic UX; leading/trailing whitespace counts toward limit [`app/api/business-context/route.ts:42`] — deferred, low risk MVP
+- [x] [Review][Defer] Auth error from `supabase.auth.getUser()` not logged in GET/PUT handlers — observability gap; 401 returned but auth failure not visible in logs — deferred, pre-existing pattern across routes
+- [x] [Review][Defer] SQL `ALTER TYPE ... ADD VALUE` is irreversible in PostgreSQL — no rollback path for `'settings'` enum value [`supabase/migrations/20260626040000_activity_log_settings_entity.sql`] — deferred, known PostgreSQL limitation
+- [x] [Review][Defer] `trimToTokenBudget` inlined in test rather than imported — tests the copy, not the real function [`lib/__tests__/businessContext.test.ts`] — deferred, accepted tradeoff for ts-node server-only isolation
 
 ---
 

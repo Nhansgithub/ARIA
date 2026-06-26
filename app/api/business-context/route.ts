@@ -36,8 +36,13 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await req.json()
-  const content = body.businessContext
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+  const content = (body as Record<string, unknown>).businessContext
 
   if (typeof content !== 'string') {
     return NextResponse.json({ error: 'businessContext must be a string' }, { status: 400 })
