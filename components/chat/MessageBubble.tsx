@@ -66,7 +66,10 @@ export function MessageBubble({
 
   const isUser = message.role === 'user'
   const showCursor = isStreaming && isLastMessage && !isUser
-  const isCollapsible = !isUser && message.content.length > COLLAPSE_THRESHOLD
+  // Never collapse while the message is actively streaming — the content
+  // crosses 400 chars mid-stream and a collapse at that moment is disorienting.
+  const isCollapsible =
+    !isUser && !(isStreaming && isLastMessage) && message.content.length > COLLAPSE_THRESHOLD
   const showCollapsed = isCollapsible && !expanded
 
   async function handleCopy() {
@@ -143,8 +146,12 @@ export function MessageBubble({
             {copied ? <Check size={14} color="#14b8a6" /> : <Copy size={14} />}
           </button>
 
-          {/* Message content */}
-          <div aria-live="polite" style={{ paddingRight: message.content ? 24 : 0 }}>
+          {/* Message content — live region is off during streaming to avoid
+              a screen-reader torrent of per-token announcements */}
+          <div
+            aria-live={isStreaming && isLastMessage ? 'off' : 'polite'}
+            style={{ paddingRight: message.content ? 24 : 0 }}
+          >
             {showCollapsed ? (
               <div style={{ position: 'relative' }}>
                 <div style={{ maxHeight: 120, overflow: 'hidden' }}>

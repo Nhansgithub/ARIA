@@ -62,7 +62,7 @@ development_status:
 
   # ─── Epic 1: Consultant Core ──────────────────────────────────────────────
   epic-1: in-progress
-  1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: review
+  1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: done
   1-2-orchestrator-intent-classification-and-routing: backlog
   1-3-bilingual-detection-and-language-mirroring: backlog
   1-4-business-context-injection: backlog

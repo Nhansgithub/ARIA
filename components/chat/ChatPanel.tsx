@@ -29,10 +29,10 @@ export default function ChatPanel() {
   }
 
   function handleStop() {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    setIsStreaming(false)
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = null
+    // isStreaming is cleared in the AbortError catch branch so there is no
+    // window where isStreaming=false but the reader loop is still executing.
     setMessages((prev) => {
       const msgs = [...prev]
       const lastIdx = msgs.length - 1
@@ -129,9 +129,11 @@ export default function ChatPanel() {
       }
 
       setIsStreaming(false)
+      abortControllerRef.current = null
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
-        // handleStop() already updated state
+        // handleStop() marked the message stopped; we just clear streaming state
+        setIsStreaming(false)
         return
       }
       setIsStreaming(false)

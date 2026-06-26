@@ -1,13 +1,13 @@
 ---
 story: 1.1
 epic: 1
-status: review
+status: done
 baseline_commit: c2efd6a6ade5402913cd2210c48e68cd71ad970c
 ---
 
 # Story 1.1: Chat UI Shell — Markdown Rendering, Streaming, Stop, and Copy
 
-Status: review
+Status: done
 
 ## Story
 

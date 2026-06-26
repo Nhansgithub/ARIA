@@ -49,6 +49,8 @@ export function streamChat(options: StreamChatOptions): ReadableStream<Uint8Arra
   return new ReadableStream({
     async start(controller) {
       try {
+        // TODO: pass AbortSignal through to the SDK once Anthropic supports it,
+        // so a client Stop cancels server-side token consumption too.
         const stream = client.messages.stream(
           {
             model: ARIA_MODELS.highJudgment,

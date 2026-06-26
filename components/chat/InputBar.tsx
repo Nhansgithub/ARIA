@@ -117,8 +117,8 @@ export function InputBar({ value, onChange, onSend, onStop, isStreaming }: Input
           disabled={!value.trim()}
           aria-label="Send message"
           style={{
-            width: 36,
-            height: 36,
+            minWidth: 44,
+            minHeight: 44,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
