@@ -1,7 +1,7 @@
 ---
 story: 1.3
 epic: 1
-status: in-progress
+status: done
 baseline_commit: fd4bd00aac3307b4603463798f33a613bec29496
 ---
 
@@ -341,6 +341,16 @@ function detectLanguage(text: string): 'vi' | 'en' {
 - `app/api/chat/route.ts` — detect language of latest user message, pass `detectedLang` to `streamChat()`
 - `components/chat/MessageBubble.tsx` — apply `lang` attribute to ARIA message bubbles
 - `package.json` — add detectLanguage test to test script
+
+### Review Findings
+
+- [x] [Review][Patch] P1 — Empty/no-user-turn silently injects English directive; pass `undefined` instead of `detectLanguage('')` [app/api/chat/route.ts:38]
+- [x] [Review][Patch] P2 — User bubble `lang` hardcoded `'vi'` regardless of actual user message language; call `detectLanguage(message.content)` for user bubble too [components/chat/MessageBubble.tsx:71]
+- [x] [Review][Patch] P3 — NFD-normalised Vietnamese text misdetected as English; add `text = text.normalize('NFC')` at start of function [lib/language/detectLanguage.ts:9]
+- [x] [Review][Defer] D1 — Diacritics-free Vietnamese input (e.g. "ok anh oi") defaults to English — known limitation per spec dev notes [lib/language/detectLanguage.ts] — deferred, accepted per spec
+- [x] [Review][Defer] D2 — `detectLanguage` called every render; streaming `lang` flips mid-stream before Vietnamese chars arrive — architecture limitation [components/chat/MessageBubble.tsx:71] — deferred, inherent to current streaming design
+- [x] [Review][Defer] D3 — No runtime validation that `body.messages` is an array before `.reverse()` [app/api/chat/route.ts:35] — deferred, pre-existing
+- [x] [Review][Defer] D4 — Test inlines `detectLanguage` rather than importing real module — project convention for ts-node tests [lib/__tests__/detectLanguage.test.ts:4] — deferred, project convention
 
 ### Change Log
 

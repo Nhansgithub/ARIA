@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const messages = body.messages as ChatTurn[]
 
-  // Story 1.3: detect language of the latest user turn for response mirroring (AC-1–AC-3)
+  // Story 1.3: detect language of the latest user turn for response mirroring (AC-1–AC-3).
+  // Passes undefined (not 'en') when no user turn exists so the language directive is skipped.
   const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
-  const detectedLang = detectLanguage(lastUserMsg?.content ?? '')
+  const detectedLang = lastUserMsg ? detectLanguage(lastUserMsg.content) : undefined
 
   // AD-1: orchestrator intercept — classify intent before streaming.
   // Uses callAI() with the economical model (AD-4: cheap/fast).

@@ -7,8 +7,10 @@
 //   0x1EA0–0x1EF9  Vietnamese Extended Latin block (all toned vowel variants)
 // English text never contains any of these characters.
 export function detectLanguage(text: string): 'vi' | 'en' {
-  for (let i = 0; i < text.length; i++) {
-    const cp = text.charCodeAt(i)
+  // NFC normalisation ensures precomposed and NFD-decomposed forms both match
+  const s = text.normalize('NFC')
+  for (let i = 0; i < s.length; i++) {
+    const cp = s.charCodeAt(i)
     if (
       (cp >= 0x0102 && cp <= 0x0103) ||
       (cp >= 0x0110 && cp <= 0x0111) ||

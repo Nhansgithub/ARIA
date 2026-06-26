@@ -67,8 +67,10 @@ export function MessageBubble({
 
   const isUser = message.role === 'user'
   const showCursor = isStreaming && isLastMessage && !isUser
-  // AC-5: lang attribute for screen-reader pronunciation support
-  const bubbleLang = isUser ? 'vi' : detectLanguage(message.content)
+  // AC-5: lang attribute for screen-reader pronunciation support.
+  // Both user and ARIA bubbles use detectLanguage — user bubbles are typically 'vi' but English
+  // users should not have their text announced with Vietnamese phonology.
+  const bubbleLang = detectLanguage(message.content)
   // Never collapse while the message is actively streaming — the content
   // crosses 400 chars mid-stream and a collapse at that moment is disorienting.
   const isCollapsible =

@@ -64,7 +64,7 @@ development_status:
   epic-1: in-progress
   1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: done
   1-2-orchestrator-intent-classification-and-routing: done
-  1-3-bilingual-detection-and-language-mirroring: in-progress
+  1-3-bilingual-detection-and-language-mirroring: done
   1-4-business-context-injection: backlog
   1-5-guidance-stance-enforcement: backlog
   1-6-graceful-degradation-envelope-and-ui-banner: backlog
