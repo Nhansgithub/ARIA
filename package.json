@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo 'No tests configured yet'"
+    "test": "npx ts-node lib/__tests__/crypto.test.ts && npx ts-node lib/__tests__/callAI.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",

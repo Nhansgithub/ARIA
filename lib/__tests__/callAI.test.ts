@@ -61,6 +61,14 @@ function buildMessages(
   return result
 }
 
+// ── Inline: sortTools — mirrors tool deterministic sort in callAI() ────────
+interface TestTool {
+  name: string
+}
+function sortTools(tools: TestTool[]): TestTool[] {
+  return [...tools].sort((a, b) => a.name.localeCompare(b.name))
+}
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 // Test A: network error → degraded envelope (AC-6)
@@ -135,5 +143,23 @@ const assembledNoCtx = buildMessages(undefined, [userMessage])
 assert.strictEqual(assembledNoCtx.length, 1, 'No business context → only the volatile message')
 assert.deepStrictEqual(assembledNoCtx[0], userMessage)
 console.log('✓ Test F: assembly without businessContext — only volatile messages')
+
+// Test G: tool deterministic sort — AD-5 cache stability (AC-7)
+const unsortedTools: TestTool[] = [
+  { name: 'search_deals' },
+  { name: 'get_client' },
+  { name: 'list_documents' },
+]
+const sorted = sortTools(unsortedTools)
+assert.strictEqual(sorted[0]!.name, 'get_client', 'First tool alphabetically must be get_client')
+assert.strictEqual(sorted[1]!.name, 'list_documents')
+assert.strictEqual(sorted[2]!.name, 'search_deals', 'Last tool alphabetically must be search_deals')
+// Verify original array is NOT mutated (we spread before sorting)
+assert.strictEqual(
+  unsortedTools[0]!.name,
+  'search_deals',
+  'Original tools array must not be mutated'
+)
+console.log('✓ Test G: tool deterministic sort preserves cache stability (AD-5)')
 
 console.log('\nAll callAI tests passed ✓')

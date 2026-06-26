@@ -26,8 +26,15 @@
       }
     },
     {
-      "files": ["app/**/*.ts", "app/**/*.tsx", "lib/**/*.ts", "lib/**/*.tsx"],
-      "excludedFiles": ["lib/ai/**/*.ts"],
+      "files": [
+        "app/**/*.ts",
+        "app/**/*.tsx",
+        "lib/**/*.ts",
+        "lib/**/*.tsx",
+        "services/**/*.ts",
+        "services/**/*.tsx"
+      ],
+      "excludedFiles": ["lib/ai/**/*.ts", "lib/__tests__/**/*.ts"],
       "rules": {
         "no-restricted-imports": [
           "error",

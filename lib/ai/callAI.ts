@@ -2,6 +2,7 @@ import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { randomUUID } from 'crypto'
 import { getAnthropicApiKey } from '@/lib/secrets'
+import { ARIA_MODELS } from './models'
 import type { AriaModel } from './models'
 
 export type AIEnvelope<T = string> =
@@ -39,8 +40,7 @@ export async function callAI(options: CallAIOptions): Promise<AIEnvelope> {
   const client = new Anthropic({ apiKey: getAnthropicApiKey() })
 
   const timeoutMs = options.timeoutMs ?? 10_000
-  const maxTokens =
-    options.maxTokens ?? (options.model === 'claude-haiku-4-5-20251001' ? 1024 : 4096)
+  const maxTokens = options.maxTokens ?? (options.model === ARIA_MODELS.economical ? 1024 : 4096)
 
   // AD-5: system prompt is the first cache_control breakpoint (byte-stable per specialist)
   const system: Anthropic.TextBlockParam[] = [
@@ -137,7 +137,11 @@ export async function callAI(options: CallAIOptions): Promise<AIEnvelope> {
     }
 
     if (err instanceof Error) {
-      if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      if (
+        err.name === 'AbortError' ||
+        err.name === 'TimeoutError' ||
+        err.name === 'APITimeoutError'
+      ) {
         return { status: 'degraded', data: null, degraded_reason: 'Request timed out' }
       }
       return { status: 'degraded', data: null, degraded_reason: err.message }
