@@ -14,20 +14,37 @@ export interface StreamChatOptions {
   systemPrompt: string
   businessContext?: string
   messages: ChatTurn[]
+  detectedLang?: 'vi' | 'en'
+}
+
+// Language directives injected as a volatile (non-cached) system block (AD-5).
+// Vietnamese register: B2B formal address + oblique tone + no urgency language.
+// English register: direct, recommendation-first, no filler phrases.
+const LANG_DIRECTIVE: Record<'vi' | 'en', string> = {
+  vi: 'LANGUAGE: Vietnamese (vi). Address the Owner as "Anh". Acknowledge difficulties obliquely. Avoid urgency or pressure language. Respond entirely in Vietnamese.',
+  en: 'LANGUAGE: English (en). Be direct and analytical. Lead with the recommendation, then evidence. No filler phrases ("Great question!", "Certainly!").',
 }
 
 export function streamChat(options: StreamChatOptions): ReadableStream<Uint8Array> {
   const client = new Anthropic({ apiKey: getAnthropicApiKey() })
   const encoder = new TextEncoder()
 
-  // AD-5: system prompt is the first cache_control breakpoint
+  // AD-5: block 1 (cached) = stable specialist prompt; block 2 (volatile) = language directive
   const system: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
       text: options.systemPrompt,
-      cache_control: { type: 'ephemeral' },
+      cache_control: { type: 'ephemeral' }, // last cache breakpoint — everything before is cached
     },
   ]
+  // Language directive is volatile (changes per message) and intentionally has no cache_control.
+  // It sits after the last cache breakpoint so block 1 cache hits are unaffected (AD-5).
+  if (options.detectedLang) {
+    system.push({
+      type: 'text',
+      text: LANG_DIRECTIVE[options.detectedLang],
+    })
+  }
 
   // AD-5: assemble stable prefix first, then volatile conversation turns
   const messages: Anthropic.MessageParam[] = []

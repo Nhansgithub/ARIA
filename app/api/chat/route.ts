@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { isPrivacyNoticeAcknowledged } from '@/lib/privacy/checkPrivacyNotice'
 import { streamChat } from '@/lib/ai/streamChat'
 import { classifyIntent, SPECIALIST_SYSTEM_PROMPTS, INTENT_MODEL_MAP } from '@/lib/ai/orchestrator'
+import { detectLanguage } from '@/lib/language/detectLanguage'
 import type { ChatTurn } from '@/lib/ai/streamChat'
 
 // NOTE: CHAT_SYSTEM_PROMPT removed — each intent bucket has its own specialist
@@ -33,6 +34,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const messages = body.messages as ChatTurn[]
 
+  // Story 1.3: detect language of the latest user turn for response mirroring (AC-1–AC-3)
+  const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
+  const detectedLang = detectLanguage(lastUserMsg?.content ?? '')
+
   // AD-1: orchestrator intercept — classify intent before streaming.
   // Uses callAI() with the economical model (AD-4: cheap/fast).
   // Never throws: any failure silently falls back to general_chat (AD-6).
@@ -44,6 +49,7 @@ export async function POST(req: NextRequest) {
     specialist: classification.intent,
     systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
     messages,
+    detectedLang,
   })
 
   return new Response(stream, {

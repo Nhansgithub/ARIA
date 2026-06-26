@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
 import { MarkdownRenderer } from './MarkdownRenderer'
+import { detectLanguage } from '@/lib/language/detectLanguage'
 
 export interface Message {
   id: string
@@ -66,6 +67,8 @@ export function MessageBubble({
 
   const isUser = message.role === 'user'
   const showCursor = isStreaming && isLastMessage && !isUser
+  // AC-5: lang attribute for screen-reader pronunciation support
+  const bubbleLang = isUser ? 'vi' : detectLanguage(message.content)
   // Never collapse while the message is actively streaming — the content
   // crosses 400 chars mid-stream and a collapse at that moment is disorienting.
   const isCollapsible =
@@ -95,6 +98,7 @@ export function MessageBubble({
       {isUser ? (
         /* User bubble */
         <div
+          lang={bubbleLang}
           style={{
             background: '#1c2440',
             borderRadius: '12px 12px 4px 12px',
@@ -112,6 +116,7 @@ export function MessageBubble({
       ) : (
         /* ARIA bubble */
         <div
+          lang={bubbleLang}
           className="aria-msg-bubble"
           style={{
             position: 'relative',
