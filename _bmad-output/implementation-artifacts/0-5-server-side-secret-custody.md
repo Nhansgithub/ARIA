@@ -4,7 +4,7 @@ baseline_commit: 2663c6fcc370cfe8bad0616be52c88811220cb4a
 
 # Story 0.5: Server-Side Secret Custody (AD-11)
 
-Status: review
+Status: done
 
 ## Story
 
