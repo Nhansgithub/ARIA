@@ -1,7 +1,7 @@
 ---
 story: 1.5
 epic: 1
-status: review
+status: done
 baseline_commit: a1781a10556b927da6d4d578a4a9d9bc1ed66bb9
 ---
 
@@ -87,6 +87,13 @@ As an Owner, I want every piece of advice or Deal Intelligence response from ARI
   - [x] `npm run lint` — no warnings
   - [x] `npm run format:check` — no formatting issues
   - [x] `npm run build` — Next.js build succeeds
+
+### Review Findings
+
+- [x] [Review][Defer] D1 prompt length guard (`> 10` chars) is a trivially weak sentinel [lib/__tests__/orchestrator.test.ts:201] — deferred, pre-existing
+- [x] [Review][Defer] E4 multi-OR assertion creates false-positive risk if primary phrase is removed but another OR branch remains [lib/__tests__/orchestrator.test.ts:225] — deferred, pre-existing design choice
+- [x] [Review][Defer] E9 multi-OR assertion has same false-positive risk as E4 [lib/__tests__/orchestrator.test.ts:261] — deferred, pre-existing design choice
+- [x] [Review][Defer] ARIA_MODELS model ID constants in test can silently desync from lib/ai/models.ts [lib/__tests__/orchestrator.test.ts:12] — deferred, pre-existing
 
 ---
 
