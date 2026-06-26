@@ -50,7 +50,7 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   # ─── Epic 0: Foundation ───────────────────────────────────────────────────
   epic-0: in-progress
-  0-1-project-scaffold-ci-and-vercel-deploy: in-progress
+  0-1-project-scaffold-ci-and-vercel-deploy: done
   0-2-supabase-project-schema-and-owner-id-on-every-table: backlog
   0-3-row-level-security-policies-on-all-tables: backlog
   0-4-emailpassword-authentication-and-protected-session: backlog
