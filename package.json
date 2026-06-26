@@ -24,6 +24,7 @@
     "eslint-config-next": "14.2.35",
     "eslint-config-prettier": "^9",
     "prettier": "^3",
+    "supabase": "^2",
     "typescript": "^5"
   }
 }
