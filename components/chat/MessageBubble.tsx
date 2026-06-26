@@ -232,7 +232,7 @@ export function MessageBubble({
               }}
             >
               <RotateCcw size={12} aria-hidden="true" />
-              Retry
+              {bubbleLang === 'vi' ? 'Thử lại' : 'Retry'}
             </button>
           )}
         </div>

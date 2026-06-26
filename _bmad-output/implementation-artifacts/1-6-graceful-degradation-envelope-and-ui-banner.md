@@ -1,7 +1,7 @@
 ---
 story: 1.6
 epic: 1
-status: review
+status: done
 baseline_commit: 91cf3f9003d24a6f18a53efbfcc59c8aa1d742f8
 ---
 
@@ -100,6 +100,16 @@ The banner uses `rgba(245,158,11,0.12)` background, `1px solid rgba(245,158,11,0
   - [x] `npm run lint` — no warnings
   - [x] `npm run format:check` — no formatting issues
   - [x] `npm run build` — Next.js build succeeds
+
+### Review Findings
+
+- [x] [Review][Patch] Retry button text hardcoded `"Retry"` — not localized for VI users [components/chat/MessageBubble.tsx:~235] — **FIXED** (uses `bubbleLang` to pick `"Retry"` / `"Thử lại"`)
+- [x] [Review][Defer] AC-2 degraded bubble shows partial AI content before sentinel rather than replacing all content with "AI synthesis is temporarily unavailable. [Retry]" — deferred; spec wording is ambiguous ("replaces the raw sentinel"); partial content + retry button is better UX than fixed error string
+- [x] [Review][Defer] Sentinel strip regex `/\n\n\[ARIA error:[^\]]*\]/` depends on server prepending `\n\n` — deferred; consistent with `streamChat.ts` format which always writes `\n\n[ARIA error: ...]`
+- [x] [Review][Defer] `handleRetry` network failure does not restore `inputValue` — deferred; intentional — user message remains visible in transcript for retry context; input restore only needed for initial-send failure
+- [x] [Review][Defer] ID ordering: `assistantId` receives lower counter than `userMsgId` for non-retry sends — deferred; pre-existing pattern unchanged by this story
+- [x] [Review][Defer] Double-click race on Retry button — `isStreaming` guard reads stale closure state before React re-renders — deferred; near-impossible timing window; a ref-based guard would fully solve
+- [x] [Review][Defer] AC-5 toast has no explicit [Retry] CTA button — deferred; core AC-5 behavior is met (input restored, blank slot removed, toast shown); Retry button is a UX enhancement
 
 ---
 

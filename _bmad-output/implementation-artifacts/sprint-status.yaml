@@ -67,7 +67,7 @@ development_status:
   1-3-bilingual-detection-and-language-mirroring: done
   1-4-business-context-injection: done
   1-5-guidance-stance-enforcement: done
-  1-6-graceful-degradation-envelope-and-ui-banner: review
+  1-6-graceful-degradation-envelope-and-ui-banner: done
   1-7-conversational-stub-creation: backlog
   1-8-deal-intelligence-four-layer-synthesis-with-omission-boundary: backlog
   1-9-vision-input-screenshot-extraction-and-crm-integration: backlog
