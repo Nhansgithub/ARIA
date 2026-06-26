@@ -4,7 +4,7 @@ baseline_commit: 694ea168944a7851626dd87a16e1283fea6171dc
 
 # Story 0.3: Row Level Security Policies on All Tables
 
-Status: review
+Status: done
 
 ## Story
 
