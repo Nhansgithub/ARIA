@@ -13,6 +13,13 @@
                 "importNames": ["createServiceClient"],
                 "message": "AD-13: createServiceClient() bypasses RLS. Never use in app/ request handlers. Use createServerClient() instead."
               }
+            ],
+            "patterns": [
+              {
+                "group": ["**/lib/supabase/server"],
+                "importNames": ["createServiceClient"],
+                "message": "AD-13: createServiceClient() bypasses RLS. Never use in app/ request handlers. Use createServerClient() instead."
+              }
             ]
           }
         ]
