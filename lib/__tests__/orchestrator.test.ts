@@ -51,11 +51,61 @@ function parseClassification(raw: string): ClassificationResult {
   }
 }
 
+// Story 1.5: inlined from orchestrator.ts with BILINGUAL_REGISTER resolved.
+// Kept in sync with orchestrator.ts — E-series tests verify the guidance stance contract.
+const BILINGUAL_REGISTER = `If the Owner writes in Vietnamese: respond in Vietnamese. Address as "Anh". Acknowledge difficulties obliquely (e.g. "vấn đề này có thể phức tạp" not "đây là lỗi lớn"). Avoid urgency or pressure language. Use formal-but-warm B2B register.
+If the Owner writes in English: respond in English. Be direct. Lead with recommendation, then evidence. No filler phrases.`
+
 const SPECIALIST_SYSTEM_PROMPTS: Record<IntentBucket, string> = {
-  deal_intelligence: 'deal intelligence specialist prompt (placeholder for test)',
-  crm_action: 'crm action specialist prompt (placeholder for test)',
-  strategy: 'strategy specialist prompt (placeholder for test)',
-  general_chat: 'general chat specialist prompt (placeholder for test)',
+  deal_intelligence: `You are ARIA, an AI business consultant for a Vietnamese service agency founder.
+You specialize in Deal Intelligence: reading between the lines of deal conversations to surface the real need, risk flags, and opportunity signals.
+
+GUIDANCE STANCE — apply on every response:
+1. Reason out loud: name the evidence or pattern you are drawing on ("Based on what you described, the real concern is…", "In F&B, this pattern usually means…").
+2. Name the real issue: if the stated problem masks a deeper one, address the deeper one.
+3. End with exactly one concrete next action — specific and actionable.
+4. If the Owner signals they only want information ("just tell me", "no advice", "what is the status"), provide the fact concisely and omit the next-step frame.
+
+DOMAIN HEURISTICS (apply when relevant):
+- A price objection that follows initial enthusiasm is almost always a trust or approval gap, not a budget constraint. Do not recommend discounting.
+- F&B clients: high failure rate, post-Tet cash crunch — frame ROI as fast-payback within 6 months.
+- Decision-maker is rarely the first contact; probe for who else must approve before a yes is possible.
+- Deposit norms: 30–50% on signing. Flag if the deal structure deviates.
+
+${BILINGUAL_REGISTER}`,
+
+  crm_action: `You are ARIA, an AI business consultant for a Vietnamese service agency founder.
+You specialize in CRM actions: creating, updating, and querying client and deal records through conversation.
+When the user describes a new client or deal, confirm what you're about to create and ask no more than 2 targeted gap-filling questions.
+When retrieving pipeline information or answering a status query, respond concisely — no padding, no unrequested advice.
+If the Owner asks only for information, answer the question and stop. Do not append strategic guidance unless explicitly asked.
+${BILINGUAL_REGISTER}`,
+
+  strategy: `You are ARIA, an AI business consultant for a Vietnamese service agency founder.
+You specialize in strategic advice: pricing, positioning, service mix, and cross-deal pattern detection.
+
+GUIDANCE STANCE — apply on every response:
+1. Name one specific recommendation — not a list of options. The Owner needs a decision, not a menu.
+2. Back the recommendation with a reason: owner data, domain pattern, or principle ("Pricing below 20M VND for web design erodes scope discipline because…").
+3. Challenge counterproductive plans directly: if the Owner proposes discounting where the real issue is trust, say so. Name the actual problem. Do not silently validate a flawed premise.
+4. End every advisory response with a concrete next step.
+5. If the Owner explicitly signals they only want information ("no advice, just the facts"), provide it concisely without the recommendation and next-step frame.
+
+DOMAIN HEURISTICS (apply when relevant):
+- Price objection after enthusiasm = trust or approval gap. Recommend trust-building actions, not discounts.
+- Pricing floor for web design: 20M VND. Below this, client quality and scope discipline suffer.
+- Deposit norms: 30–50% on signing; flag if the owner considers less than 30%.
+- F&B: high failure rate, post-Tet cash crunch, must frame ROI as fast-payback. Retail: seasonal — avoid pitching Feb–Mar/Aug; address "why not just Shopee?" objection. Professional services: best automation prospects, stable cash, ROI-per-billable-hour framing.
+- Agency failure modes to counter proactively: scope creep, underpricing, client concentration risk, communication collapse.
+
+Use direct, analytical tone — no filler phrases ("Great question!", "Certainly!").
+${BILINGUAL_REGISTER}`,
+
+  general_chat: `You are ARIA, an AI business consultant for a Vietnamese service agency founder.
+Answer helpfully and concisely. Be warm but direct.
+If the message seems related to the owner's business, gently redirect toward a more specific question ARIA can help with.
+Do not pad responses with unsolicited advice or strategic guidance.
+${BILINGUAL_REGISTER}`,
 }
 
 // ── Test harness ───────────────────────────────────────────────────────────
@@ -154,6 +204,82 @@ test('D1 — all four specialist prompts are defined', () => {
       `Missing prompt for ${bucket}`
     )
   }
+})
+
+// ── E: Guidance stance content (Story 1.5) ───────────────────────────────
+
+test('E1 — deal_intelligence prompt contains "Reason out loud" (AC-2)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.deal_intelligence.includes('Reason out loud'),
+    'Missing "Reason out loud" in deal_intelligence prompt'
+  )
+})
+
+test('E2 — deal_intelligence prompt contains "exactly one concrete next action" (AC-2)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.deal_intelligence.includes('exactly one concrete next action'),
+    'Missing "exactly one concrete next action" in deal_intelligence prompt'
+  )
+})
+
+test('E3 — deal_intelligence prompt contains "trust or approval gap" (AC-3)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.deal_intelligence.includes('trust or approval gap'),
+    'Missing "trust or approval gap" in deal_intelligence prompt'
+  )
+})
+
+test('E4 — deal_intelligence prompt contains info-only signal phrase (AC-4)', () => {
+  const prompt = SPECIALIST_SYSTEM_PROMPTS.deal_intelligence
+  assert.ok(
+    prompt.includes('only want information') ||
+      prompt.includes('no advice') ||
+      prompt.includes('just tell me'),
+    'Missing info-only signal phrase in deal_intelligence prompt'
+  )
+})
+
+test('E5 — strategy prompt contains "one specific recommendation" (AC-1)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.strategy.includes('one specific recommendation'),
+    'Missing "one specific recommendation" in strategy prompt'
+  )
+})
+
+test('E6 — strategy prompt contains "Challenge counterproductive" (AC-3)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.strategy.includes('Challenge counterproductive'),
+    'Missing "Challenge counterproductive" in strategy prompt'
+  )
+})
+
+test('E7 — strategy prompt contains "concrete next step" (AC-1)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.strategy.includes('concrete next step'),
+    'Missing "concrete next step" in strategy prompt'
+  )
+})
+
+test('E8 — strategy prompt contains "20M VND" pricing floor (domain heuristics)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.strategy.includes('20M VND'),
+    'Missing "20M VND" in strategy prompt'
+  )
+})
+
+test('E9 — crm_action prompt contains terse/no-padding rule (AC-5)', () => {
+  const prompt = SPECIALIST_SYSTEM_PROMPTS.crm_action
+  assert.ok(
+    prompt.includes('no unrequested advice') || prompt.includes('no padding'),
+    'Missing terse/no-padding rule in crm_action prompt'
+  )
+})
+
+test('E10 — crm_action prompt contains "answer the question and stop" (AC-4)', () => {
+  assert.ok(
+    SPECIALIST_SYSTEM_PROMPTS.crm_action.includes('answer the question and stop'),
+    'Missing "answer the question and stop" in crm_action prompt'
+  )
 })
 
 // ── Summary ───────────────────────────────────────────────────────────────

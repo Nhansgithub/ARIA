@@ -1,7 +1,7 @@
 ---
 story: 1.5
 epic: 1
-status: ready-for-dev
+status: review
 baseline_commit: a1781a10556b927da6d4d578a4a9d9bc1ed66bb9
 ---
 
@@ -49,44 +49,44 @@ As an Owner, I want every piece of advice or Deal Intelligence response from ARI
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Enrich `deal_intelligence` specialist prompt in `lib/ai/orchestrator.ts`** (AC-2, AC-3, AC-4)
-  - [ ] Add `GUIDANCE STANCE` block: reason out loud, name real issue, single concrete next action
-  - [ ] Add info-only override instruction (AC-4)
-  - [ ] Add `DOMAIN HEURISTICS` block: trust/approval gap for price objections, F&B patterns, decision-maker probe, deposit norms
-  - [ ] Preserve existing `${BILINGUAL_REGISTER}` interpolation at end of prompt
+- [x] **Task 1: Enrich `deal_intelligence` specialist prompt in `lib/ai/orchestrator.ts`** (AC-2, AC-3, AC-4)
+  - [x] Add `GUIDANCE STANCE` block: reason out loud, name real issue, single concrete next action
+  - [x] Add info-only override instruction (AC-4)
+  - [x] Add `DOMAIN HEURISTICS` block: trust/approval gap for price objections, F&B patterns, decision-maker probe, deposit norms
+  - [x] Preserve existing `${BILINGUAL_REGISTER}` interpolation at end of prompt
 
-- [ ] **Task 2: Enrich `strategy` specialist prompt in `lib/ai/orchestrator.ts`** (AC-1, AC-3, AC-4)
-  - [ ] Add `GUIDANCE STANCE` block: single named recommendation (not options list), evidence-backed, challenge counterproductive plans directly, concrete next step
-  - [ ] Add info-only override instruction (AC-4)
-  - [ ] Add `DOMAIN HEURISTICS` block: pricing floor 20M VND, deposit norms, industry reads (F&B/retail/professional services), agency failure modes
-  - [ ] Preserve existing no-filler and `${BILINGUAL_REGISTER}` lines
+- [x] **Task 2: Enrich `strategy` specialist prompt in `lib/ai/orchestrator.ts`** (AC-1, AC-3, AC-4)
+  - [x] Add `GUIDANCE STANCE` block: single named recommendation (not options list), evidence-backed, challenge counterproductive plans directly, concrete next step
+  - [x] Add info-only override instruction (AC-4)
+  - [x] Add `DOMAIN HEURISTICS` block: pricing floor 20M VND, deposit norms, industry reads (F&B/retail/professional services), agency failure modes
+  - [x] Preserve existing no-filler and `${BILINGUAL_REGISTER}` lines
 
-- [ ] **Task 3: Update `crm_action` specialist prompt** (AC-4, AC-5)
-  - [ ] Add explicit terse-for-lookups rule: "answer the question and stop; do not append strategic guidance unless explicitly asked"
-  - [ ] Preserve existing 2-question max for new entries and `${BILINGUAL_REGISTER}`
+- [x] **Task 3: Update `crm_action` specialist prompt** (AC-4, AC-5)
+  - [x] Add explicit terse-for-lookups rule: "answer the question and stop; do not append strategic guidance unless explicitly asked"
+  - [x] Preserve existing 2-question max for new entries and `${BILINGUAL_REGISTER}`
 
-- [ ] **Task 4: Minor update to `general_chat` prompt** (AC-5)
-  - [ ] Add: "Do not pad responses with unsolicited advice or strategic guidance."
-  - [ ] Preserve existing redirect and `${BILINGUAL_REGISTER}` lines
+- [x] **Task 4: Minor update to `general_chat` prompt** (AC-5)
+  - [x] Add: "Do not pad responses with unsolicited advice or strategic guidance."
+  - [x] Preserve existing redirect and `${BILINGUAL_REGISTER}` lines
 
-- [ ] **Task 5: Update `lib/__tests__/orchestrator.test.ts` — inline enriched prompts + add E-series stance tests** (all ACs)
-  - [ ] Replace the placeholder strings in the inlined `SPECIALIST_SYSTEM_PROMPTS` object (lines 54-59) with the full enriched prompt text (matching `orchestrator.ts` exactly)
-  - [ ] Add E1 — `deal_intelligence` prompt contains "Reason out loud" (AC-2)
-  - [ ] Add E2 — `deal_intelligence` prompt contains "exactly one concrete next action" (AC-2)
-  - [ ] Add E3 — `deal_intelligence` prompt contains "trust or approval gap" (AC-3, domain heuristic)
-  - [ ] Add E4 — `deal_intelligence` prompt contains info-only keyword (AC-4): check for "only want information" or "no advice" or "just tell me"
-  - [ ] Add E5 — `strategy` prompt contains "one specific recommendation" (AC-1)
-  - [ ] Add E6 — `strategy` prompt contains "Challenge counterproductive" (AC-3)
-  - [ ] Add E7 — `strategy` prompt contains "concrete next step" (AC-1)
-  - [ ] Add E8 — `strategy` prompt contains "20M VND" (domain heuristics pricing floor)
-  - [ ] Add E9 — `crm_action` prompt contains "no unrequested advice" or "no padding" (AC-5)
-  - [ ] Add E10 — `crm_action` prompt contains info-only instruction: "answer the question and stop" (AC-4)
+- [x] **Task 5: Update `lib/__tests__/orchestrator.test.ts` — inline enriched prompts + add E-series stance tests** (all ACs)
+  - [x] Replace the placeholder strings in the inlined `SPECIALIST_SYSTEM_PROMPTS` object (lines 54-59) with the full enriched prompt text (matching `orchestrator.ts` exactly)
+  - [x] Add E1 — `deal_intelligence` prompt contains "Reason out loud" (AC-2)
+  - [x] Add E2 — `deal_intelligence` prompt contains "exactly one concrete next action" (AC-2)
+  - [x] Add E3 — `deal_intelligence` prompt contains "trust or approval gap" (AC-3, domain heuristic)
+  - [x] Add E4 — `deal_intelligence` prompt contains info-only keyword (AC-4): check for "only want information" or "no advice" or "just tell me"
+  - [x] Add E5 — `strategy` prompt contains "one specific recommendation" (AC-1)
+  - [x] Add E6 — `strategy` prompt contains "Challenge counterproductive" (AC-3)
+  - [x] Add E7 — `strategy` prompt contains "concrete next step" (AC-1)
+  - [x] Add E8 — `strategy` prompt contains "20M VND" (domain heuristics pricing floor)
+  - [x] Add E9 — `crm_action` prompt contains "no unrequested advice" or "no padding" (AC-5)
+  - [x] Add E10 — `crm_action` prompt contains info-only instruction: "answer the question and stop" (AC-4)
 
-- [ ] **Task 6: CI triad** (all ACs)
-  - [ ] `npm run test` — all tests pass (47 existing + new E-series tests)
-  - [ ] `npm run lint` — no warnings
-  - [ ] `npm run format:check` — no formatting issues
-  - [ ] `npm run build` — Next.js build succeeds
+- [x] **Task 6: CI triad** (all ACs)
+  - [x] `npm run test` — all tests pass (47 existing + new E-series tests)
+  - [x] `npm run lint` — no warnings
+  - [x] `npm run format:check` — no formatting issues
+  - [x] `npm run build` — Next.js build succeeds
 
 ---
 
@@ -237,15 +237,18 @@ The E-series tests should use `assert.ok(prompt.includes('exact phrase'), 'error
 
 ### Agent Model Used
 
-(to be filled by dev agent)
+claude-sonnet-4-6
 
 ### Debug Log References
 
-(none yet)
+(none — straight implementation, no blockers)
 
 ### Completion Notes List
 
-(none yet)
+- Replaced all 4 `SPECIALIST_SYSTEM_PROMPTS` with enriched guidance-stance versions in `orchestrator.ts`
+- `BILINGUAL_REGISTER` preserved as const and interpolated in all prompts
+- Test file: replaced placeholder inline prompts + defined `BILINGUAL_REGISTER` const for template-literal resolution; added E1–E10 stance-content tests
+- All 23 orchestrator tests pass; total test suite clean; lint clean; format clean; build passes
 
 ### File List
 
@@ -255,4 +258,5 @@ The E-series tests should use `assert.ok(prompt.includes('exact phrase'), 'error
 
 ### Change Log
 
-(to be filled by dev agent)
+- `lib/ai/orchestrator.ts`: replaced all 4 specialist prompts with enriched versions containing GUIDANCE STANCE and DOMAIN HEURISTICS blocks
+- `lib/__tests__/orchestrator.test.ts`: replaced placeholder inline `SPECIALIST_SYSTEM_PROMPTS`, added `BILINGUAL_REGISTER` const, added E1–E10 tests (23 total orchestrator tests)
