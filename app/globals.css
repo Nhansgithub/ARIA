@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #0a0e27;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Streaming cursor blink */
+@keyframes aria-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.aria-streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: #e2e8f0;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: aria-blink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aria-streaming-cursor {
+    animation: none;
+    content: '…';
+    width: auto;
+    background: none;
+    color: #94a3b8;
+  }
+}
+
+/* Copy button: hidden on desktop until hover, always visible on mobile */
+.aria-msg-copy-btn {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.aria-msg-bubble:hover .aria-msg-copy-btn {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .aria-msg-copy-btn {
+    opacity: 1;
+  }
+}
+
+/* Sidebar: 240px desktop, 56px tablet, hidden mobile */
+.aria-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.aria-sidebar-label {
+  display: inline;
+}
+
+.aria-sidebar-wordmark {
+  display: flex;
+}
+
+/* Bottom tab bar: hidden on desktop/tablet, visible on mobile */
+.aria-bottom-tabs {
+  display: none;
+}
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .aria-sidebar {
+    width: 56px;
+  }
+  .aria-sidebar-label {
+    display: none;
+  }
+  .aria-sidebar-wordmark {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .aria-sidebar {
+    display: none;
+  }
+  .aria-bottom-tabs {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #141a2e;
+    border-top: 1px solid #2a3350;
+    z-index: 100;
+  }
+  .aria-main-content {
+    padding-bottom: 56px;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3350;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4360;
+}
