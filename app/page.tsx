@@ -27,7 +27,7 @@ export default async function HomePage() {
       }}
     >
       <h1>ARIA</h1>
-      <p style={{ color: '#A0AEC0' }}>Signed in as {user!.email}</p>
+      <p style={{ color: '#A0AEC0' }}>Signed in as {user.email}</p>
       <form action={logout}>
         <button type="submit" style={{ padding: '8px 16px' }}>
           Sign out

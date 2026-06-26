@@ -53,7 +53,7 @@ development_status:
   0-1-project-scaffold-ci-and-vercel-deploy: done
   0-2-supabase-project-schema-and-owner-id-on-every-table: done
   0-3-row-level-security-policies-on-all-tables: done
-  0-4-emailpassword-authentication-and-protected-session: in-progress
+  0-4-emailpassword-authentication-and-protected-session: done
   0-5-server-side-secret-custody: backlog
   0-6-authservice-role-boundary-no-service-role-on-owner-data-paths: backlog
   0-7-ai-call-wrapper-token-logging-cache-contract-and-degradation-envelope: backlog

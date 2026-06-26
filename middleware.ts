@@ -33,7 +33,13 @@ export async function middleware(request: NextRequest) {
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+    const redirectResponse = NextResponse.redirect(url)
+    // Propagate any Set-Cookie headers from the Supabase session refresh
+    // (e.g., clearing stale tokens) so they reach the browser
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value)
+    })
+    return redirectResponse
   }
 
   return supabaseResponse

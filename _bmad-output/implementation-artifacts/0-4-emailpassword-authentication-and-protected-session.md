@@ -4,7 +4,7 @@ baseline_commit: 578c8d516abf8e39dacaa73459e134192936a2e9
 
 # Story 0.4: Email/Password Authentication and Protected Session
 
-Status: review
+Status: done
 
 ## Story
 

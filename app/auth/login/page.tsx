@@ -23,6 +23,8 @@ export default function LoginPage() {
     } else {
       router.push('/')
       router.refresh()
+      // Reset loading after timeout in case navigation silently fails and component stays mounted
+      setTimeout(() => setLoading(false), 3000)
     }
   }
 
