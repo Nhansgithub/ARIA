@@ -12,14 +12,18 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { error } = await supabase
-    .from('settings')
-    .upsert(
-      { owner_id: user.id, ai_processing_notice_acknowledged_at: new Date().toISOString() },
-      { onConflict: 'owner_id' }
-    )
+  const now = new Date().toISOString()
+  const { error } = await supabase.from('settings').upsert(
+    {
+      owner_id: user.id,
+      ai_processing_notice_acknowledged_at: now,
+      updated_at: now,
+    },
+    { onConflict: 'owner_id' }
+  )
 
   if (error) {
+    console.error('[POST /api/privacy/acknowledge]', error)
     return NextResponse.json({ error: 'Failed to record acknowledgement' }, { status: 500 })
   }
 

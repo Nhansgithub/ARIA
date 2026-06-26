@@ -34,7 +34,7 @@ export async function deleteDeal(ownerId: string, dealId: string): Promise<void>
   await supabase.from('deals').delete().eq('id', dealId).eq('owner_id', ownerId)
 
   // AD-14: activity_log is append-only; prior entries for this deal are intentionally retained
-  await supabase.from('activity_log').insert({
+  const { error: logError } = await supabase.from('activity_log').insert({
     owner_id: ownerId,
     entity_type: 'deal',
     entity_id: dealId,
@@ -42,6 +42,9 @@ export async function deleteDeal(ownerId: string, dealId: string): Promise<void>
     actor: 'user',
     payload: { deal_title: deal?.title ?? dealId },
   })
+  if (logError) {
+    console.error('[deleteService] activity_log insert failed for deal', dealId, ':', logError)
+  }
 }
 
 /**
@@ -86,7 +89,7 @@ export async function deleteClient(ownerId: string, clientId: string): Promise<v
   await supabase.from('clients').delete().eq('id', clientId).eq('owner_id', ownerId)
 
   // AD-14: activity_log entries referencing deleted entities are intentionally retained
-  await supabase.from('activity_log').insert({
+  const { error: logError } = await supabase.from('activity_log').insert({
     owner_id: ownerId,
     entity_type: 'client',
     entity_id: clientId,
@@ -94,4 +97,7 @@ export async function deleteClient(ownerId: string, clientId: string): Promise<v
     actor: 'user',
     payload: { client_name: client?.name ?? clientId },
   })
+  if (logError) {
+    console.error('[deleteService] activity_log insert failed for client', clientId, ':', logError)
+  }
 }

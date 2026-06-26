@@ -8,14 +8,20 @@ interface PrivacyNoticeModalProps {
 
 export function PrivacyNoticeModal({ onAcknowledge }: PrivacyNoticeModalProps) {
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   async function handleAcknowledge() {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const res = await fetch('/api/privacy/acknowledge', { method: 'POST' })
       if (res.ok) {
         onAcknowledge()
+      } else {
+        setErrorMsg('Could not save. Please try again. / Không lưu được. Vui lòng thử lại.')
       }
+    } catch {
+      setErrorMsg('Network error. Please try again. / Lỗi mạng. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }
@@ -26,6 +32,11 @@ export function PrivacyNoticeModal({ onAcknowledge }: PrivacyNoticeModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="privacy-notice-title"
+      // Suppress Escape key — acknowledgement must be explicit (AC-1)
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') e.preventDefault()
+      }}
+      tabIndex={-1}
       style={{
         position: 'fixed',
         inset: 0,
@@ -63,6 +74,11 @@ export function PrivacyNoticeModal({ onAcknowledge }: PrivacyNoticeModalProps) {
             Read our full Privacy Policy / Xem Chính sách bảo mật đầy đủ →
           </a>
         </p>
+        {errorMsg && (
+          <p role="alert" style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+            {errorMsg}
+          </p>
+        )}
         <button
           onClick={handleAcknowledge}
           disabled={loading}

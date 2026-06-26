@@ -8,10 +8,15 @@ import { createServerClient } from '@/lib/supabase/server'
  */
 export async function isPrivacyNoticeAcknowledged(ownerId: string): Promise<boolean> {
   const supabase = createServerClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('settings')
     .select('ai_processing_notice_acknowledged_at')
     .eq('owner_id', ownerId)
     .single()
+
+  // PGRST116 = no rows found (new owner with no settings row yet) → not acknowledged
+  if (error && error.code !== 'PGRST116') {
+    throw error
+  }
   return data?.ai_processing_notice_acknowledged_at != null
 }
