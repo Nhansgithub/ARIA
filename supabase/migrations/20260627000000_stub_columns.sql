@@ -1,0 +1,5 @@
+ALTER TABLE clients
+  ADD COLUMN IF NOT EXISTS is_stub boolean NOT NULL DEFAULT false;
+
+ALTER TABLE deals
+  ADD COLUMN IF NOT EXISTS is_stub boolean NOT NULL DEFAULT false;

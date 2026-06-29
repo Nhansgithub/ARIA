@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { AlertTriangle } from 'lucide-react'
 import type { Components } from 'react-markdown'
 import type { ComponentPropsWithoutRef } from 'react'
 
@@ -58,9 +59,33 @@ const components: Components = {
   ul: ({ children }) => <ul style={{ paddingLeft: 20, marginBottom: 10, ...PROSE }}>{children}</ul>,
   ol: ({ children }) => <ol style={{ paddingLeft: 20, marginBottom: 10, ...PROSE }}>{children}</ol>,
   li: ({ children }) => <li style={{ marginBottom: 4, lineHeight: 1.65 }}>{children}</li>,
-  strong: ({ children }) => (
-    <strong style={{ fontWeight: 700, color: '#e2e8f0' }}>{children}</strong>
-  ),
+  strong: ({ children }) => {
+    // Detect severity badges: **HIGH** in risk flag lists (DESIGN.md §7.2).
+    // HIGH renders with #F87171 color + AlertTriangle icon — color is not the sole indicator.
+    // children may be a ReactNode array; normalize to string for comparison.
+    const text = Array.isArray(children)
+      ? children.filter((c) => typeof c === 'string').join('')
+      : typeof children === 'string'
+        ? children
+        : ''
+    if (text === 'HIGH') {
+      return (
+        <strong
+          style={{
+            fontWeight: 700,
+            color: '#F87171',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+        >
+          <AlertTriangle size={13} aria-hidden="true" style={{ flexShrink: 0 }} />
+          <span>{children}</span>
+        </strong>
+      )
+    }
+    return <strong style={{ fontWeight: 700, color: '#e2e8f0' }}>{children}</strong>
+  },
   em: ({ children }) => <em style={{ fontStyle: 'italic', color: '#e2e8f0' }}>{children}</em>,
   blockquote: ({ children }) => (
     <blockquote

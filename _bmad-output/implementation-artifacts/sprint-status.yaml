@@ -1,5 +1,5 @@
 # generated: 2026-06-25
-# last_updated: 2026-06-26 (story 1.2 done)
+# last_updated: 2026-06-26 (story 1.7 done)
 # project: ARIA
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-25
-last_updated: 2026-06-26
+last_updated: 2026-06-29 (story 1.14 done)
 project: ARIA
 project_key: NOKEY
 tracking_system: file-system
@@ -61,21 +61,21 @@ development_status:
   epic-0-retrospective: optional
 
   # ─── Epic 1: Consultant Core ──────────────────────────────────────────────
-  epic-1: in-progress
+  epic-1: done
   1-1-chat-ui-shell-markdown-rendering-streaming-stop-and-copy: done
   1-2-orchestrator-intent-classification-and-routing: done
   1-3-bilingual-detection-and-language-mirroring: done
   1-4-business-context-injection: done
   1-5-guidance-stance-enforcement: done
   1-6-graceful-degradation-envelope-and-ui-banner: done
-  1-7-conversational-stub-creation: backlog
-  1-8-deal-intelligence-four-layer-synthesis-with-omission-boundary: backlog
-  1-9-vision-input-screenshot-extraction-and-crm-integration: backlog
-  1-10-decision-maker-tracking-and-stall-diagnosis: backlog
-  1-11-pricing-floor-awareness: backlog
-  1-12-strategy-advisor-and-cross-deal-pattern-detection: backlog
-  1-13-conversation-context-management-and-start-new-topic: backlog
-  1-14-first-run-and-empty-state-onboarding: backlog
+  1-7-conversational-stub-creation: done
+  1-8-deal-intelligence-four-layer-synthesis-with-omission-boundary: done
+  1-9-vision-input-screenshot-extraction-and-crm-integration: done
+  1-10-decision-maker-tracking-and-stall-diagnosis: done
+  1-11-pricing-floor-awareness: done
+  1-12-strategy-advisor-and-cross-deal-pattern-detection: done
+  1-13-conversation-context-management-and-start-new-topic: done
+  1-14-first-run-and-empty-state-onboarding: done
   epic-1-retrospective: optional
 
   # ─── Epic 2: CRM & Memory ─────────────────────────────────────────────────

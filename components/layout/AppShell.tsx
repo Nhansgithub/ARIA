@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MessageSquare, FileText, LayoutDashboard, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import ChatPanel from '@/components/chat/ChatPanel'
+import { BriefingEmptyState } from '@/components/briefing/BriefingEmptyState'
 import { BusinessContextPanel } from '@/components/settings/BusinessContextPanel'
 import { logout } from '@/app/actions/auth'
 
@@ -180,7 +181,7 @@ export default function AppShell() {
         }}
       >
         {mode === 'chat' && <ChatPanel />}
-        {mode === 'briefing' && <Placeholder title="Briefing" />}
+        {mode === 'briefing' && <BriefingEmptyState />}
         {mode === 'documents' && <Placeholder title="Documents" />}
         {mode === 'settings' && <BusinessContextPanel />}
       </main>

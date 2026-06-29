@@ -9,7 +9,13 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npx ts-node lib/__tests__/crypto.test.ts && npx ts-node lib/__tests__/callAI.test.ts && npx ts-node lib/__tests__/orchestrator.test.ts && npx ts-node lib/__tests__/detectLanguage.test.ts && npx ts-node lib/__tests__/businessContext.test.ts"
+    "test": "npx ts-node lib/__tests__/crypto.test.ts && npx ts-node lib/__tests__/callAI.test.ts && npx ts-node lib/__tests__/orchestrator.test.ts && npx ts-node lib/__tests__/detectLanguage.test.ts && npx ts-node lib/__tests__/businessContext.test.ts && npx ts-node lib/__tests__/crmTools.test.ts && npx ts-node lib/__tests__/dealIntelligenceTools.test.ts && npx ts-node lib/__tests__/imageUtils.test.ts",
+    "test:imageUtils": "npx ts-node lib/__tests__/imageUtils.test.ts",
+    "test:di110": "npx ts-node lib/__tests__/dealIntelligenceTools110.test.ts",
+    "test:di111": "npx ts-node lib/__tests__/dealIntelligenceTools111.test.ts",
+    "test:strategy112": "npx ts-node lib/__tests__/strategyTools112.test.ts",
+    "test:context113": "npx ts-node lib/__tests__/contextManager113.test.ts",
+    "test:onboarding114": "npx ts-node lib/__tests__/onboarding114.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",

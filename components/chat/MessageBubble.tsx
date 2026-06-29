@@ -12,6 +12,7 @@ export interface Message {
   timestamp: Date
   stopped?: boolean
   degraded?: boolean
+  thumbnailUrl?: string // local blob URL for display only; not persisted or sent to API
 }
 
 interface MessageBubbleProps {
@@ -116,7 +117,40 @@ export function MessageBubble({
             whiteSpace: 'pre-wrap',
           }}
         >
+          {message.thumbnailUrl && (
+            <img
+              src={message.thumbnailUrl}
+              alt="Attached image"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 8,
+                objectFit: 'cover',
+                border: '1px solid #2A3350',
+                marginBottom: message.content ? 8 : 0,
+                display: 'block',
+              }}
+            />
+          )}
           {message.content}
+          {/* Screen-reader label for image-only messages (no text content) */}
+          {!message.content && message.thumbnailUrl && (
+            <span
+              style={{
+                position: 'absolute',
+                width: 1,
+                height: 1,
+                padding: 0,
+                margin: -1,
+                overflow: 'hidden',
+                clip: 'rect(0,0,0,0)',
+                whiteSpace: 'nowrap',
+                border: 0,
+              }}
+            >
+              (image attached)
+            </span>
+          )}
         </div>
       ) : (
         /* ARIA bubble */
