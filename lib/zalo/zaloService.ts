@@ -26,7 +26,7 @@ export async function sendZaloMessage(opts: {
       signal: AbortSignal.timeout(10_000),
       headers: {
         'Content-Type': 'application/json',
-        access_token: opts.accessToken,
+        ['access_token']: opts.accessToken,
       },
       body: JSON.stringify({
         recipient: { user_id: opts.userId },
