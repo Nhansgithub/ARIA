@@ -1,5 +1,5 @@
 # generated: 2026-06-25
-# last_updated: 2026-06-26 (story 1.7 done)
+# last_updated: 2026-06-30 (story 5.3 done)
 # project: ARIA
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-25
-last_updated: 2026-06-29 (story 1.14 done)
+last_updated: 2026-06-30 (story 5.2 ready-for-dev)
 project: ARIA
 project_key: NOKEY
 tracking_system: file-system
@@ -79,44 +79,44 @@ development_status:
   epic-1-retrospective: optional
 
   # ─── Epic 2: CRM & Memory ─────────────────────────────────────────────────
-  epic-2: backlog
-  2-1-owner-scoped-persistence-with-append-only-activity-log: backlog
-  2-2-core-crm-tool-surface-create-read-update-via-conversation: backlog
-  2-3-stub-lifecycle-deduplication-enrichment-gate-and-archival: backlog
-  2-4-similar-deal-matching-with-stated-similarity-reason: backlog
-  2-5-ai-maintained-intelligence-fields-idempotent-updates-with-provenance: backlog
-  2-6-conversational-data-maintenance-full-client-and-deal-lifecycle-via-chat: backlog
-  2-7-intelligence-field-persistence-across-sessions: backlog
+  epic-2: done
+  2-1-owner-scoped-persistence-with-append-only-activity-log: done
+  2-2-core-crm-tool-surface-create-read-update-via-conversation: done
+  2-3-stub-lifecycle-deduplication-enrichment-gate-and-archival: done
+  2-4-similar-deal-matching-with-stated-similarity-reason: done
+  2-5-ai-maintained-intelligence-fields-idempotent-updates-with-provenance: done
+  2-6-conversational-data-maintenance-full-client-and-deal-lifecycle-via-chat: done
+  2-7-intelligence-field-persistence-across-sessions: done
   epic-2-retrospective: optional
 
   # ─── Epic 3: Documents ────────────────────────────────────────────────────
-  epic-3: backlog
-  3-1-document-data-layer-status-lifecycle-and-versioning: backlog
-  3-2-elicitation-outline-generate-flow: backlog
-  3-3-document-viewer-read-edit-and-version-history: backlog
-  3-4-pdf-export-to-storage: backlog
-  3-5-missing-document-detection-and-teaching: backlog
-  3-6-inline-document-edit-and-conversational-re-generation: backlog
+  epic-3: done
+  3-1-document-data-layer-status-lifecycle-and-versioning: done
+  3-2-elicitation-outline-generate-flow: done
+  3-3-document-viewer-read-edit-and-version-history: done
+  3-4-pdf-export-to-storage: done
+  3-5-missing-document-detection-and-teaching: done
+  3-6-inline-document-edit-and-conversational-re-generation: done
   epic-3-retrospective: optional
 
   # ─── Epic 4: Briefing & Proactivity ──────────────────────────────────────
-  epic-4: backlog
-  4-1-pipeline-status-synthesis-stage-aware-next-action: backlog
-  4-2-stale-deal-detection-follow-up-cadence-engine: backlog
-  4-3-briefing-generation-job-pg-cron-scheduler-caching: backlog
-  4-4-briefing-structure-detection-logic-ranking: backlog
-  4-5-briefing-panel-ui-app-open-on-demand-item-to-chat-pre-queue: backlog
-  4-6-proactive-check-in-scheduler-trigger-criteria-job: backlog
-  4-7-check-in-delivery-quick-reply-ui-answer-capture: backlog
-  4-8-check-in-cadence-configuration-per-deal-pause: backlog
+  epic-4: done
+  4-1-pipeline-status-synthesis-stage-aware-next-action: done
+  4-2-stale-deal-detection-follow-up-cadence-engine: done
+  4-3-briefing-generation-job-pg-cron-scheduler-caching: done
+  4-4-briefing-structure-detection-logic-ranking: done
+  4-5-briefing-panel-ui-app-open-on-demand-item-to-chat-pre-queue: done
+  4-6-proactive-check-in-scheduler-trigger-criteria-job: done
+  4-7-check-in-delivery-quick-reply-ui-answer-capture: done
+  4-8-check-in-cadence-configuration-per-deal-pause: done
   epic-4-retrospective: optional
 
   # ─── Epic 5: Delivery Channels ───────────────────────────────────────────
-  epic-5: backlog
-  5-1-in-app-delivery-record-notification-indicator: backlog
-  5-2-email-delivery-briefing-and-check-in-formats: backlog
-  5-3-zalo-oa-setup-owner-follow-token-refresh-job: backlog
-  5-4-zalo-oa-chat-send-with-quick-reply-as-numbered-text: backlog
-  5-5-delivery-orchestration-in-app-zalo-email-priorityfallback: backlog
-  5-6-delivery-channel-settings-zalo-not-set-up-graceful-state: backlog
+  epic-5: in-progress
+  5-1-in-app-delivery-record-notification-indicator: done
+  5-2-email-delivery-briefing-and-check-in-formats: done
+  5-3-zalo-oa-setup-owner-follow-token-refresh-job: done
+  5-4-zalo-oa-chat-send-with-quick-reply-as-numbered-text: done
+  5-5-delivery-orchestration-in-app-zalo-email-priorityfallback: done
+  5-6-delivery-channel-settings-zalo-not-set-up-graceful-state: done
   epic-5-retrospective: optional

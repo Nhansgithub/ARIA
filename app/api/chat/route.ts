@@ -7,6 +7,9 @@ import { runVisionExtraction } from '@/lib/ai/visionExtraction'
 import { CRM_STUB_TOOLS } from '@/lib/ai/crmTools'
 import { DI_TOOLS } from '@/lib/ai/dealIntelligenceTools'
 import { STRATEGY_TOOLS } from '@/lib/ai/strategyTools'
+import { DOCUMENT_CREATION_TOOLS } from '@/lib/ai/documentCreationTools'
+import { DOCUMENT_REVISION_TOOLS } from '@/lib/ai/documentRevisionTools'
+import { PIPELINE_STATUS_TOOLS } from '@/lib/ai/pipelineStatusTools'
 import { classifyIntent, SPECIALIST_SYSTEM_PROMPTS, INTENT_MODEL_MAP } from '@/lib/ai/orchestrator'
 import { detectLanguage } from '@/lib/language/detectLanguage'
 import { getBusinessContext } from '@/lib/businessContext/getBusinessContext'
@@ -151,6 +154,39 @@ export async function POST(req: NextRequest) {
       specialist: classification.intent,
       systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
       tools: STRATEGY_TOOLS,
+      messages: messagesForAI,
+      detectedLang,
+      businessContext: businessContext ?? undefined,
+      ownerId: user.id,
+    })
+  } else if (classification.intent === 'document_creation') {
+    stream = runAgentWithTools({
+      model: INTENT_MODEL_MAP[classification.intent],
+      specialist: classification.intent,
+      systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
+      tools: DOCUMENT_CREATION_TOOLS,
+      messages: messagesForAI,
+      detectedLang,
+      businessContext: businessContext ?? undefined,
+      ownerId: user.id,
+    })
+  } else if (classification.intent === 'pipeline_status') {
+    stream = runAgentWithTools({
+      model: INTENT_MODEL_MAP[classification.intent],
+      specialist: classification.intent,
+      systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
+      tools: PIPELINE_STATUS_TOOLS,
+      messages: messagesForAI,
+      detectedLang,
+      businessContext: businessContext ?? undefined,
+      ownerId: user.id,
+    })
+  } else if (classification.intent === 'document_revision') {
+    stream = runAgentWithTools({
+      model: INTENT_MODEL_MAP[classification.intent],
+      specialist: classification.intent,
+      systemPrompt: SPECIALIST_SYSTEM_PROMPTS[classification.intent],
+      tools: DOCUMENT_REVISION_TOOLS,
       messages: messagesForAI,
       detectedLang,
       businessContext: businessContext ?? undefined,

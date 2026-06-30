@@ -28,6 +28,25 @@ export const DI_TOOLS = [
     },
   },
   {
+    name: 'get_activity_log',
+    description:
+      'Fetch the activity log for a specific deal. Use when the Owner asks about history, recent changes, or what happened to a deal. Returns entries in chronological order with actor (ai|user), action, payload, and created_at.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        entity_id: {
+          type: 'string',
+          description: 'Deal UUID to query',
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of log entries to return (default: 50)',
+        },
+      },
+      required: ['entity_id'] as readonly string[],
+    },
+  },
+  {
     name: 'get_client',
     description:
       'Fetch a client record by UUID or name. Use after get_deal to load client context (industry, relationship_stage, decision_maker).',

@@ -21,7 +21,7 @@ export interface DealRecord {
   opportunity_signals: unknown[]
   predicted_outcome: string | null
   prediction_reason: string | null
-  similar_deals: unknown[]
+  similar_deals: SimilarDealEntry[]
   notes: string | null
   stale_since: string | null // date ISO string, or null
   stall_diagnosis: string | null // last written stall diagnosis, or null
@@ -114,6 +114,11 @@ export async function getClient(
 
 // ── find_similar_deals ────────────────────────────────────────────────────────
 
+export interface SimilarDealEntry {
+  deal_id: string
+  similarity_reason: string
+}
+
 export interface FindSimilarDealsParams {
   service_type?: string
   industry?: string
@@ -130,6 +135,24 @@ export interface SimilarDealRecord {
   prediction_reason: string | null
   client_name: string | null
   client_industry: string | null
+  similarity_reason: string
+}
+
+function buildSimilarityReason(
+  params: FindSimilarDealsParams,
+  record: { service_type: string; client_industry: string | null }
+): string {
+  if (params.service_type && params.industry) {
+    // client_industry is non-null here: the client-side industry filter above excludes records where c?.industry is null
+    return `Same service type (${record.service_type}) and client industry (${record.client_industry!})`
+  }
+  if (params.service_type) {
+    return `Same service type (${record.service_type})`
+  }
+  if (params.industry) {
+    return `Same client industry (${record.client_industry ?? params.industry})`
+  }
+  return `Similar past deal (${record.service_type})`
 }
 
 export async function findSimilarDeals(
@@ -199,6 +222,10 @@ export async function findSimilarDeals(
       prediction_reason: d.prediction_reason,
       client_name: c?.name ?? null,
       client_industry: c?.industry ?? null,
+      similarity_reason: buildSimilarityReason(params, {
+        service_type: d.service_type,
+        client_industry: c?.industry ?? null,
+      }),
     }
   })
 }
@@ -234,14 +261,15 @@ export interface IntelligenceFieldsInput {
   opportunity_signals?: unknown[]
   predicted_outcome?: 'likely_win' | 'uncertain' | 'at_risk' | 'likely_lost'
   prediction_reason?: string
-  similar_deals?: unknown[]
+  similar_deals?: SimilarDealEntry[]
   stall_diagnosis?: string
+  source?: string
 }
 
 export async function updateIntelligenceFields(
   ownerId: string,
   input: IntelligenceFieldsInput
-): Promise<{ updated: boolean; changedFields: string[] }> {
+): Promise<{ updated: boolean; changedFields: string[]; protectedFields: string[] }> {
   const supabase = createServerClient()
 
   // Fetch current values (AD-14: idempotent — compare before writing)
@@ -298,7 +326,25 @@ export async function updateIntelligenceFields(
 
   // No-op: nothing changed — log nothing (AD-14)
   if (changedFields.length === 0) {
-    return { updated: false, changedFields: [] }
+    return { updated: false, changedFields: [], protectedFields: [] }
+  }
+
+  // Human-edit protection: 24h window (same pattern as updateDeal in crmService.ts)
+  const { data: latestLog } = await supabase
+    .from('activity_log')
+    .select('actor, created_at')
+    .eq('owner_id', ownerId)
+    .eq('entity_type', 'deal')
+    .eq('entity_id', input.deal_id)
+    .order('created_at', { ascending: false })
+    .maybeSingle()
+
+  if (latestLog && latestLog.actor === 'user') {
+    const ageMs = Date.now() - new Date(latestLog.created_at as string).getTime()
+    if (ageMs < 24 * 60 * 60 * 1000) {
+      const protectedFields = [...changedFields]
+      return { updated: false, changedFields: [], protectedFields }
+    }
   }
 
   const { error: updateError } = await supabase
@@ -318,10 +364,44 @@ export async function updateIntelligenceFields(
     entity_id: input.deal_id,
     action: 'intelligence_fields_updated',
     actor: 'ai',
-    payload: { changedFields, values: updates },
+    payload: {
+      changedFields,
+      values: updates,
+      ...(input.source ? { source: input.source } : {}),
+    },
   })
   if (logError)
     throw new Error(`updateIntelligenceFields: activity_log insert failed: ${logError.message}`)
 
-  return { updated: true, changedFields }
+  return { updated: true, changedFields, protectedFields: [] }
+}
+
+// ── get_activity_log ──────────────────────────────────────────────────────────
+
+export interface ActivityLogEntry {
+  id: string
+  entity_type: string
+  entity_id: string
+  action: string
+  actor: 'ai' | 'user'
+  payload: Record<string, unknown>
+  created_at: string
+}
+
+export async function getActivityLog(
+  ownerId: string,
+  entityId: string,
+  limit?: number
+): Promise<ActivityLogEntry[]> {
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from('activity_log')
+    .select('id, entity_type, entity_id, action, actor, payload, created_at')
+    .eq('owner_id', ownerId)
+    .eq('entity_id', entityId)
+    .order('created_at', { ascending: true })
+    .limit(limit ?? 50)
+
+  if (error) throw new Error(`getActivityLog failed: ${error.message}`)
+  return (data ?? []) as ActivityLogEntry[]
 }

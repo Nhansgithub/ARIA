@@ -10,6 +10,8 @@ import { DegradedBanner } from './DegradedBanner'
 import { WelcomeCard } from './WelcomeCard'
 import { detectLanguage } from '@/lib/language/detectLanguage'
 import { validateImageFile, compressImage } from '@/lib/imageUtils'
+import { CheckInCard } from './CheckInCard'
+import type { CheckInCardData } from './CheckInCard'
 
 const SENTINEL = '[ARIA error:'
 
@@ -21,7 +23,12 @@ const NETWORK_TOAST_COPY = {
 // RenderItem discriminated union — used to interleave messages and dividers in transcript (AC-3)
 type RenderItem = { kind: 'message'; msg: Message } | { kind: 'divider'; id: string; label: string }
 
-export default function ChatPanel() {
+interface ChatPanelProps {
+  initialPrefill?: string
+  onPrefillConsumed?: () => void
+}
+
+export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPanelProps = {}) {
   // Context window — sent to the API. Reset to [] on "Start new topic" (AC-3, AC-4).
   const [messages, setMessages] = useState<Message[]>([])
   // Full visual transcript: messages + dividers in insertion order. Never reset (AC-3).
@@ -37,6 +44,16 @@ export default function ChatPanel() {
   const [networkToast, setNetworkToast] = useState(false)
   const [pendingImage, setPendingImage] = useState<File | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
+
+  // Pending check-in cards shown above input bar (Story 4.7)
+  const [pendingCheckIns, setPendingCheckIns] = useState<CheckInCardData[]>([])
+
+  // Urgent badge banner (Story 5.1) — dismissible, fetched on mount
+  const [urgentCount, setUrgentCount] = useState(0)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+
+  // One-time Zalo setup note (Story 5.6) — shown on first check-in when Zalo not connected
+  const [showZaloNote, setShowZaloNote] = useState(false)
 
   // First-run onboarding state (null = status fetch in-flight)
   const [isFirstRun, setIsFirstRun] = useState<boolean | null>(null)
@@ -54,6 +71,51 @@ export default function ChatPanel() {
   const transcriptRef = useRef<HTMLDivElement | null>(null)
   const idCounterRef = useRef(0)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Prefill input when initialPrefill changes (AC7 — "Ask ARIA" from DocumentViewer)
+  useEffect(() => {
+    if (initialPrefill) {
+      setInputValue(initialPrefill)
+      onPrefillConsumed?.()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPrefill])
+
+  // Fetch urgent badge count on mount for dismissible banner (Story 5.1)
+  useEffect(() => {
+    fetch('/api/notifications/badge-count')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d: { count: number }) => setUrgentCount(d.count))
+      .catch(() => { /* AD-6 */ })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Fetch notification channel settings on mount for one-time Zalo note (Story 5.6)
+  useEffect(() => {
+    fetch('/api/settings/notification-channels')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((body: { settings?: { zalo_status: string; zalo_setup_note_shown: boolean } }) => {
+        const s = body.settings
+        if (s && s.zalo_status !== 'connected' && !s.zalo_setup_note_shown) {
+          setShowZaloNote(true)
+        }
+      })
+      .catch(() => { /* AD-6 */ })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Fetch pending check-ins on mount (Story 4.7)
+  useEffect(() => {
+    fetch('/api/check-ins/pending')
+      .then((r) => (r.ok ? r.json() : { checkIns: [] }))
+      .then((data: { checkIns?: CheckInCardData[] }) => {
+        setPendingCheckIns(data.checkIns ?? [])
+      })
+      .catch(() => {
+        /* AD-6: silently continue */
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fetch first-run status on mount (AC-9)
   useEffect(() => {
@@ -745,6 +807,113 @@ export default function ChatPanel() {
           )}
         </div>
       </div>
+
+      {/* Urgent items banner (Story 5.1) — dismissible, shown when high-urgency items exist */}
+      {urgentCount > 0 && !bannerDismissed && (
+        <div
+          style={{
+            maxWidth: 760,
+            width: '100%',
+            margin: '0 auto',
+            padding: '0 0 4px 0',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              padding: '8px 14px',
+              background: 'rgba(245,158,11,0.1)',
+              border: '1px solid rgba(245,158,11,0.3)',
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#f59e0b',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            <span>
+              Có {urgentCount} mục cần xử lý — xem Briefing để biết chi tiết.
+            </span>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              aria-label="Đóng thông báo"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#f59e0b',
+                cursor: 'pointer',
+                fontSize: 16,
+                lineHeight: 1,
+                padding: '0 2px',
+                flexShrink: 0,
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* One-time Zalo setup note (Story 5.6) — shown on first check-in when Zalo not connected */}
+      {showZaloNote && pendingCheckIns.length > 0 && (
+        <div style={{ maxWidth: 760, width: '100%', margin: '0 auto', padding: '0 0 4px 0' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              padding: '8px 14px',
+              background: 'rgba(20,184,166,0.08)',
+              border: '1px solid rgba(20,184,166,0.25)',
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#14b8a6',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            <span>Bật Zalo OA trong Cài đặt để nhận tin nhắn này qua Zalo.</span>
+            <button
+              onClick={() => {
+                setShowZaloNote(false)
+                fetch('/api/settings/notification-channels', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ zalo_setup_note_shown: true }),
+                }).catch(() => { /* AD-6 */ })
+              }}
+              aria-label="Đóng thông báo Zalo"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#14b8a6',
+                cursor: 'pointer',
+                fontSize: 16,
+                lineHeight: 1,
+                padding: '0 2px',
+                flexShrink: 0,
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Check-in quick-reply cards (Story 4.7) — shown above input bar */}
+      {pendingCheckIns.length > 0 && (
+        <div style={{ maxWidth: 760, width: '100%', margin: '0 auto', padding: '0 0 4px 0' }}>
+          {pendingCheckIns.map((ci) => (
+            <CheckInCard
+              key={ci.id}
+              checkIn={ci}
+              onDismiss={(id) => setPendingCheckIns((prev) => prev.filter((c) => c.id !== id))}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Input bar */}
       <div style={{ maxWidth: 760, width: '100%', margin: '0 auto', alignSelf: 'stretch' }}>

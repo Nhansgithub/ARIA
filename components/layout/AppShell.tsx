@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MessageSquare, FileText, LayoutDashboard, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import ChatPanel from '@/components/chat/ChatPanel'
-import { BriefingEmptyState } from '@/components/briefing/BriefingEmptyState'
+import BriefingPanel from '@/components/briefing/BriefingPanel'
 import { BusinessContextPanel } from '@/components/settings/BusinessContextPanel'
+import { CadencePanel } from '@/components/settings/CadencePanel'
+import { NotificationChannelsPanel } from '@/components/settings/NotificationChannelsPanel'
+import DocumentsPanel from '@/components/documents/DocumentsPanel'
 import { logout } from '@/app/actions/auth'
 
 type Mode = 'chat' | 'briefing' | 'documents' | 'settings'
@@ -26,10 +29,12 @@ const NAV_ITEMS: NavItem[] = [
 function NavButton({
   item,
   active,
+  badge,
   onClick,
 }: {
   item: NavItem
   active: boolean
+  badge?: number
   onClick: () => void
 }): React.ReactElement {
   return (
@@ -56,31 +61,54 @@ function NavButton({
       }}
     >
       <item.Icon size={18} color={active ? '#14b8a6' : '#94a3b8'} />
-      <span className="aria-sidebar-label">{item.label}</span>
+      <span className="aria-sidebar-label" style={{ flex: 1 }}>{item.label}</span>
+      {badge != null && badge > 0 && (
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#0a0e27',
+            background: '#f59e0b',
+            borderRadius: 8,
+            padding: '1px 5px',
+            lineHeight: 1.4,
+            flexShrink: 0,
+          }}
+        >
+          {badge}
+        </span>
+      )}
     </button>
   )
 }
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        color: '#94a3b8',
-        fontSize: 15,
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-      }}
-    >
-      {title} — coming soon
-    </div>
-  )
+
+function fetchBadgeCount(setter: (n: number) => void): void {
+  fetch('/api/notifications/badge-count')
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((d: { count: number }) => setter(d.count))
+    .catch(() => { /* AD-6 */ })
 }
 
 export default function AppShell() {
-  const [mode, setMode] = useState<Mode>('chat')
+  const [mode, setMode] = useState<Mode>('briefing')
+  const [chatPrefill, setChatPrefill] = useState('')
+  const [briefingBadgeCount, setBriefingBadgeCount] = useState(0)
+  const prevModeRef = useRef<Mode>(mode)
+
+  // Fetch badge count on mount (server-authoritative; supplements BriefingPanel's onHighFlagCount)
+  useEffect(() => {
+    fetchBadgeCount(setBriefingBadgeCount)
+  }, [])
+
+  // Re-fetch when navigating away from briefing (seen_at may have been set)
+  useEffect(() => {
+    const prev = prevModeRef.current
+    prevModeRef.current = mode
+    if (prev === 'briefing' && mode !== 'briefing') {
+      fetchBadgeCount(setBriefingBadgeCount)
+    }
+  }, [mode])
 
   return (
     <div
@@ -141,7 +169,10 @@ export default function AppShell() {
               key={item.id}
               item={item}
               active={mode === item.id}
-              onClick={() => setMode(item.id)}
+              badge={item.id === 'briefing' ? briefingBadgeCount : undefined}
+              onClick={() => {
+                setMode(item.id)
+              }}
             />
           ))}
         </div>
@@ -180,10 +211,38 @@ export default function AppShell() {
           flexDirection: 'column',
         }}
       >
-        {mode === 'chat' && <ChatPanel />}
-        {mode === 'briefing' && <BriefingEmptyState />}
-        {mode === 'documents' && <Placeholder title="Documents" />}
-        {mode === 'settings' && <BusinessContextPanel />}
+        {mode === 'chat' && (
+          <ChatPanel
+            initialPrefill={chatPrefill}
+            onPrefillConsumed={() => setChatPrefill('')}
+          />
+        )}
+        {mode === 'briefing' && (
+          <BriefingPanel
+            onOpenChat={(text) => {
+              setChatPrefill(text)
+              setBriefingBadgeCount(0)
+              setMode('chat')
+            }}
+            onEmpty={() => setMode('chat')}
+            onHighFlagCount={(count) => setBriefingBadgeCount(count)}
+          />
+        )}
+        {mode === 'documents' && (
+          <DocumentsPanel
+            onOpenChat={(text) => {
+              setChatPrefill(text)
+              setMode('chat')
+            }}
+          />
+        )}
+        {mode === 'settings' && (
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            <BusinessContextPanel />
+            <CadencePanel />
+            <NotificationChannelsPanel />
+          </div>
+        )}
       </main>
 
       {/* Bottom tab bar — mobile only */}
@@ -193,7 +252,9 @@ export default function AppShell() {
             key={item.id}
             role="tab"
             aria-selected={mode === item.id}
-            onClick={() => setMode(item.id)}
+            onClick={() => {
+              setMode(item.id)
+            }}
             title={item.label}
             style={{
               flex: 1,
@@ -209,10 +270,30 @@ export default function AppShell() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               cursor: 'pointer',
               padding: 4,
+              position: 'relative',
             }}
           >
             <item.Icon size={20} />
             <span>{item.label}</span>
+            {item.id === 'briefing' && briefingBadgeCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 2,
+                  right: '50%',
+                  transform: 'translateX(10px)',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: '#0a0e27',
+                  background: '#f59e0b',
+                  borderRadius: 6,
+                  padding: '1px 4px',
+                  lineHeight: 1.4,
+                }}
+              >
+                {briefingBadgeCount}
+              </span>
+            )}
           </button>
         ))}
       </div>
