@@ -268,10 +268,7 @@ test('T19: components/documents/VersionHistoryPanel.tsx exists', () => {
 
 // ── T20: AppShell imports DocumentsPanel ─────────────────────────────────────
 test('T20: AppShell source contains DocumentsPanel import', () => {
-  const src = fs.readFileSync(
-    path.join(process.cwd(), 'components/layout/AppShell.tsx'),
-    'utf-8'
-  )
+  const src = fs.readFileSync(path.join(process.cwd(), 'components/layout/AppShell.tsx'), 'utf-8')
   expect(src).toContain('DocumentsPanel')
 })
 

@@ -64,7 +64,10 @@ export function CadencePanel() {
 
   async function handleSave() {
     const err = validateConfig(config)
-    if (err) { setValidationError(err); return }
+    if (err) {
+      setValidationError(err)
+      return
+    }
     setSaving(true)
     setStatus('idle')
     try {
@@ -107,7 +110,8 @@ export function CadencePanel() {
         Check-In Cadence
       </h2>
       <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20, lineHeight: 1.6 }}>
-        Điều chỉnh tần suất ARIA gửi nhắc nhở check-in. Thay đổi sẽ áp dụng từ lần chạy lịch tiếp theo.
+        Điều chỉnh tần suất ARIA gửi nhắc nhở check-in. Thay đổi sẽ áp dụng từ lần chạy lịch tiếp
+        theo.
       </p>
 
       {loading ? (
@@ -127,9 +131,7 @@ export function CadencePanel() {
                 onChange={(e) => handleChange('enabled', e.target.checked)}
                 style={{ width: 16, height: 16, cursor: 'pointer' }}
               />
-              <span style={{ fontSize: 14, fontWeight: 500 }}>
-                Bật nhắc nhở check-in tự động
-              </span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>Bật nhắc nhở check-in tự động</span>
             </label>
           </div>
 
@@ -240,9 +242,7 @@ export function CadencePanel() {
 
           {/* Save row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {status === 'saved' && (
-              <span style={{ fontSize: 13, color: '#14b8a6' }}>Đã lưu</span>
-            )}
+            {status === 'saved' && <span style={{ fontSize: 13, color: '#14b8a6' }}>Đã lưu</span>}
             {status === 'error' && !validationError && (
               <span style={{ fontSize: 13, color: '#ef4444' }}>Lưu thất bại — thử lại</span>
             )}

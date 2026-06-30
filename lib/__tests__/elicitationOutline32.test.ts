@@ -36,7 +36,8 @@ function mockClassifyIntent(raw: string): { intent: string; confidence: number }
   if (!VALID_BUCKETS.includes(intent)) {
     return { intent: 'general_chat', confidence: 0 }
   }
-  const confidence = typeof parsed.confidence === 'number' ? Math.min(1, Math.max(0, parsed.confidence)) : 0
+  const confidence =
+    typeof parsed.confidence === 'number' ? Math.min(1, Math.max(0, parsed.confidence)) : 0
   return { intent, confidence }
 }
 
@@ -82,7 +83,10 @@ console.log('T3 — document_creation specialist prompt exists and is substantia
   const promptStart = orchestratorSrc.indexOf('DOCUMENT CREATION PROTOCOL')
   check(promptStart > -1, 'DOCUMENT CREATION PROTOCOL block exists in source')
   const promptLength = orchestratorSrc.indexOf('TEMPLATE REQUIREMENTS') - promptStart
-  check(promptLength > 500, `prompt content is substantial (${promptLength} chars before TEMPLATE block)`)
+  check(
+    promptLength > 500,
+    `prompt content is substantial (${promptLength} chars before TEMPLATE block)`
+  )
 }
 
 // T4 — Specialist prompt contains Vietnamese outline approval microcopy
@@ -106,10 +110,7 @@ console.log('T5 — Prompt contains English approval phrase')
 // T6 — Specialist prompt contains create_document instruction
 console.log('T6 — Prompt instructs calling create_document')
 {
-  check(
-    orchestratorSrc.includes('create_document'),
-    'prompt references create_document tool call'
-  )
+  check(orchestratorSrc.includes('create_document'), 'prompt references create_document tool call')
 }
 
 // T7 — INTENT_MODEL_MAP.document_creation is the high-judgment model
@@ -117,7 +118,10 @@ console.log('T7 — document_creation uses highJudgment model (AD-4)')
 {
   const diModelLine = orchestratorSrc.match(/deal_intelligence:\s*ARIA_MODELS\.(\w+)/)?.[1]
   const dcModelLine = orchestratorSrc.match(/document_creation:\s*ARIA_MODELS\.(\w+)/)?.[1]
-  check(dcModelLine === 'highJudgment', `document_creation maps to highJudgment (found: ${dcModelLine})`)
+  check(
+    dcModelLine === 'highJudgment',
+    `document_creation maps to highJudgment (found: ${dcModelLine})`
+  )
   check(
     dcModelLine === diModelLine,
     'document_creation uses the same model tier as deal_intelligence'
@@ -191,19 +195,13 @@ console.log('T12 — Prompt contains Proposal template sections')
     orchestratorSrc.includes('Understanding your situation'),
     'prompt contains Proposal section "Understanding your situation"'
   )
-  check(
-    orchestratorSrc.includes('Investment'),
-    'prompt contains Proposal section "Investment"'
-  )
+  check(orchestratorSrc.includes('Investment'), 'prompt contains Proposal section "Investment"')
 }
 
 // T13 — Specialist prompt references language_pref for document language
 console.log('T13 — Prompt references language_pref')
 {
-  check(
-    orchestratorSrc.includes('language_pref'),
-    'prompt references client language_pref field'
-  )
+  check(orchestratorSrc.includes('language_pref'), 'prompt references client language_pref field')
 }
 
 // T14 — Specialist prompt contains guidance rationale instruction (FR-3/FR-22)
@@ -231,21 +229,18 @@ console.log('T16 — documentCreationTools.ts filter expression is in code, not 
   // Both tool names appear in the filter condition: t.name === 'get_deal' || t.name === 'get_client'
   check(
     docToolsSrc.includes("t.name === 'get_deal'"),
-    'filter expression `t.name === \'get_deal\'` is present in source code'
+    "filter expression `t.name === 'get_deal'` is present in source code"
   )
   check(
     docToolsSrc.includes("t.name === 'get_client'"),
-    'filter expression `t.name === \'get_client\'` is present in source code'
+    "filter expression `t.name === 'get_client'` is present in source code"
   )
 }
 
 // T17 — Prompt contains TOOL CONSTRAINT guard (no update_intelligence_fields)
 console.log('T17 — Prompt has TOOL CONSTRAINT guard')
 {
-  check(
-    orchestratorSrc.includes('TOOL CONSTRAINT'),
-    'prompt contains "TOOL CONSTRAINT" guard'
-  )
+  check(orchestratorSrc.includes('TOOL CONSTRAINT'), 'prompt contains "TOOL CONSTRAINT" guard')
   check(
     orchestratorSrc.includes('update_intelligence_fields') &&
       orchestratorSrc.indexOf('TOOL CONSTRAINT') <

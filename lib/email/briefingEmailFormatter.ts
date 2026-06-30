@@ -18,10 +18,8 @@ export interface BriefingEmailOutput {
   text: string
 }
 
-const UNSUBSCRIBE_VI =
-  'Để huỷ nhận email, đăng nhập ARIA > Cài đặt > Kênh thông báo.'
-const UNSUBSCRIBE_EN =
-  'To unsubscribe, sign in to ARIA > Settings > Notification Channels.'
+const UNSUBSCRIBE_VI = 'Để huỷ nhận email, đăng nhập ARIA > Cài đặt > Kênh thông báo.'
+const UNSUBSCRIBE_EN = 'To unsubscribe, sign in to ARIA > Settings > Notification Channels.'
 
 function stripMarkdown(md: string): string {
   return md
@@ -40,7 +38,7 @@ function formatDateVi(isoDate: string): string {
 
 export function formatBriefingEmail(
   briefing: BriefingEmailInput,
-  lang: 'vi' | 'en' = 'vi',
+  lang: 'vi' | 'en' = 'vi'
 ): BriefingEmailOutput {
   const hasHighUrgency = (briefing.flags?.items ?? []).some((f) => f.severity === 'high')
 

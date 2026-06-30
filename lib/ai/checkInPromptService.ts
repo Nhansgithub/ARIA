@@ -6,12 +6,9 @@ type TriggerType = 'stale_7d' | 'pre_action_due' | 'cadence_followup'
 
 // AD-6 static fallbacks — returned when AI is unavailable
 const STATIC_FALLBACKS: Record<TriggerType, (title: string) => string> = {
-  stale_7d: (t) =>
-    `Giao dịch ${t} chưa có hoạt động 7 ngày. Bạn có kế hoạch gì tiếp theo?`,
-  pre_action_due: (t) =>
-    `Hành động cho ${t} đến hạn ngày mai. Bạn đã chuẩn bị chưa?`,
-  cadence_followup: (t) =>
-    `Đã đến lúc theo dõi ${t}. Bạn muốn ARIA hỗ trợ gì?`,
+  stale_7d: (t) => `Giao dịch ${t} chưa có hoạt động 7 ngày. Bạn có kế hoạch gì tiếp theo?`,
+  pre_action_due: (t) => `Hành động cho ${t} đến hạn ngày mai. Bạn đã chuẩn bị chưa?`,
+  cadence_followup: (t) => `Đã đến lúc theo dõi ${t}. Bạn muốn ARIA hỗ trợ gì?`,
 }
 
 // AD-5: system prompt is the stable prefix — cache_control applied by callAI automatically
@@ -22,7 +19,7 @@ Tối đa 80 ký tự.`
 export async function generateCheckInPrompt(
   dealTitle: string,
   triggerType: TriggerType,
-  today: string,
+  today: string
 ): Promise<string> {
   const triggerContext: Record<TriggerType, string> = {
     stale_7d: 'Giao dịch đã không có hoạt động trong 7 ngày',
@@ -49,6 +46,9 @@ Viết một câu hỏi check-in ngắn cho chủ doanh nghiệp về deal này.
     return STATIC_FALLBACKS[triggerType](dealTitle).slice(0, 80)
   }
 
-  const trimmed = result.data.trim().replace(/^["']|["']$/g, '').slice(0, 80)
+  const trimmed = result.data
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .slice(0, 80)
   return trimmed || STATIC_FALLBACKS[triggerType](dealTitle).slice(0, 80)
 }

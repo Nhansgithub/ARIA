@@ -93,7 +93,13 @@ function processDeal(
   lastEntry: SimLogEntry | null,
   config: CadenceConfig = DEFAULT_CADENCE
 ): ProcessResult {
-  if (!lastEntry) return { wasMarkedStale: false, alreadyStale: !!deal.stale_since, cadenceStep: null, cadenceReset: false }
+  if (!lastEntry)
+    return {
+      wasMarkedStale: false,
+      alreadyStale: !!deal.stale_since,
+      cadenceStep: null,
+      cadenceReset: false,
+    }
 
   const todayStr = new Date().toISOString().split('T')[0]!
   const lastActivityDateStr = lastEntry.created_at.split('T')[0]!
@@ -154,7 +160,10 @@ console.log('\nT2: isProposalStage — proposal-like stage detection')
   assert(isProposalStage('proposal'), '"proposal" is proposal stage')
   assert(isProposalStage('Giai đoạn đề xuất'), '"đề xuất" is proposal stage (Vietnamese)')
   assert(isProposalStage('sent quote'), '"sent quote" is proposal stage')
-  assert(isProposalStage('Quote Sent to Client'), '"Quote Sent" is proposal stage (case-insensitive)')
+  assert(
+    isProposalStage('Quote Sent to Client'),
+    '"Quote Sent" is proposal stage (case-insensitive)'
+  )
   assert(!isProposalStage('discovery'), '"discovery" is not proposal stage')
   assert(!isProposalStage('contract'), '"contract" is not proposal stage')
   assert(!isProposalStage('Đang chờ quyết định'), 'arbitrary Vietnamese text is not proposal stage')
@@ -184,7 +193,14 @@ console.log('\nT4: computeCadenceStep — first=3, second=7')
 // T5: Stale detection — idle >=7, stale_since null → marked stale
 console.log('\nT5: processDeal — idle >=7, stale_since null → wasMarkedStale')
 {
-  const deal: SimDeal = { id: 'd1', title: 'Old Proposal', stage: 'discovery', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd1',
+    title: 'Old Proposal',
+    stage: 'discovery',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(10) }
   const result = processDeal(deal, entry)
   assert(result.wasMarkedStale === true, 'idle 10 days → wasMarkedStale')
@@ -195,7 +211,14 @@ console.log('\nT5: processDeal — idle >=7, stale_since null → wasMarkedStale
 console.log('\nT6: processDeal — stale_since already set → no re-mark')
 {
   const staleSince = daysAgo(10).split('T')[0]!
-  const deal: SimDeal = { id: 'd2', title: 'Already Stale', stage: 'discovery', stale_since: staleSince, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd2',
+    title: 'Already Stale',
+    stage: 'discovery',
+    stale_since: staleSince,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(10) }
   const result = processDeal(deal, entry)
   assert(result.wasMarkedStale === false, 'stale_since already set → wasMarkedStale=false')
@@ -206,8 +229,22 @@ console.log('\nT6: processDeal — stale_since already set → no re-mark')
 console.log('\nT7: Empty CRM guard — all deals closed → no processing')
 {
   const deals: SimDeal[] = [
-    { id: 'd1', title: 'Won Deal', stage: 'won', stale_since: null, next_action: null, next_action_due: null },
-    { id: 'd2', title: 'Lost Deal', stage: 'lost', stale_since: null, next_action: null, next_action_due: null },
+    {
+      id: 'd1',
+      title: 'Won Deal',
+      stage: 'won',
+      stale_since: null,
+      next_action: null,
+      next_action_due: null,
+    },
+    {
+      id: 'd2',
+      title: 'Lost Deal',
+      stage: 'lost',
+      stale_since: null,
+      next_action: null,
+      next_action_due: null,
+    },
   ]
   const activeDeals = deals.filter((d) => !isClosedStage(d.stage))
   assert(activeDeals.length === 0, 'all closed stages → zero active deals (empty CRM guard)')
@@ -216,7 +253,14 @@ console.log('\nT7: Empty CRM guard — all deals closed → no processing')
 // T8: Proposal cadence step 1 — idle >=3 and <7
 console.log('\nT8: Proposal cadence step 1 — idle 4 days')
 {
-  const deal: SimDeal = { id: 'd3', title: 'Proposal', stage: 'proposal', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd3',
+    title: 'Proposal',
+    stage: 'proposal',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(4) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === 1, '4 days idle at proposal → cadence step 1')
@@ -226,7 +270,14 @@ console.log('\nT8: Proposal cadence step 1 — idle 4 days')
 // T9: Proposal cadence step 2 — idle >=7
 console.log('\nT9: Proposal cadence step 2 — idle >=7 days')
 {
-  const deal: SimDeal = { id: 'd4', title: 'Overdue Proposal', stage: 'proposal', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd4',
+    title: 'Overdue Proposal',
+    stage: 'proposal',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(9) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === 2, '9 days idle at proposal → cadence step 2')
@@ -236,7 +287,14 @@ console.log('\nT9: Proposal cadence step 2 — idle >=7 days')
 // T10: Non-proposal stage — no cadence applied even if idle
 console.log('\nT10: Non-proposal stage — no cadence even when idle')
 {
-  const deal: SimDeal = { id: 'd5', title: 'Discovery Deal', stage: 'discovery', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd5',
+    title: 'Discovery Deal',
+    stage: 'discovery',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(5) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === null, 'discovery stage → no cadence')
@@ -246,14 +304,20 @@ console.log('\nT10: Non-proposal stage — no cadence even when idle')
 console.log('\nT11: Cadence reset — user activity within firstFollowUpDays clears cadence')
 {
   const deal: SimDeal = {
-    id: 'd6', title: 'Reset Deal', stage: 'proposal', stale_since: null,
+    id: 'd6',
+    title: 'Reset Deal',
+    stage: 'proposal',
+    stale_since: null,
     next_action: 'Nhắc lần 1: Theo dõi đề xuất — đã 3 ngày chưa có phản hồi',
     next_action_due: '2026-06-27',
   }
   // User logged activity yesterday → daysIdle = 1 < firstFollowUpDays (3)
   const entry: SimLogEntry = { actor: 'user', created_at: daysAgo(1) }
   const result = processDeal(deal, entry)
-  assert(result.cadenceReset === true, 'user activity + daysIdle < firstFollowUpDays → cadence reset')
+  assert(
+    result.cadenceReset === true,
+    'user activity + daysIdle < firstFollowUpDays → cadence reset'
+  )
   assert(result.cadenceStep === null, 'cadence reset path → no new cadence step')
 }
 
@@ -261,7 +325,10 @@ console.log('\nT11: Cadence reset — user activity within firstFollowUpDays cle
 console.log('\nT12: Cadence reset — manually-set next_action not cleared by user activity')
 {
   const deal: SimDeal = {
-    id: 'd7', title: 'Manual Action', stage: 'proposal', stale_since: null,
+    id: 'd7',
+    title: 'Manual Action',
+    stage: 'proposal',
+    stale_since: null,
     next_action: 'Gọi điện cho khách hàng',
     next_action_due: '2026-07-01',
   }
@@ -284,7 +351,14 @@ console.log('\nT13: Cadence message format')
 // T14: Vietnamese proposal stage triggers cadence
 console.log('\nT14: Vietnamese "đề xuất" stage → cadence applies')
 {
-  const deal: SimDeal = { id: 'd8', title: 'VN Deal', stage: 'Giai đoạn đề xuất', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd8',
+    title: 'VN Deal',
+    stage: 'Giai đoạn đề xuất',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(5) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === 1, 'Vietnamese đề xuất stage, 5 days idle → cadence step 1')
@@ -293,7 +367,14 @@ console.log('\nT14: Vietnamese "đề xuất" stage → cadence applies')
 // T15: Boundary — idle exactly 3 → step 1
 console.log('\nT15: Cadence boundary — idle exactly 3 days → step 1')
 {
-  const deal: SimDeal = { id: 'd9', title: 'Boundary Proposal', stage: 'proposal', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd9',
+    title: 'Boundary Proposal',
+    stage: 'proposal',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(3) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === 1, 'idle exactly 3 days → step 1 (threshold is >=3)')
@@ -302,7 +383,14 @@ console.log('\nT15: Cadence boundary — idle exactly 3 days → step 1')
 // T16: Boundary — idle exactly 7 → step 2 AND stale
 console.log('\nT16: Boundary — idle exactly 7 days → step 2 + stale')
 {
-  const deal: SimDeal = { id: 'd10', title: 'Boundary 7', stage: 'proposal', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd10',
+    title: 'Boundary 7',
+    stage: 'proposal',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const entry: SimLogEntry = { actor: 'ai', created_at: daysAgo(7) }
   const result = processDeal(deal, entry)
   assert(result.cadenceStep === 2, 'idle exactly 7 days at proposal → step 2 (>=7)')
@@ -312,7 +400,14 @@ console.log('\nT16: Boundary — idle exactly 7 days → step 2 + stale')
 // T17: No activity log entry → skipped (returns no result)
 console.log('\nT17: No activity log entry → deal skipped')
 {
-  const deal: SimDeal = { id: 'd11', title: 'No Log', stage: 'proposal', stale_since: null, next_action: null, next_action_due: null }
+  const deal: SimDeal = {
+    id: 'd11',
+    title: 'No Log',
+    stage: 'proposal',
+    stale_since: null,
+    next_action: null,
+    next_action_due: null,
+  }
   const result = processDeal(deal, null)
   assert(result.wasMarkedStale === false, 'no log entry → not marked stale')
   assert(result.cadenceStep === null, 'no log entry → no cadence')
@@ -321,7 +416,11 @@ console.log('\nT17: No activity log entry → deal skipped')
 // T18: Configurable thresholds override defaults
 console.log('\nT18: Custom cadence config — thresholds override defaults')
 {
-  const customConfig: CadenceConfig = { staleThresholdDays: 14, firstFollowUpDays: 5, secondFollowUpDays: 14 }
+  const customConfig: CadenceConfig = {
+    staleThresholdDays: 14,
+    firstFollowUpDays: 5,
+    secondFollowUpDays: 14,
+  }
   assert(!isStale(7, customConfig), 'with staleThreshold=14, idle 7 days is NOT stale')
   assert(isStale(14, customConfig), 'with staleThreshold=14, idle 14 days IS stale')
   assert(computeCadenceStep(4, customConfig) === null, 'with firstFollowUp=5, idle 4 → null')
@@ -335,7 +434,10 @@ console.log('\nT19: File checks — staleDealService.ts structure')
   const src = path.join(process.cwd(), 'lib', 'crm', 'staleDealService.ts')
   assert(fs.existsSync(src), 'lib/crm/staleDealService.ts exists')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
-  assert(content.startsWith("import 'server-only'"), "staleDealService.ts starts with import 'server-only' (AD-11)")
+  assert(
+    content.startsWith("import 'server-only'"),
+    "staleDealService.ts starts with import 'server-only' (AD-11)"
+  )
   assert(content.includes('detectAndFlagStaleDeals'), 'exports detectAndFlagStaleDeals')
   assert(content.includes('getCadenceConfig'), 'exports getCadenceConfig')
   assert(content.includes('CadenceConfig'), 'exports CadenceConfig interface')
@@ -343,7 +445,10 @@ console.log('\nT19: File checks — staleDealService.ts structure')
   assert(content.includes('createServerClient'), 'uses createServerClient (AD-13)')
   assert(!content.includes('createServiceClient'), 'does NOT use createServiceClient (AD-13)')
   assert(content.includes(".eq('owner_id', ownerId)"), 'enforces owner_id guard (AD-2)')
-  assert(content.includes(".is('stale_since', null)"), 'idempotent stale_since write uses .is(null) guard')
+  assert(
+    content.includes(".is('stale_since', null)"),
+    'idempotent stale_since write uses .is(null) guard'
+  )
 }
 
 // T20: Activity log actions
@@ -352,7 +457,10 @@ console.log('\nT20: Activity log action names match spec')
   const src = path.join(process.cwd(), 'lib', 'crm', 'staleDealService.ts')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   assert(content.includes("'stale_detected'"), "staleDealService uses action 'stale_detected'")
-  assert(content.includes("'follow_up_cadence_flagged'"), "staleDealService uses action 'follow_up_cadence_flagged'")
+  assert(
+    content.includes("'follow_up_cadence_flagged'"),
+    "staleDealService uses action 'follow_up_cadence_flagged'"
+  )
   assert(content.includes("actor: 'ai'"), "activity log actor is 'ai'")
 }
 
@@ -377,7 +485,10 @@ console.log('\nT22: logActivity uses fire-and-forget (.catch) to avoid roll-back
 {
   const src = path.join(process.cwd(), 'lib', 'crm', 'staleDealService.ts')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
-  assert(content.includes('.catch('), 'staleDealService uses .catch() on logActivity (fire-and-forget pattern)')
+  assert(
+    content.includes('.catch('),
+    'staleDealService uses .catch() on logActivity (fire-and-forget pattern)'
+  )
   // True fire-and-forget: logActivity calls should not be preceded by 'await' on the same line
   const lines = content.split('\n')
   const badLines = lines.filter((l) => /^\s*await\s+logActivity\(/.test(l))
@@ -394,7 +505,8 @@ console.log('\nT23: package.json test scripts')
     'package.json has test:stale-deal42 script'
   )
   assert(
-    typeof pkg.scripts?.test === 'string' && pkg.scripts.test.includes('staleDealDetection42.test.ts'),
+    typeof pkg.scripts?.test === 'string' &&
+      pkg.scripts.test.includes('staleDealDetection42.test.ts'),
     'staleDealDetection42.test.ts is in the main test chain'
   )
 }
@@ -404,8 +516,10 @@ console.log('\nT25: Cadence idempotency — comparing step prefix, not full mess
 {
   // Idempotency helper mirrors production logic
   const isStepAlreadySet = (currentNextAction: string | null, cadenceStep: 1 | 2): boolean => {
-    if (cadenceStep === 1) return typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 1')
-    if (cadenceStep === 2) return typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 2')
+    if (cadenceStep === 1)
+      return typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 1')
+    if (cadenceStep === 2)
+      return typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 2')
     return false
   }
   // Step 1 already set → no update even if day count in message differs
@@ -415,7 +529,10 @@ console.log('\nT25: Cadence idempotency — comparing step prefix, not full mess
   const step2Msg = 'Nhắc lần 2: Theo dõi đề xuất — đã 8 ngày chưa có phản hồi'
   assert(isStepAlreadySet(step2Msg, 2), 'step 2 message → recognized as step 2 (no re-write)')
   // Step escalation from 1 → 2 SHOULD trigger update
-  assert(!isStepAlreadySet(step1Msg, 2), 'existing step 1 msg → NOT recognized as step 2 (escalation fires)')
+  assert(
+    !isStepAlreadySet(step1Msg, 2),
+    'existing step 1 msg → NOT recognized as step 2 (escalation fires)'
+  )
   // Null next_action → always triggers write
   assert(!isStepAlreadySet(null, 1), 'null next_action → step not set, write fires')
   // StaleDealResult includes cadenceReset field
@@ -427,7 +544,12 @@ console.log('\nT25: Cadence idempotency — comparing step prefix, not full mess
 // T24: sprint-status.yaml has story 4-2 in-progress
 console.log('\nT24: sprint-status.yaml reflects story 4-2 status')
 {
-  const statusPath = path.join(process.cwd(), '_bmad-output', 'implementation-artifacts', 'sprint-status.yaml')
+  const statusPath = path.join(
+    process.cwd(),
+    '_bmad-output',
+    'implementation-artifacts',
+    'sprint-status.yaml'
+  )
   const content = fs.existsSync(statusPath) ? fs.readFileSync(statusPath, 'utf8') : ''
   assert(
     content.includes('4-2-stale-deal-detection-follow-up-cadence-engine'),

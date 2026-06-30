@@ -24,14 +24,7 @@ function assert(condition: boolean, label: string): void {
 // ── Inline type mirrors (no project imports) ──────────────────────────────────
 
 type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 interface MissingDocumentFlag {
   document_type: DocumentType
@@ -134,10 +127,19 @@ console.log('T1: STAGE_REQUIRED_DOCS mapping correctness')
   const kickoffRule = STAGE_REQUIRED_DOCS.find((r) => r.keywords.includes('kickoff'))
 
   assert(proposalRule !== undefined, 'proposal rule exists')
-  assert(proposalRule?.required.includes('proposal') === true, 'proposal rule requires proposal doc')
+  assert(
+    proposalRule?.required.includes('proposal') === true,
+    'proposal rule requires proposal doc'
+  )
   assert(contractRule !== undefined, 'contract rule exists')
-  assert(contractRule?.required.includes('proposal') === true, 'contract rule requires proposal doc')
-  assert(contractRule?.required.includes('contract') === true, 'contract rule requires contract doc')
+  assert(
+    contractRule?.required.includes('proposal') === true,
+    'contract rule requires proposal doc'
+  )
+  assert(
+    contractRule?.required.includes('contract') === true,
+    'contract rule requires contract doc'
+  )
   assert(kickoffRule !== undefined, 'kickoff/delivery rule exists')
   assert(kickoffRule?.required.includes('brief') === true, 'delivery rule requires brief doc')
 }
@@ -148,8 +150,14 @@ console.log('\nT2: Proposal stage, no docs → proposal flagged')
   const flags = simulateDetect({ stage: 'proposal' }, [])
   assert(flags.length === 1, 'exactly 1 flag returned')
   assert(flags[0]?.document_type === 'proposal', 'flag is for proposal')
-  assert(typeof flags[0]?.rationale_vi === 'string' && flags[0].rationale_vi.length > 10, 'VI rationale is non-empty')
-  assert(typeof flags[0]?.rationale_en === 'string' && flags[0].rationale_en.length > 10, 'EN rationale is non-empty')
+  assert(
+    typeof flags[0]?.rationale_vi === 'string' && flags[0].rationale_vi.length > 10,
+    'VI rationale is non-empty'
+  )
+  assert(
+    typeof flags[0]?.rationale_en === 'string' && flags[0].rationale_en.length > 10,
+    'EN rationale is non-empty'
+  )
 }
 
 // T3: Contract stage, no docs → both proposal and contract flagged
@@ -165,9 +173,7 @@ console.log('\nT3: Contract stage, no docs → proposal + contract flagged')
 // T4: Contract stage, proposal already exists → only contract flagged
 console.log('\nT4: Contract stage, proposal present → only contract flagged')
 {
-  const flags = simulateDetect({ stage: 'contract stage' }, [
-    { type: 'proposal', status: 'sent' },
-  ])
+  const flags = simulateDetect({ stage: 'contract stage' }, [{ type: 'proposal', status: 'sent' }])
   assert(flags.length === 1, 'exactly 1 flag returned')
   assert(flags[0]?.document_type === 'contract', 'flag is for contract')
 }
@@ -218,9 +224,7 @@ console.log('\nT9: Discovery stage → no required docs')
 // T10: Archived doc (status=archived) is not counted as "present"
 console.log('\nT10: Archived document not counted — flag still returned')
 {
-  const flags = simulateDetect({ stage: 'proposal' }, [
-    { type: 'proposal', status: 'archived' },
-  ])
+  const flags = simulateDetect({ stage: 'proposal' }, [{ type: 'proposal', status: 'archived' }])
   assert(flags.length === 1, 'archived doc does not satisfy requirement')
   assert(flags[0]?.document_type === 'proposal', 'proposal is still flagged')
 }
@@ -257,7 +261,10 @@ console.log('\nT13: orchestrator.ts contains MISSING DOCUMENT CHECK section')
   const orchestratorFile = path.join(process.cwd(), 'lib', 'ai', 'orchestrator.ts')
   assert(fs.existsSync(orchestratorFile), 'lib/ai/orchestrator.ts exists')
   const contents = fs.readFileSync(orchestratorFile, 'utf8')
-  assert(contents.includes('MISSING DOCUMENT CHECK'), 'orchestrator.ts contains MISSING DOCUMENT CHECK')
+  assert(
+    contents.includes('MISSING DOCUMENT CHECK'),
+    'orchestrator.ts contains MISSING DOCUMENT CHECK'
+  )
   assert(
     contents.includes('Anh có muốn em soạn'),
     'orchestrator.ts contains Vietnamese offer to draft'

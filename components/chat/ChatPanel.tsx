@@ -78,7 +78,7 @@ export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPan
       setInputValue(initialPrefill)
       onPrefillConsumed?.()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrefill])
 
   // Fetch urgent badge count on mount for dismissible banner (Story 5.1)
@@ -86,7 +86,9 @@ export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPan
     fetch('/api/notifications/badge-count')
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { count: number }) => setUrgentCount(d.count))
-      .catch(() => { /* AD-6 */ })
+      .catch(() => {
+        /* AD-6 */
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -100,7 +102,9 @@ export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPan
           setShowZaloNote(true)
         }
       })
-      .catch(() => { /* AD-6 */ })
+      .catch(() => {
+        /* AD-6 */
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -833,9 +837,7 @@ export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPan
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            <span>
-              Có {urgentCount} mục cần xử lý — xem Briefing để biết chi tiết.
-            </span>
+            <span>Có {urgentCount} mục cần xử lý — xem Briefing để biết chi tiết.</span>
             <button
               onClick={() => setBannerDismissed(true)}
               aria-label="Đóng thông báo"
@@ -882,7 +884,9 @@ export default function ChatPanel({ initialPrefill, onPrefillConsumed }: ChatPan
                   method: 'PATCH',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ zalo_setup_note_shown: true }),
-                }).catch(() => { /* AD-6 */ })
+                }).catch(() => {
+                  /* AD-6 */
+                })
               }}
               aria-label="Đóng thông báo Zalo"
               style={{

@@ -12,7 +12,10 @@ function requireTool<T extends readonly { name: string }[]>(
   source: string
 ): T[number] {
   const tool = arr.find((t) => t.name === name)
-  if (!tool) throw new Error(`pipelineStatusTools: '${name}' missing from ${source} — tool was renamed or removed`)
+  if (!tool)
+    throw new Error(
+      `pipelineStatusTools: '${name}' missing from ${source} — tool was renamed or removed`
+    )
   return tool
 }
 

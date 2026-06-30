@@ -40,8 +40,15 @@ function formatDateVi(isoDate: string): string {
   return `${day}/${month}/${year}`
 }
 
-interface BriefingFlagItem { severity: 'high' | 'medium'; type: string }
-interface BriefingInput { date: string; content_md: string | null; flags: { items?: BriefingFlagItem[] } | null }
+interface BriefingFlagItem {
+  severity: 'high' | 'medium'
+  type: string
+}
+interface BriefingInput {
+  date: string
+  content_md: string | null
+  flags: { items?: BriefingFlagItem[] } | null
+}
 
 function formatBriefingEmail(briefing: BriefingInput, lang: 'vi' | 'en' = 'vi') {
   const hasHighUrgency = (briefing.flags?.items ?? []).some((f) => f.severity === 'high')
@@ -60,23 +67,34 @@ function formatBriefingEmail(briefing: BriefingInput, lang: 'vi' | 'en' = 'vi') 
   const UNSUBSCRIBE_EN = 'To unsubscribe, sign in to ARIA > Settings > Notification Channels.'
   const bodyContent = briefing.content_md
     ? stripMarkdown(briefing.content_md).slice(0, 2000)
-    : lang === 'vi' ? 'Không có nội dung briefing hôm nay.' : 'No briefing content available today.'
+    : lang === 'vi'
+      ? 'Không có nội dung briefing hôm nay.'
+      : 'No briefing content available today.'
   const footer = lang === 'vi' ? UNSUBSCRIBE_VI : UNSUBSCRIBE_EN
   const text = `${bodyContent}\n\n---\n${footer}`
   return { subject, text }
 }
 
-interface CheckInInput { deal_title: string; prompt_template: string | null }
+interface CheckInInput {
+  deal_title: string
+  prompt_template: string | null
+}
 
 function formatCheckInEmail(checkIn: CheckInInput, lang: 'vi' | 'en' = 'vi') {
-  const subject = lang === 'vi'
-    ? `ARIA Nhắc nhở — ${checkIn.deal_title}`
-    : `ARIA Check-in — ${checkIn.deal_title}`
+  const subject =
+    lang === 'vi'
+      ? `ARIA Nhắc nhở — ${checkIn.deal_title}`
+      : `ARIA Check-in — ${checkIn.deal_title}`
   const greeting = lang === 'vi' ? 'Xin chào,' : 'Hello,'
-  const dealLine = lang === 'vi'
-    ? `ARIA có một nhắc nhở check-in cho deal: ${checkIn.deal_title}`
-    : `ARIA has a check-in reminder for deal: ${checkIn.deal_title}`
-  const prompt = checkIn.prompt_template ?? (lang === 'vi' ? 'Bạn có cập nhật nào cho deal này không?' : 'Do you have any updates for this deal?')
+  const dealLine =
+    lang === 'vi'
+      ? `ARIA có một nhắc nhở check-in cho deal: ${checkIn.deal_title}`
+      : `ARIA has a check-in reminder for deal: ${checkIn.deal_title}`
+  const prompt =
+    checkIn.prompt_template ??
+    (lang === 'vi'
+      ? 'Bạn có cập nhật nào cho deal này không?'
+      : 'Do you have any updates for this deal?')
   const REPLY_VI = `Trả lời 1, 2, hoặc 3 trong app ARIA:\n1. Có\n2. Không\n3. Để sau`
   const REPLY_EN = `Reply 1, 2, or 3 in the ARIA app:\n1. Yes\n2. No\n3. Later`
   const UNSUBSCRIBE_VI = 'Để huỷ nhận email, đăng nhập ARIA > Cài đặt > Kênh thông báo.'
@@ -96,21 +114,30 @@ test('T1: vi briefing subject — no high flag', () => {
 })
 
 test('T2: vi briefing subject — high severity flag → [Cần xử lý] prefix', () => {
-  const { subject } = formatBriefingEmail(
-    { date: '2026-07-01', content_md: 'Hi', flags: { items: [{ severity: 'high', type: 'risk' }] } },
-  )
+  const { subject } = formatBriefingEmail({
+    date: '2026-07-01',
+    content_md: 'Hi',
+    flags: { items: [{ severity: 'high', type: 'risk' }] },
+  })
   assert(subject.startsWith('[Cần xử lý]'), `Got: ${subject}`)
 })
 
 test('T3: en briefing subject — no high flag', () => {
-  const { subject } = formatBriefingEmail({ date: '2026-07-01', content_md: 'Hi', flags: null }, 'en')
+  const { subject } = formatBriefingEmail(
+    { date: '2026-07-01', content_md: 'Hi', flags: null },
+    'en'
+  )
   assert(subject === 'ARIA Briefing — 2026-07-01', `Got: ${subject}`)
 })
 
 test('T4: en briefing subject — high flag → [Action needed] prefix', () => {
   const { subject } = formatBriefingEmail(
-    { date: '2026-07-01', content_md: 'Hi', flags: { items: [{ severity: 'high', type: 'overdue' }] } },
-    'en',
+    {
+      date: '2026-07-01',
+      content_md: 'Hi',
+      flags: { items: [{ severity: 'high', type: 'overdue' }] },
+    },
+    'en'
   )
   assert(subject.startsWith('[Action needed]'), `Got: ${subject}`)
 })
@@ -184,9 +211,15 @@ const checkInFormatterFile = path.join(root, 'lib/email/checkInEmailFormatter.ts
 const cronRouteFile = path.join(root, 'app/api/cron/send-emails/route.ts')
 
 const migrationContent = fs.existsSync(migrationFile) ? fs.readFileSync(migrationFile, 'utf-8') : ''
-const emailServiceContent = fs.existsSync(emailServiceFile) ? fs.readFileSync(emailServiceFile, 'utf-8') : ''
-const briefingFormatterContent = fs.existsSync(briefingFormatterFile) ? fs.readFileSync(briefingFormatterFile, 'utf-8') : ''
-const checkInFormatterContent = fs.existsSync(checkInFormatterFile) ? fs.readFileSync(checkInFormatterFile, 'utf-8') : ''
+const emailServiceContent = fs.existsSync(emailServiceFile)
+  ? fs.readFileSync(emailServiceFile, 'utf-8')
+  : ''
+const briefingFormatterContent = fs.existsSync(briefingFormatterFile)
+  ? fs.readFileSync(briefingFormatterFile, 'utf-8')
+  : ''
+const checkInFormatterContent = fs.existsSync(checkInFormatterFile)
+  ? fs.readFileSync(checkInFormatterFile, 'utf-8')
+  : ''
 const cronRouteContent = fs.existsSync(cronRouteFile) ? fs.readFileSync(cronRouteFile, 'utf-8') : ''
 
 test('T16: migration file exists', () => {
@@ -208,11 +241,17 @@ test('T19: emailService.ts exists', () => {
 })
 
 test('T20: emailService.ts starts with import server-only (AD-11)', () => {
-  assert(emailServiceContent.trimStart().startsWith("import 'server-only'"), 'Must start with server-only import')
+  assert(
+    emailServiceContent.trimStart().startsWith("import 'server-only'"),
+    'Must start with server-only import'
+  )
 })
 
 test('T21: emailService.ts exports sendEmail function', () => {
-  assert(emailServiceContent.includes('export async function sendEmail'), 'Missing sendEmail export')
+  assert(
+    emailServiceContent.includes('export async function sendEmail'),
+    'Missing sendEmail export'
+  )
 })
 
 test('T22: emailService.ts uses RESEND_API_KEY env var', () => {
@@ -224,11 +263,17 @@ test('T23: briefingEmailFormatter.ts exists', () => {
 })
 
 test('T24: briefingEmailFormatter.ts starts with import server-only (AD-11)', () => {
-  assert(briefingFormatterContent.trimStart().startsWith("import 'server-only'"), 'Must start with server-only import')
+  assert(
+    briefingFormatterContent.trimStart().startsWith("import 'server-only'"),
+    'Must start with server-only import'
+  )
 })
 
 test('T25: briefingEmailFormatter.ts exports formatBriefingEmail', () => {
-  assert(briefingFormatterContent.includes('export function formatBriefingEmail'), 'Missing formatBriefingEmail export')
+  assert(
+    briefingFormatterContent.includes('export function formatBriefingEmail'),
+    'Missing formatBriefingEmail export'
+  )
 })
 
 test('T26: checkInEmailFormatter.ts exists', () => {
@@ -236,11 +281,17 @@ test('T26: checkInEmailFormatter.ts exists', () => {
 })
 
 test('T27: checkInEmailFormatter.ts starts with import server-only (AD-11)', () => {
-  assert(checkInFormatterContent.trimStart().startsWith("import 'server-only'"), 'Must start with server-only import')
+  assert(
+    checkInFormatterContent.trimStart().startsWith("import 'server-only'"),
+    'Must start with server-only import'
+  )
 })
 
 test('T28: checkInEmailFormatter.ts exports formatCheckInEmail', () => {
-  assert(checkInFormatterContent.includes('export function formatCheckInEmail'), 'Missing formatCheckInEmail export')
+  assert(
+    checkInFormatterContent.includes('export function formatCheckInEmail'),
+    'Missing formatCheckInEmail export'
+  )
 })
 
 test('T29: cron send-emails route.ts exists', () => {
@@ -259,8 +310,10 @@ test('T31: cron route imports createServiceClient (AD-13 — cron uses service c
 })
 
 test('T32: cron route does NOT import createServerClient (AD-13 — no owner request context)', () => {
-  const importLines = cronRouteContent.split('\n').filter(l => l.trimStart().startsWith('import '))
-  const hasImport = importLines.some(l => l.includes('createServerClient'))
+  const importLines = cronRouteContent
+    .split('\n')
+    .filter((l) => l.trimStart().startsWith('import '))
+  const hasImport = importLines.some((l) => l.includes('createServerClient'))
   assert(!hasImport, 'Must not import createServerClient in cron route')
 })
 
@@ -270,12 +323,18 @@ test('T33: cron route validates CRON_SECRET (returns 401 on failure)', () => {
 })
 
 test('T34: cron route reads CRON_SECRET from process.env', () => {
-  assert(cronRouteContent.includes('process.env.CRON_SECRET'), 'Missing CRON_SECRET env var reference')
+  assert(
+    cronRouteContent.includes('process.env.CRON_SECRET'),
+    'Missing CRON_SECRET env var reference'
+  )
 })
 
 test('T35: cron route queries briefings with is(email_sent_at, null)', () => {
   assert(cronRouteContent.includes("'briefings'"), 'Missing briefings query')
-  assert(cronRouteContent.includes("'email_sent_at'") || cronRouteContent.includes('email_sent_at'), 'Missing email_sent_at filter')
+  assert(
+    cronRouteContent.includes("'email_sent_at'") || cronRouteContent.includes('email_sent_at'),
+    'Missing email_sent_at filter'
+  )
   assert(cronRouteContent.includes('.is('), 'Missing .is() null check')
 })
 
@@ -299,7 +358,10 @@ test('T39: cron route updates email_sent_at on successful send', () => {
 
 test('T40: cron route has logFailure helper', () => {
   assert(cronRouteContent.includes('logFailure'), 'Missing logFailure function')
-  assert(cronRouteContent.includes('function logFailure'), 'logFailure must be declared as a function')
+  assert(
+    cronRouteContent.includes('function logFailure'),
+    'logFailure must be declared as a function'
+  )
 })
 
 test('T41: logFailure inserts into activity_log directly (not via logActivity)', () => {
@@ -308,8 +370,8 @@ test('T41: logFailure inserts into activity_log directly (not via logActivity)',
 })
 
 test('T42: cron route does NOT call logActivity in non-comment code (fails in cron — use direct insert)', () => {
-  const codeLines = cronRouteContent.split('\n').filter(l => !l.trimStart().startsWith('//'))
-  const calls = codeLines.some(l => l.includes('logActivity('))
+  const codeLines = cronRouteContent.split('\n').filter((l) => !l.trimStart().startsWith('//'))
+  const calls = codeLines.some((l) => l.includes('logActivity('))
   assert(!calls, 'Must not call logActivity() in cron — use direct insert via service client')
 })
 
@@ -318,8 +380,14 @@ test('T43: cron route uses auth.admin.getUserById to retrieve owner email', () =
 })
 
 test('T44: cron route returns sent.briefings, sent.checkIns, failed shape', () => {
-  assert(cronRouteContent.includes('briefingsSent') || cronRouteContent.includes('briefings:'), 'Missing briefings count')
-  assert(cronRouteContent.includes('checkInsSent') || cronRouteContent.includes('checkIns:'), 'Missing checkIns count')
+  assert(
+    cronRouteContent.includes('briefingsSent') || cronRouteContent.includes('briefings:'),
+    'Missing briefings count'
+  )
+  assert(
+    cronRouteContent.includes('checkInsSent') || cronRouteContent.includes('checkIns:'),
+    'Missing checkIns count'
+  )
   assert(cronRouteContent.includes('failed'), 'Missing failed count')
 })
 
@@ -345,7 +413,10 @@ test('T46: package.json has test:email-delivery52 script', () => {
 
 test('T47: main test script includes emailDelivery52.test.ts', () => {
   const s = scripts['test']
-  assert(s !== undefined && s.includes('emailDelivery52.test.ts'), 'emailDelivery52.test.ts not in main test chain')
+  assert(
+    s !== undefined && s.includes('emailDelivery52.test.ts'),
+    'emailDelivery52.test.ts not in main test chain'
+  )
 })
 
 test('T48: emailService uses EMAIL_FROM env var with fallback', () => {
@@ -358,7 +429,11 @@ test('T49: emailService sends to array format [payload.to] for Resend API', () =
 })
 
 test('T50: briefing email text includes body content (not just subject)', () => {
-  const { text } = formatBriefingEmail({ date: '2026-07-01', content_md: '## Summary\n\n**Key** point here.', flags: null })
+  const { text } = formatBriefingEmail({
+    date: '2026-07-01',
+    content_md: '## Summary\n\n**Key** point here.',
+    flags: null,
+  })
   assert(text.includes('Summary'), `Missing body content: ${text.slice(0, 100)}`)
   assert(text.includes('Key'), `Markdown stripping removed content: ${text.slice(0, 100)}`)
 })
@@ -374,7 +449,11 @@ test('T52: vi check-in greeting is Xin chào,', () => {
 })
 
 test('T53: formatBriefingEmail strips markdown from content_md', () => {
-  const { text } = formatBriefingEmail({ date: '2026-07-01', content_md: '## Header\n\n**Bold text**', flags: null })
+  const { text } = formatBriefingEmail({
+    date: '2026-07-01',
+    content_md: '## Header\n\n**Bold text**',
+    flags: null,
+  })
   assert(!text.includes('##'), `## not stripped: ${text.slice(0, 60)}`)
   assert(!text.includes('**'), `** not stripped: ${text.slice(0, 60)}`)
 })
@@ -384,8 +463,14 @@ test('T54: cron route exports GET function', () => {
 })
 
 test('T55: cron route imports from @/lib/supabase/server (not separate serviceClient file)', () => {
-  assert(cronRouteContent.includes('@/lib/supabase/server'), 'Must import from @/lib/supabase/server')
-  assert(!cronRouteContent.includes('@/lib/supabase/serviceClient'), 'Must not import from separate serviceClient file')
+  assert(
+    cronRouteContent.includes('@/lib/supabase/server'),
+    'Must import from @/lib/supabase/server'
+  )
+  assert(
+    !cronRouteContent.includes('@/lib/supabase/serviceClient'),
+    'Must not import from separate serviceClient file'
+  )
 })
 
 test('T56: emailService Authorization header uses Bearer token format', () => {
@@ -410,7 +495,10 @@ test('T59: formatCheckInEmail handles null prompt_template with vi fallback', ()
 })
 
 test('T60: migration uses IF NOT EXISTS guard', () => {
-  assert(migrationContent.toUpperCase().includes('IF NOT EXISTS'), 'Migration must use IF NOT EXISTS guard')
+  assert(
+    migrationContent.toUpperCase().includes('IF NOT EXISTS'),
+    'Migration must use IF NOT EXISTS guard'
+  )
 })
 
 // ─── Summary ─────────────────────────────────────────────────────────────────

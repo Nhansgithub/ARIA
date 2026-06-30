@@ -24,7 +24,10 @@ function assert(cond: boolean, msg: string) {
 const root = process.cwd()
 
 // ─── File paths ──────────────────────────────────────────────────────────────
-const migrationFile = path.join(root, 'supabase/migrations/20260701200000_notification_channels.sql')
+const migrationFile = path.join(
+  root,
+  'supabase/migrations/20260701200000_notification_channels.sql'
+)
 const apiRouteFile = path.join(root, 'app/api/settings/notification-channels/route.ts')
 const panelFile = path.join(root, 'components/settings/NotificationChannelsPanel.tsx')
 const appShellFile = path.join(root, 'components/layout/AppShell.tsx')
@@ -85,8 +88,13 @@ test('T10: migration modifies settings table', () => {
 })
 
 test('T11: zalo_status is NOT NULL', () => {
-  const zaloLine = migrationContent.split('\n').find(l => l.includes('zalo_status') && !l.trimStart().startsWith('--'))
-  assert(zaloLine !== undefined && zaloLine.includes('NOT NULL'), `zalo_status column line: ${zaloLine}`)
+  const zaloLine = migrationContent
+    .split('\n')
+    .find((l) => l.includes('zalo_status') && !l.trimStart().startsWith('--'))
+  assert(
+    zaloLine !== undefined && zaloLine.includes('NOT NULL'),
+    `zalo_status column line: ${zaloLine}`
+  )
 })
 
 test('T12: email_enabled is boolean type', () => {
@@ -103,8 +111,8 @@ test('T14: migration does not drop any columns or tables', () => {
 })
 
 test('T15: migration does not update existing rows (no UPDATE/DELETE — non-destructive)', () => {
-  const codeLines = migrationContent.split('\n').filter(l => !l.trimStart().startsWith('--'))
-  const hasMutatingDML = codeLines.some(l => /^\s*(UPDATE|DELETE)\s/i.test(l))
+  const codeLines = migrationContent.split('\n').filter((l) => !l.trimStart().startsWith('--'))
+  const hasMutatingDML = codeLines.some((l) => /^\s*(UPDATE|DELETE)\s/i.test(l))
   assert(!hasMutatingDML, 'Migration must not update or delete existing data')
 })
 
@@ -124,11 +132,17 @@ test('T18: API route exports PATCH function', () => {
 })
 
 test('T19: API route uses createServerClient (AD-13 — owner request path)', () => {
-  assert(apiRouteContent.includes('createServerClient'), 'Must use createServerClient for owner path')
+  assert(
+    apiRouteContent.includes('createServerClient'),
+    'Must use createServerClient for owner path'
+  )
 })
 
 test('T20: API route does NOT use createServiceClient (AD-13)', () => {
-  assert(!apiRouteContent.includes('createServiceClient'), 'Must not use createServiceClient in owner route')
+  assert(
+    !apiRouteContent.includes('createServiceClient'),
+    'Must not use createServiceClient in owner route'
+  )
 })
 
 test('T21: API route returns 401 when user is not authenticated', () => {
@@ -144,23 +158,37 @@ test('T22: API route queries settings with eq(owner_id) (AD-2)', () => {
 test('T23: GET returns email_enabled, zalo_status, zalo_setup_note_shown', () => {
   assert(apiRouteContent.includes('email_enabled'), 'Missing email_enabled in select')
   assert(apiRouteContent.includes('zalo_status'), 'Missing zalo_status in select')
-  assert(apiRouteContent.includes('zalo_setup_note_shown'), 'Missing zalo_setup_note_shown in select')
+  assert(
+    apiRouteContent.includes('zalo_setup_note_shown'),
+    'Missing zalo_setup_note_shown in select'
+  )
 })
 
 test('T24: PATCH rejects zalo_status writes — either allowlist or explicit denylist', () => {
   // Either an explicit allowlist (OWNER_WRITABLE_FIELDS) or explicit rejection guard must be present
-  const hasAllowlist = apiRouteContent.includes('OWNER_WRITABLE_FIELDS') || apiRouteContent.includes('ALLOWED')
+  const hasAllowlist =
+    apiRouteContent.includes('OWNER_WRITABLE_FIELDS') || apiRouteContent.includes('ALLOWED')
   const hasDenylist = apiRouteContent.includes('zalo_status is read-only')
-  assert(hasAllowlist || hasDenylist, 'Must block zalo_status writes via allowlist or explicit rejection')
+  assert(
+    hasAllowlist || hasDenylist,
+    'Must block zalo_status writes via allowlist or explicit rejection'
+  )
   assert(apiRouteContent.includes('400'), 'Must return 400 when zalo_status write attempted')
 })
 
 test('T25: PATCH validates email_enabled is boolean', () => {
-  assert(apiRouteContent.includes("email_enabled must be a boolean") || apiRouteContent.includes('email_enabled'), 'Missing email_enabled type validation')
+  assert(
+    apiRouteContent.includes('email_enabled must be a boolean') ||
+      apiRouteContent.includes('email_enabled'),
+    'Missing email_enabled type validation'
+  )
 })
 
 test('T26: PATCH validates zalo_setup_note_shown is boolean', () => {
-  assert(apiRouteContent.includes('zalo_setup_note_shown'), 'Missing zalo_setup_note_shown in PATCH')
+  assert(
+    apiRouteContent.includes('zalo_setup_note_shown'),
+    'Missing zalo_setup_note_shown in PATCH'
+  )
 })
 
 test('T27: PATCH returns 204 on success', () => {
@@ -177,7 +205,10 @@ test('T29: PATCH uses upsert on owner_id conflict', () => {
 })
 
 test('T30: GET uses maybeSingle to distinguish no-row from DB error', () => {
-  assert(apiRouteContent.includes('.maybeSingle()'), 'Must use maybeSingle() to handle no-settings row')
+  assert(
+    apiRouteContent.includes('.maybeSingle()'),
+    'Must use maybeSingle() to handle no-settings row'
+  )
 })
 
 // ─── T31–T45: NotificationChannelsPanel component ───────────────────────────
@@ -192,7 +223,10 @@ test('T32: panel is a client component', () => {
 })
 
 test('T33: panel exports NotificationChannelsPanel function', () => {
-  assert(panelContent.includes('export function NotificationChannelsPanel'), 'Missing NotificationChannelsPanel export')
+  assert(
+    panelContent.includes('export function NotificationChannelsPanel'),
+    'Missing NotificationChannelsPanel export'
+  )
 })
 
 test('T34: panel shows in-app channel as always-on (Luôn bật)', () => {
@@ -208,11 +242,17 @@ test('T36: panel shows email toggle (role=switch)', () => {
 })
 
 test('T37: panel shows Zalo not-configured info card text', () => {
-  assert(panelContent.includes('thông báo chủ động chỉ qua email và in-app'), 'Missing Zalo not-configured info card text')
+  assert(
+    panelContent.includes('thông báo chủ động chỉ qua email và in-app'),
+    'Missing Zalo not-configured info card text'
+  )
 })
 
 test('T38: panel shows email-off warning text', () => {
-  assert(panelContent.includes('Nếu Zalo thất bại sẽ không có kênh dự phòng'), 'Missing email-off warning text')
+  assert(
+    panelContent.includes('Nếu Zalo thất bại sẽ không có kênh dự phòng'),
+    'Missing email-off warning text'
+  )
 })
 
 test('T39: panel has confirmation dialog for disabling email without Zalo', () => {
@@ -221,7 +261,10 @@ test('T39: panel has confirmation dialog for disabling email without Zalo', () =
 })
 
 test('T40: confirmation dialog text warns about in-app only', () => {
-  assert(panelContent.includes('chỉ thấy thông báo trong app'), 'Missing in-app-only warning in confirmation dialog')
+  assert(
+    panelContent.includes('chỉ thấy thông báo trong app'),
+    'Missing in-app-only warning in confirmation dialog'
+  )
 })
 
 test('T41: panel fetches GET /api/settings/notification-channels on mount', () => {
@@ -248,18 +291,27 @@ test('T45: panel has substantive content (> 1000 chars)', () => {
 console.log('\nT46–T55: AppShell + ChatPanel integration')
 
 test('T46: AppShell imports NotificationChannelsPanel', () => {
-  assert(appShellContent.includes('NotificationChannelsPanel'), 'Missing NotificationChannelsPanel import')
+  assert(
+    appShellContent.includes('NotificationChannelsPanel'),
+    'Missing NotificationChannelsPanel import'
+  )
 })
 
 test('T47: AppShell renders NotificationChannelsPanel in settings mode', () => {
   const settingsBlock = appShellContent.slice(appShellContent.indexOf("mode === 'settings'"))
-  assert(settingsBlock.includes('NotificationChannelsPanel'), 'NotificationChannelsPanel not rendered in settings block')
+  assert(
+    settingsBlock.includes('NotificationChannelsPanel'),
+    'NotificationChannelsPanel not rendered in settings block'
+  )
 })
 
 test('T48: AppShell renders NotificationChannelsPanel after CadencePanel', () => {
   const cadenceIdx = appShellContent.indexOf('<CadencePanel')
   const notifIdx = appShellContent.indexOf('<NotificationChannelsPanel')
-  assert(cadenceIdx > -1 && notifIdx > cadenceIdx, 'NotificationChannelsPanel must come after CadencePanel')
+  assert(
+    cadenceIdx > -1 && notifIdx > cadenceIdx,
+    'NotificationChannelsPanel must come after CadencePanel'
+  )
 })
 
 test('T49: ChatPanel has Zalo setup note state (showZaloNote)', () => {
@@ -267,12 +319,18 @@ test('T49: ChatPanel has Zalo setup note state (showZaloNote)', () => {
 })
 
 test('T50: ChatPanel fetches /api/settings/notification-channels for Zalo note', () => {
-  assert(chatPanelContent.includes('/api/settings/notification-channels'), 'Missing notification-channels fetch in ChatPanel')
+  assert(
+    chatPanelContent.includes('/api/settings/notification-channels'),
+    'Missing notification-channels fetch in ChatPanel'
+  )
 })
 
 test('T51: ChatPanel shows Zalo note only when pendingCheckIns.length > 0', () => {
   const zaloNoteBlock = chatPanelContent.slice(chatPanelContent.indexOf('showZaloNote'))
-  assert(zaloNoteBlock.includes('pendingCheckIns.length'), 'Zalo note must be conditional on pendingCheckIns')
+  assert(
+    zaloNoteBlock.includes('pendingCheckIns.length'),
+    'Zalo note must be conditional on pendingCheckIns'
+  )
 })
 
 test('T52: ChatPanel Zalo note text contains Bật Zalo OA trong Cài đặt', () => {
@@ -280,17 +338,26 @@ test('T52: ChatPanel Zalo note text contains Bật Zalo OA trong Cài đặt', (
 })
 
 test('T53: ChatPanel dismisses Zalo note and PATCHes zalo_setup_note_shown=true', () => {
-  assert(chatPanelContent.includes('zalo_setup_note_shown: true'), 'Must PATCH zalo_setup_note_shown=true on dismiss')
+  assert(
+    chatPanelContent.includes('zalo_setup_note_shown: true'),
+    'Must PATCH zalo_setup_note_shown=true on dismiss'
+  )
 })
 
 test('T54: ChatPanel has aria-label for Zalo note close button', () => {
-  assert(chatPanelContent.includes('Đóng thông báo Zalo'), 'Missing aria-label on Zalo note close button')
+  assert(
+    chatPanelContent.includes('Đóng thông báo Zalo'),
+    'Missing aria-label on Zalo note close button'
+  )
 })
 
 test('T55: ChatPanel Zalo note does not appear when zalo_status is connected', () => {
   // Code logic: setShowZaloNote only when zalo_status !== 'connected'
   const setNoteBlock = chatPanelContent.slice(chatPanelContent.indexOf('setShowZaloNote'))
-  assert(setNoteBlock.includes("!== 'connected'") || chatPanelContent.includes("!== 'connected'"), 'Must check zalo_status !== connected before showing note')
+  assert(
+    setNoteBlock.includes("!== 'connected'") || chatPanelContent.includes("!== 'connected'"),
+    'Must check zalo_status !== connected before showing note'
+  )
 })
 
 // ─── T56–T60: package.json ──────────────────────────────────────────────────
@@ -299,12 +366,18 @@ console.log('\nT56–T60: package.json')
 test('T56: package.json has test:delivery-channel-settings56 script', () => {
   const s = scripts['test:delivery-channel-settings56']
   assert(s !== undefined, 'Missing test:delivery-channel-settings56 script')
-  assert(s!.includes('deliveryChannelSettings56.test.ts'), 'Script must reference deliveryChannelSettings56.test.ts')
+  assert(
+    s!.includes('deliveryChannelSettings56.test.ts'),
+    'Script must reference deliveryChannelSettings56.test.ts'
+  )
 })
 
 test('T57: main test script includes deliveryChannelSettings56.test.ts', () => {
   const s = scripts['test']
-  assert(s !== undefined && s.includes('deliveryChannelSettings56.test.ts'), 'deliveryChannelSettings56.test.ts not in main test chain')
+  assert(
+    s !== undefined && s.includes('deliveryChannelSettings56.test.ts'),
+    'deliveryChannelSettings56.test.ts not in main test chain'
+  )
 })
 
 test('T58: NotificationChannelsPanel uses fetch (no axios or other HTTP library)', () => {
@@ -317,10 +390,16 @@ test('T59: API route import from @/lib/supabase/server (not a relative path)', (
 })
 
 test('T60: story file exists and is marked done or in-progress', () => {
-  const storyFile = path.join(root, '_bmad-output/implementation-artifacts/5-6-delivery-channel-settings-zalo-not-set-up-graceful-state.md')
+  const storyFile = path.join(
+    root,
+    '_bmad-output/implementation-artifacts/5-6-delivery-channel-settings-zalo-not-set-up-graceful-state.md'
+  )
   assert(fs.existsSync(storyFile), 'Story file must exist')
   const content = fs.readFileSync(storyFile, 'utf-8')
-  assert(content.includes('status: done') || content.includes('status: in-progress'), 'Story must be in-progress or done')
+  assert(
+    content.includes('status: done') || content.includes('status: in-progress'),
+    'Story must be in-progress or done'
+  )
 })
 
 // ─── Summary ─────────────────────────────────────────────────────────────────

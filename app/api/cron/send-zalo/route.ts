@@ -25,15 +25,26 @@ function validateCronSecret(request: NextRequest): boolean {
   return timingSafeEqual(a, b)
 }
 
-async function logFailure(supabase: ReturnType<typeof createServiceClient>, ownerId: string, action: string, errorMsg: string) {
-  await supabase.from('activity_log').insert({
-    owner_id: ownerId,
-    entity_type: 'notification',
-    entity_id: ownerId,
-    action,
-    actor: 'ai',
-    payload: { error: errorMsg },
-  }).then(() => {}, () => {})
+async function logFailure(
+  supabase: ReturnType<typeof createServiceClient>,
+  ownerId: string,
+  action: string,
+  errorMsg: string
+) {
+  await supabase
+    .from('activity_log')
+    .insert({
+      owner_id: ownerId,
+      entity_type: 'notification',
+      entity_id: ownerId,
+      action,
+      actor: 'ai',
+      payload: { error: errorMsg },
+    })
+    .then(
+      () => {},
+      () => {}
+    )
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -85,27 +96,48 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .order('priority', { ascending: true })
       .limit(5)
 
-    const dateLabel = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' })
+    const dateLabel = new Date().toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'numeric',
+    })
     const text = formatBriefingForZalo({
       owner_name: owner.owner_id.slice(0, 6),
       date_label: dateLabel,
       summary: briefing.summary ?? '',
-      deals: (deals ?? []).map(d => ({ title: d.title, priority: d.priority ?? 'low', next_action: d.next_action ?? undefined })),
+      deals: (deals ?? []).map((d) => ({
+        title: d.title,
+        priority: d.priority ?? 'low',
+        next_action: d.next_action ?? undefined,
+      })),
     })
 
-    const result = await sendZaloMessage({ accessToken: owner.zalo_access_token, userId: owner.zalo_user_id, text })
+    const result = await sendZaloMessage({
+      accessToken: owner.zalo_access_token,
+      userId: owner.zalo_user_id,
+      text,
+    })
     const now = new Date().toISOString()
 
     if (result.ok) {
       const { error: updateErr } = await supabase
-        .from('briefings').update({ zalo_status: 'sent', updated_at: now }).eq('id', briefing.id)
+        .from('briefings')
+        .update({ zalo_status: 'sent', updated_at: now })
+        .eq('id', briefing.id)
       if (updateErr) {
-        await logFailure(supabase, owner.owner_id, 'zalo_briefing_status_update_failed', updateErr.message)
+        await logFailure(
+          supabase,
+          owner.owner_id,
+          'zalo_briefing_status_update_failed',
+          updateErr.message
+        )
       }
       briefingsSent++
     } else {
       const { error: updateErr } = await supabase
-        .from('briefings').update({ zalo_status: 'failed', updated_at: now }).eq('id', briefing.id)
+        .from('briefings')
+        .update({ zalo_status: 'failed', updated_at: now })
+        .eq('id', briefing.id)
       if (updateErr) {
         console.warn('[ARIA/send-zalo] briefing failed-status update failed:', updateErr.message)
       }
@@ -130,38 +162,58 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     for (const ci of checkIns ?? []) {
       const dealsRaw = ci.deals as unknown
-      const dealTitle = (
-        Array.isArray(dealsRaw)
+      const dealTitle =
+        (Array.isArray(dealsRaw)
           ? (dealsRaw as Array<{ title: string }>)[0]?.title
-          : (dealsRaw as { title: string } | null)?.title
-      ) ?? ci.deal_id
+          : (dealsRaw as { title: string } | null)?.title) ?? ci.deal_id
 
       const text = formatCheckInForZalo({
         deal_title: dealTitle,
         prompt: ci.prompt_template || 'Bạn có cập nhật nào cho deal này không?',
       })
 
-      const result = await sendZaloMessage({ accessToken: owner.zalo_access_token, userId: owner.zalo_user_id, text })
+      const result = await sendZaloMessage({
+        accessToken: owner.zalo_access_token,
+        userId: owner.zalo_user_id,
+        text,
+      })
       const now = new Date().toISOString()
 
       if (result.ok) {
         const { error: updateErr } = await supabase
-          .from('check_ins').update({ zalo_status: 'sent', updated_at: now }).eq('id', ci.id)
+          .from('check_ins')
+          .update({ zalo_status: 'sent', updated_at: now })
+          .eq('id', ci.id)
         if (updateErr) {
-          await logFailure(supabase, owner.owner_id, 'zalo_check_in_status_update_failed', updateErr.message)
+          await logFailure(
+            supabase,
+            owner.owner_id,
+            'zalo_check_in_status_update_failed',
+            updateErr.message
+          )
         }
         checkInsSent++
       } else {
         const { error: updateErr } = await supabase
-          .from('check_ins').update({ zalo_status: 'failed', updated_at: now }).eq('id', ci.id)
+          .from('check_ins')
+          .update({ zalo_status: 'failed', updated_at: now })
+          .eq('id', ci.id)
         if (updateErr) {
           console.warn('[ARIA/send-zalo] check-in failed-status update failed:', updateErr.message)
         }
-        await logFailure(supabase, owner.owner_id, 'zalo_check_in_failed', result.error ?? 'unknown')
+        await logFailure(
+          supabase,
+          owner.owner_id,
+          'zalo_check_in_failed',
+          result.error ?? 'unknown'
+        )
         checkInsFailed++
       }
     }
   }
 
-  return NextResponse.json({ briefings: { sent: briefingsSent, failed: briefingsFailed }, check_ins: { sent: checkInsSent, failed: checkInsFailed } })
+  return NextResponse.json({
+    briefings: { sent: briefingsSent, failed: briefingsFailed },
+    check_ins: { sent: checkInsSent, failed: checkInsFailed },
+  })
 }

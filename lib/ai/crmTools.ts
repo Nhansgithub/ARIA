@@ -265,7 +265,8 @@ export const CRM_STUB_TOOLS = [
         priority: { type: 'string', enum: ['high', 'medium', 'low'] },
         checkin_paused: {
           type: 'boolean',
-          description: 'Set to true to pause all check-in reminders for this deal. Set to false to resume.',
+          description:
+            'Set to true to pause all check-in reminders for this deal. Set to false to resume.',
         },
       },
       required: ['id', 'actor'] as readonly string[],

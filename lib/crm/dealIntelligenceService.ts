@@ -171,9 +171,7 @@ export async function findSimilarDeals(
     predicted_outcome: string | null
     prediction_reason: string | null
     clients:
-      | { name: string; industry: string | null }
-      | { name: string; industry: string | null }[]
-      | null
+      { name: string; industry: string | null } | { name: string; industry: string | null }[] | null
   }
 
   let q = supabase

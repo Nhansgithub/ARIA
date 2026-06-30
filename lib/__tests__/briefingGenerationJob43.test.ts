@@ -46,10 +46,7 @@ function isActiveStage(stage: string): boolean {
 }
 
 // Simulate the idempotency check + generation decision
-function shouldGenerate(
-  existing: BriefingRecord | null,
-  forceRefresh: boolean
-): boolean {
+function shouldGenerate(existing: BriefingRecord | null, forceRefresh: boolean): boolean {
   if (forceRefresh) return true
   return existing === null
 }
@@ -60,9 +57,7 @@ function hasActiveDeals(deals: DealRow[]): boolean {
 }
 
 // Simulate degraded fallback logic
-function getDegradedFallback(
-  prevBriefing: BriefingRecord | null
-): BriefingRecord | null {
+function getDegradedFallback(prevBriefing: BriefingRecord | null): BriefingRecord | null {
   if (!prevBriefing) return null
   return { ...prevBriefing, status: 'degraded' }
 }
@@ -96,8 +91,13 @@ console.log('T1: isActiveStage — closed stages excluded')
 console.log('\nT2: Idempotency — skip if briefing already exists')
 {
   const existing: BriefingRecord = {
-    id: 'b1', owner_id: 'o1', date: '2026-06-29',
-    content_md: '# Briefing', flags: {}, generated_at: '2026-06-29T00:00:00Z', status: 'generated'
+    id: 'b1',
+    owner_id: 'o1',
+    date: '2026-06-29',
+    content_md: '# Briefing',
+    flags: {},
+    generated_at: '2026-06-29T00:00:00Z',
+    status: 'generated',
   }
   assert(!shouldGenerate(existing, false), 'existing briefing + no forceRefresh → skip generation')
   assert(shouldGenerate(existing, true), 'existing briefing + forceRefresh=true → re-generate')
@@ -123,8 +123,13 @@ console.log('\nT3: Empty CRM guard — zero active deals')
 console.log('\nT4: Degraded fallback — previous day briefing with status: degraded')
 {
   const prevBriefing: BriefingRecord = {
-    id: 'b0', owner_id: 'o1', date: '2026-06-28',
-    content_md: '# Yesterday', flags: {}, generated_at: '2026-06-28T00:05:00Z', status: 'generated'
+    id: 'b0',
+    owner_id: 'o1',
+    date: '2026-06-28',
+    content_md: '# Yesterday',
+    flags: {},
+    generated_at: '2026-06-28T00:05:00Z',
+    status: 'generated',
   }
   const fallback = getDegradedFallback(prevBriefing)
   assert(fallback !== null, 'previous briefing exists → fallback returned')
@@ -145,8 +150,14 @@ console.log('\nT6: Cron secret validation')
 {
   const secret = 'my-cron-secret-123'
   assert(validateCronSecret('Bearer my-cron-secret-123', secret), 'valid Bearer token → authorized')
-  assert(validateCronSecret('bearer my-cron-secret-123', secret), 'lowercase "bearer" prefix → authorized (case-insensitive)')
-  assert(!validateCronSecret('my-cron-secret-123', secret), 'token without Bearer prefix → rejected')
+  assert(
+    validateCronSecret('bearer my-cron-secret-123', secret),
+    'lowercase "bearer" prefix → authorized (case-insensitive)'
+  )
+  assert(
+    !validateCronSecret('my-cron-secret-123', secret),
+    'token without Bearer prefix → rejected'
+  )
   assert(!validateCronSecret('Bearer wrong-secret', secret), 'wrong secret → rejected')
   assert(!validateCronSecret(null, secret), 'missing auth header → rejected')
   assert(!validateCronSecret('Bearer anything', ''), 'empty CRON_SECRET → rejected')
@@ -196,8 +207,8 @@ console.log('\nT9b: generateBriefingsForAllOwners — closed-stage filter in SQL
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   // The all-owners query must filter to non-closed stages (P1-1 fix)
   assert(
-    content.includes("'(\"won\",\"lost\",\"archived\",\"completed\")'") ||
-    content.includes("generateBriefingsForAllOwners") && content.includes(".not('stage'"),
+    content.includes('\'("won","lost","archived","completed")\'') ||
+      (content.includes('generateBriefingsForAllOwners') && content.includes(".not('stage'")),
     'generateBriefingsForAllOwners filters out closed stages in SQL query'
   )
 }
@@ -208,14 +219,20 @@ console.log('\nT10: File checks — briefingService.ts structure')
   const src = path.join(process.cwd(), 'lib', 'crm', 'briefingService.ts')
   assert(fs.existsSync(src), 'lib/crm/briefingService.ts exists')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
-  assert(content.startsWith("import 'server-only'"), "briefingService.ts starts with import 'server-only' (AD-11)")
+  assert(
+    content.startsWith("import 'server-only'"),
+    "briefingService.ts starts with import 'server-only' (AD-11)"
+  )
   assert(content.includes('getBriefing'), 'exports getBriefing')
   assert(content.includes('generateBriefingForOwner'), 'exports generateBriefingForOwner')
   assert(content.includes('generateBriefingsForAllOwners'), 'exports generateBriefingsForAllOwners')
   assert(content.includes('createServiceClient'), 'uses createServiceClient (AD-13 cron path)')
-  assert(!content.includes('createServerClient'), 'does NOT use createServerClient (cron uses service role)')
+  assert(
+    !content.includes('createServerClient'),
+    'does NOT use createServerClient (cron uses service role)'
+  )
   assert(content.includes(".eq('owner_id', ownerId)"), 'enforces owner_id guard (AD-2)')
-  assert(content.includes("ARIA_MODELS.economical"), 'uses economical (Haiku) model (AD-4)')
+  assert(content.includes('ARIA_MODELS.economical'), 'uses economical (Haiku) model (AD-4)')
 }
 
 // T11: Cron route — file existence and auth pattern
@@ -226,7 +243,10 @@ console.log('\nT11: File checks — cron/briefing/route.ts')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   assert(content.includes('CRON_SECRET'), 'route validates CRON_SECRET')
   assert(content.includes('Unauthorized'), 'route returns 401 Unauthorized on auth failure')
-  assert(!content.includes('NEXT_PUBLIC_'), 'CRON_SECRET is NOT prefixed with NEXT_PUBLIC_ (server-only secret)')
+  assert(
+    !content.includes('NEXT_PUBLIC_'),
+    'CRON_SECRET is NOT prefixed with NEXT_PUBLIC_ (server-only secret)'
+  )
   assert(content.includes('generateBriefingForOwner'), 'imports generateBriefingForOwner')
   assert(content.includes('generateBriefingsForAllOwners'), 'imports generateBriefingsForAllOwners')
   assert(content.includes('forceRefresh'), 'supports forceRefresh parameter')
@@ -236,7 +256,12 @@ console.log('\nT11: File checks — cron/briefing/route.ts')
 // T12: Migration file exists
 console.log('\nT12: Migration file — pg_cron setup')
 {
-  const migration = path.join(process.cwd(), 'supabase', 'migrations', '20260629040000_pg_cron_briefing_job.sql')
+  const migration = path.join(
+    process.cwd(),
+    'supabase',
+    'migrations',
+    '20260629040000_pg_cron_briefing_job.sql'
+  )
   assert(fs.existsSync(migration), 'pg_cron migration file exists')
   const content = fs.existsSync(migration) ? fs.readFileSync(migration, 'utf8') : ''
   assert(content.includes('pg_cron'), 'migration references pg_cron')
@@ -247,7 +272,10 @@ console.log('\nT12: Migration file — pg_cron setup')
   assert(content.includes('net.http_get'), 'pg_cron job uses net.http_get (route is GET, not POST)')
   assert(!content.includes('net.http_post'), 'pg_cron job does NOT use net.http_post')
   // DO $$ guard for idempotent unschedule
-  assert(content.includes('EXCEPTION WHEN OTHERS'), 'migration guards cron.unschedule with EXCEPTION handler')
+  assert(
+    content.includes('EXCEPTION WHEN OTHERS'),
+    'migration guards cron.unschedule with EXCEPTION handler'
+  )
 }
 
 // T13: AD-4 — Haiku model for briefing
@@ -255,8 +283,14 @@ console.log('\nT13: AD-4 — briefing uses economical (Haiku) model')
 {
   const src = path.join(process.cwd(), 'lib', 'crm', 'briefingService.ts')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
-  assert(content.includes('ARIA_MODELS.economical'), 'briefingService uses ARIA_MODELS.economical (Haiku, AD-4)')
-  assert(!content.includes('ARIA_MODELS.highJudgment'), 'briefingService does NOT use highJudgment model')
+  assert(
+    content.includes('ARIA_MODELS.economical'),
+    'briefingService uses ARIA_MODELS.economical (Haiku, AD-4)'
+  )
+  assert(
+    !content.includes('ARIA_MODELS.highJudgment'),
+    'briefingService does NOT use highJudgment model'
+  )
 }
 
 // T14: AD-5 — callAI used (provides prompt caching automatically)
@@ -265,7 +299,10 @@ console.log('\nT14: AD-5 — callAI used for prompt-caching discipline')
   const src = path.join(process.cwd(), 'lib', 'crm', 'briefingService.ts')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   assert(content.includes("from '@/lib/ai/callAI'"), 'briefingService imports callAI')
-  assert(content.includes('specialist:'), 'callAI called with specialist field (for observability logging)')
+  assert(
+    content.includes('specialist:'),
+    'callAI called with specialist field (for observability logging)'
+  )
   assert(content.includes("'briefing_generation'"), "specialist is 'briefing_generation'")
 }
 
@@ -276,7 +313,10 @@ console.log('\nT15: AD-6 — degraded fallback logic in briefingService')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   assert(content.includes("status !== 'ok'"), 'briefingService checks for non-ok AI response')
   assert(content.includes("'degraded'"), "briefingService returns status 'degraded' on fallback")
-  assert(content.includes('prevDateStr') || content.includes('prevDate'), 'briefingService fetches previous day briefing for fallback')
+  assert(
+    content.includes('prevDateStr') || content.includes('prevDate'),
+    'briefingService fetches previous day briefing for fallback'
+  )
 }
 
 // T16: AD-7 — idempotency check + upsert
@@ -286,7 +326,10 @@ console.log('\nT16: AD-7 — idempotency guard + upsert on refresh')
   const content = fs.existsSync(src) ? fs.readFileSync(src, 'utf8') : ''
   assert(content.includes('forceRefresh'), 'briefingService supports forceRefresh param')
   assert(content.includes('upsert'), 'briefingService uses upsert (not insert + update separately)')
-  assert(content.includes("onConflict: 'owner_id,date'"), 'upsert conflict target is (owner_id, date)')
+  assert(
+    content.includes("onConflict: 'owner_id,date'"),
+    'upsert conflict target is (owner_id, date)'
+  )
 }
 
 // T17: package.json test scripts
@@ -299,7 +342,8 @@ console.log('\nT17: package.json test scripts')
     'package.json has test:briefing-job43 script'
   )
   assert(
-    typeof pkg.scripts?.test === 'string' && pkg.scripts.test.includes('briefingGenerationJob43.test.ts'),
+    typeof pkg.scripts?.test === 'string' &&
+      pkg.scripts.test.includes('briefingGenerationJob43.test.ts'),
     'briefingGenerationJob43.test.ts is in the main test chain'
   )
 }
@@ -307,7 +351,12 @@ console.log('\nT17: package.json test scripts')
 // T18: sprint-status.yaml has 4-3
 console.log('\nT18: sprint-status.yaml reflects story 4-3')
 {
-  const statusPath = path.join(process.cwd(), '_bmad-output', 'implementation-artifacts', 'sprint-status.yaml')
+  const statusPath = path.join(
+    process.cwd(),
+    '_bmad-output',
+    'implementation-artifacts',
+    'sprint-status.yaml'
+  )
   const content = fs.existsSync(statusPath) ? fs.readFileSync(statusPath, 'utf8') : ''
   assert(
     content.includes('4-3-briefing-generation-job-pg-cron-scheduler-caching'),

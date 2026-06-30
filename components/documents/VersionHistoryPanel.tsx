@@ -7,14 +7,7 @@ import type { DiffLine } from './DocumentViewer'
 // Inline types (no lib/ import — AD-11)
 type DocumentStatus = 'draft' | 'review' | 'sent' | 'signed' | 'archived'
 type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 interface DocumentRow {
   id: string
@@ -153,8 +146,7 @@ export default function VersionHistoryPanel({ versions, onClose }: VersionHistor
                     style={{
                       width: '100%',
                       textAlign: 'left',
-                      background:
-                        expandedVersionId === ver.id ? '#141a2e' : 'transparent',
+                      background: expandedVersionId === ver.id ? '#141a2e' : 'transparent',
                       border: 'none',
                       padding: '12px 20px',
                       cursor: 'pointer',
@@ -163,8 +155,7 @@ export default function VersionHistoryPanel({ versions, onClose }: VersionHistor
                       gap: 10,
                     }}
                     onMouseEnter={(e) => {
-                      if (expandedVersionId !== ver.id)
-                        e.currentTarget.style.background = '#141a2e'
+                      if (expandedVersionId !== ver.id) e.currentTarget.style.background = '#141a2e'
                     }}
                     onMouseLeave={(e) => {
                       if (expandedVersionId !== ver.id)

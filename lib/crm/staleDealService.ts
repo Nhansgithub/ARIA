@@ -6,7 +6,7 @@ import { logActivity } from '@/lib/crm/activityLogService'
 
 export interface CadenceConfig {
   staleThresholdDays: number // default 7 — idle days before marking stale
-  firstFollowUpDays: number  // default 3 — proposal cadence step 1
+  firstFollowUpDays: number // default 3 — proposal cadence step 1
   secondFollowUpDays: number // default 7 — proposal cadence step 2
 }
 
@@ -165,8 +165,14 @@ export async function detectAndFlagStaleDeals(
               : `Nhắc lần 2: Theo dõi đề xuất — đã ${daysIdle} ngày chưa có phản hồi`
 
           // Idempotency: compare cadence step prefix, not full message (day count changes daily)
-          const alreadyAtStep1 = cadenceStep === 1 && typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 1')
-          const alreadyAtStep2 = cadenceStep === 2 && typeof currentNextAction === 'string' && currentNextAction.startsWith('Nhắc lần 2')
+          const alreadyAtStep1 =
+            cadenceStep === 1 &&
+            typeof currentNextAction === 'string' &&
+            currentNextAction.startsWith('Nhắc lần 1')
+          const alreadyAtStep2 =
+            cadenceStep === 2 &&
+            typeof currentNextAction === 'string' &&
+            currentNextAction.startsWith('Nhắc lần 2')
           const stepChanged = !(alreadyAtStep1 || alreadyAtStep2)
 
           if (stepChanged) {

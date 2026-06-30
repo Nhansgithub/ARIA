@@ -7,14 +7,7 @@ import VersionHistoryPanel from './VersionHistoryPanel'
 // Inline types (no lib/ import — AD-11)
 type DocumentStatus = 'draft' | 'review' | 'sent' | 'signed' | 'archived'
 type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 interface DocumentRow {
   id: string
@@ -192,9 +185,7 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
         const newDoc = (await res.json()) as DocumentRow
         // Preserve locally confirmed status — don't let a stale server row revert it
         setDoc((prev) => ({ ...newDoc, status: prev?.status ?? newDoc.status }))
-        setVersions((prev) =>
-          prev.some((v) => v.id === newDoc.id) ? prev : [...prev, newDoc]
-        )
+        setVersions((prev) => (prev.some((v) => v.id === newDoc.id) ? prev : [...prev, newDoc]))
         setDisplayVersion(newDoc)
       } else {
         setSaveError('Save failed — changes may not be saved. Try again.')
@@ -528,16 +519,17 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
           <button
             onClick={handleSaveClick}
             disabled={saving}
-            style={{ ...toolbarBtnStyle, background: saving ? '#2a3350' : '#14b8a6', color: saving ? '#94a3b8' : '#0a0e27' }}
+            style={{
+              ...toolbarBtnStyle,
+              background: saving ? '#2a3350' : '#14b8a6',
+              color: saving ? '#94a3b8' : '#0a0e27',
+            }}
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
         )}
         {editMode && (
-          <button
-            onClick={() => setEditMode(false)}
-            style={toolbarBtnStyle}
-          >
+          <button onClick={() => setEditMode(false)} style={toolbarBtnStyle}>
             Cancel
           </button>
         )}
@@ -660,7 +652,12 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
         {/* Ask ARIA — embeds document id so ARIA can resolve revision requests without UUID lookup */}
         <button
           onClick={() => onOpenChat(`[document_id:${doc.id}] Tell me about ${doc.title}`)}
-          style={{ ...toolbarBtnStyle, background: 'rgba(20,184,166,0.15)', color: '#14b8a6', border: '1px solid rgba(20,184,166,0.3)' }}
+          style={{
+            ...toolbarBtnStyle,
+            background: 'rgba(20,184,166,0.15)',
+            color: '#14b8a6',
+            border: '1px solid rgba(20,184,166,0.3)',
+          }}
         >
           Ask ARIA
         </button>
@@ -740,7 +737,13 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
           {statusError}
           <button
             onClick={() => setStatusError(null)}
-            style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 16 }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#f87171',
+              cursor: 'pointer',
+              fontSize: 16,
+            }}
           >
             ×
           </button>
@@ -766,7 +769,13 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
           {saveError}
           <button
             onClick={() => setSaveError(null)}
-            style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 16 }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#f87171',
+              cursor: 'pointer',
+              fontSize: 16,
+            }}
           >
             ×
           </button>
@@ -792,7 +801,13 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
           {exportError}
           <button
             onClick={() => setExportError(null)}
-            style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 16 }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#f87171',
+              cursor: 'pointer',
+              fontSize: 16,
+            }}
           >
             ×
           </button>
@@ -805,7 +820,9 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-confirm-title"
-          onKeyDown={(e) => { if (e.key === 'Escape') setEditConfirm(false) }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setEditConfirm(false)
+          }}
           style={{
             position: 'absolute',
             inset: 0,
@@ -826,11 +843,16 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            <p id="edit-confirm-title" style={{ color: '#e2e8f0', fontSize: 14, margin: '0 0 8px' }}>
-              Tài liệu này đã được {STATUS_LABEL[doc.status].toLowerCase()}. Anh có chắc muốn sửa không? Em sẽ lưu phiên bản mới.
+            <p
+              id="edit-confirm-title"
+              style={{ color: '#e2e8f0', fontSize: 14, margin: '0 0 8px' }}
+            >
+              Tài liệu này đã được {STATUS_LABEL[doc.status].toLowerCase()}. Anh có chắc muốn sửa
+              không? Em sẽ lưu phiên bản mới.
             </p>
             <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 20px' }}>
-              This document has already been {doc.status}. Are you sure you want to edit? A new version will be saved.
+              This document has already been {doc.status}. Are you sure you want to edit? A new
+              version will be saved.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
@@ -839,14 +861,16 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
                   setEditMode(true)
                   setEditContent(doc.content_md ?? '')
                 }}
-                style={{ ...toolbarBtnStyle, background: '#14b8a6', color: '#0a0e27', border: 'none' }}
+                style={{
+                  ...toolbarBtnStyle,
+                  background: '#14b8a6',
+                  color: '#0a0e27',
+                  border: 'none',
+                }}
               >
                 Yes, edit
               </button>
-              <button
-                onClick={() => setEditConfirm(false)}
-                style={toolbarBtnStyle}
-              >
+              <button onClick={() => setEditConfirm(false)} style={toolbarBtnStyle}>
                 Cancel
               </button>
             </div>
@@ -856,10 +880,7 @@ export default function DocumentViewer({ id, onBack, onOpenChat }: DocumentViewe
 
       {/* Version History slide-over */}
       {showHistory && (
-        <VersionHistoryPanel
-          versions={versions}
-          onClose={() => setShowHistory(false)}
-        />
+        <VersionHistoryPanel versions={versions} onClose={() => setShowHistory(false)} />
       )}
     </div>
   )

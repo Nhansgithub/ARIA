@@ -23,7 +23,8 @@ function assert(condition: boolean, label: string): void {
 
 // ── Inline simulation of briefing structure logic ─────────────────────────────
 
-type DocumentType = 'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
+type DocumentType =
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 interface MissingDocumentFlag {
   document_type: DocumentType
@@ -67,7 +68,10 @@ const STAGE_REQUIRED_DOCS: { keywords: string[]; required: DocumentType[] }[] = 
 ]
 
 const MISSING_DOC_RATIONALE: Record<DocumentType, { vi: string; en: string }> = {
-  proposal: { vi: 'Đề xuất bằng văn bản giúp kiểm soát kỳ vọng', en: 'A written proposal sets expectations' },
+  proposal: {
+    vi: 'Đề xuất bằng văn bản giúp kiểm soát kỳ vọng',
+    en: 'A written proposal sets expectations',
+  },
   contract: { vi: 'Hợp đồng bảo vệ cả hai bên', en: 'A signed contract protects both parties' },
   brief: { vi: 'Brief giúp đồng thuận về mục tiêu', en: 'A project brief aligns everyone' },
   sop: { vi: 'SOP giúp chuẩn hóa quy trình', en: 'An SOP standardises the process' },
@@ -95,7 +99,12 @@ function detectMissingDocumentsByStage(
   for (const docType of requiredDocs) {
     if (!existingSet.has(docType)) {
       const rationale = MISSING_DOC_RATIONALE[docType]
-      if (rationale) flags.push({ document_type: docType, rationale_vi: rationale.vi, rationale_en: rationale.en })
+      if (rationale)
+        flags.push({
+          document_type: docType,
+          rationale_vi: rationale.vi,
+          rationale_en: rationale.en,
+        })
     }
   }
   return flags
@@ -192,7 +201,9 @@ const TODAY = '2026-06-30'
 const YESTERDAY = '2026-06-29'
 const TOMORROW = '2026-07-01'
 
-function makeDeal(overrides: Partial<DealRow> & { id: string; title: string; stage: string }): DealRow {
+function makeDeal(
+  overrides: Partial<DealRow> & { id: string; title: string; stage: string }
+): DealRow {
   return {
     priority: null,
     value_estimate: null,
@@ -246,20 +257,23 @@ assert(
   detectMissingDocumentsByStage('Discovery', []).length === 0,
   'T9: discovery stage (no keyword match) → no required docs'
 )
-assert(
-  detectMissingDocumentsByStage('', []).length === 0,
-  'T10: empty stage → no required docs'
-)
+assert(detectMissingDocumentsByStage('', []).length === 0, 'T10: empty stage → no required docs')
 
 // T11-T13: rationale included
 const proposalFlags = detectMissingDocumentsByStage('Proposal sent', [])
 const proposalFlag = proposalFlags[0]
 assert(
-  proposalFlags.length === 1 && proposalFlag !== undefined && typeof proposalFlag.rationale_vi === 'string' && proposalFlag.rationale_vi.length > 0,
+  proposalFlags.length === 1 &&
+    proposalFlag !== undefined &&
+    typeof proposalFlag.rationale_vi === 'string' &&
+    proposalFlag.rationale_vi.length > 0,
   'T11: missing flag has non-empty rationale_vi'
 )
 assert(
-  proposalFlags.length === 1 && proposalFlag !== undefined && typeof proposalFlag.rationale_en === 'string' && proposalFlag.rationale_en.length > 0,
+  proposalFlags.length === 1 &&
+    proposalFlag !== undefined &&
+    typeof proposalFlag.rationale_en === 'string' &&
+    proposalFlag.rationale_en.length > 0,
   'T12: missing flag has non-empty rationale_en'
 )
 assert(
@@ -273,23 +287,48 @@ console.log('\n▸ getTier — ranking tier assignment')
 
 // T14-T21: tier cases
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: YESTERDAY }), TODAY) === 0,
+  getTier(
+    makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: YESTERDAY }),
+    TODAY
+  ) === 0,
   'T14: past due → tier 0 (overdue)'
 )
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: TODAY }), TODAY) === 1,
+  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: TODAY }), TODAY) ===
+    1,
   'T15: due today → tier 1'
 )
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action: 'Nhắc lần 1: theo dõi' }), TODAY) === 2,
+  getTier(
+    makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action: 'Nhắc lần 1: theo dõi' }),
+    TODAY
+  ) === 2,
   'T16: cadence reminder → tier 2'
 )
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Discovery', priority: 'high', stale_since: '2026-06-20' }), TODAY) === 3,
+  getTier(
+    makeDeal({
+      id: '1',
+      title: 'A',
+      stage: 'Discovery',
+      priority: 'high',
+      stale_since: '2026-06-20',
+    }),
+    TODAY
+  ) === 3,
   'T17: high-priority stale → tier 3'
 )
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Discovery', priority: 'medium', stale_since: '2026-06-20' }), TODAY) === Infinity,
+  getTier(
+    makeDeal({
+      id: '1',
+      title: 'A',
+      stage: 'Discovery',
+      priority: 'medium',
+      stale_since: '2026-06-20',
+    }),
+    TODAY
+  ) === Infinity,
   'T18: medium-priority stale → Infinity (not in Today)'
 )
 assert(
@@ -297,12 +336,24 @@ assert(
   'T19: no flags → Infinity'
 )
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: TOMORROW }), TODAY) === Infinity,
+  getTier(
+    makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: TOMORROW }),
+    TODAY
+  ) === Infinity,
   'T20: future due date → Infinity (not today or overdue)'
 )
 // Overdue takes precedence over cadence
 assert(
-  getTier(makeDeal({ id: '1', title: 'A', stage: 'Proposal', next_action_due: YESTERDAY, next_action: 'Nhắc lần 1' }), TODAY) === 0,
+  getTier(
+    makeDeal({
+      id: '1',
+      title: 'A',
+      stage: 'Proposal',
+      next_action_due: YESTERDAY,
+      next_action: 'Nhắc lần 1',
+    }),
+    TODAY
+  ) === 0,
   'T21: overdue + cadence → tier 0 (overdue wins)'
 )
 
@@ -310,10 +361,31 @@ assert(
 
 console.log('\n▸ rankTodayItems — ordering and max-3 cap')
 
-const dealOverdue = makeDeal({ id: 'a', title: 'Overdue Deal', stage: 'Proposal', next_action_due: YESTERDAY })
-const dealDueToday = makeDeal({ id: 'b', title: 'Due Today', stage: 'Proposal', next_action_due: TODAY })
-const dealCadence = makeDeal({ id: 'c', title: 'Cadence', stage: 'Proposal', next_action: 'Nhắc lần 1: theo dõi' })
-const dealHighStale = makeDeal({ id: 'd', title: 'High Stale', stage: 'Discovery', priority: 'high', stale_since: '2026-06-20' })
+const dealOverdue = makeDeal({
+  id: 'a',
+  title: 'Overdue Deal',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+})
+const dealDueToday = makeDeal({
+  id: 'b',
+  title: 'Due Today',
+  stage: 'Proposal',
+  next_action_due: TODAY,
+})
+const dealCadence = makeDeal({
+  id: 'c',
+  title: 'Cadence',
+  stage: 'Proposal',
+  next_action: 'Nhắc lần 1: theo dõi',
+})
+const dealHighStale = makeDeal({
+  id: 'd',
+  title: 'High Stale',
+  stage: 'Discovery',
+  priority: 'high',
+  stale_since: '2026-06-20',
+})
 const dealNone = makeDeal({ id: 'e', title: 'No Flag', stage: 'Discovery' })
 
 // T22: overdue comes first
@@ -330,7 +402,10 @@ assert(ranked24[0]?.id === 'c', 'T24: cadence reminder ranked before high-stale'
 
 // T25: deal with no flag excluded
 const ranked25 = rankTodayItems([dealNone, dealOverdue], TODAY)
-assert(ranked25.length === 1 && ranked25[0]?.id === 'a', 'T25: deal with no flag excluded from Today')
+assert(
+  ranked25.length === 1 && ranked25[0]?.id === 'a',
+  'T25: deal with no flag excluded from Today'
+)
 
 // T26: max 3 cap enforced
 const manyDeals = [
@@ -345,20 +420,58 @@ assert(rankTodayItems(manyDeals, TODAY).length === 3, 'T26: max 3 today items en
 assert(rankTodayItems([], TODAY).length === 0, 'T27: empty deal list → empty ranked list')
 
 // T28: within same tier, high priority ranks before medium
-const highPrio = makeDeal({ id: 'h', title: 'High', stage: 'Proposal', next_action_due: YESTERDAY, priority: 'high' })
-const medPrio = makeDeal({ id: 'm', title: 'Med', stage: 'Proposal', next_action_due: YESTERDAY, priority: 'medium' })
+const highPrio = makeDeal({
+  id: 'h',
+  title: 'High',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: 'high',
+})
+const medPrio = makeDeal({
+  id: 'm',
+  title: 'Med',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: 'medium',
+})
 const ranked28 = rankTodayItems([medPrio, highPrio], TODAY)
 assert(ranked28[0]?.id === 'h', 'T28: within same tier, high priority before medium')
 
 // T29: within same tier+priority, higher value_estimate first
-const highVal = makeDeal({ id: 'hv', title: 'HighVal', stage: 'Proposal', next_action_due: YESTERDAY, priority: 'high', value_estimate: 10000 })
-const lowVal = makeDeal({ id: 'lv', title: 'LowVal', stage: 'Proposal', next_action_due: YESTERDAY, priority: 'high', value_estimate: 1000 })
+const highVal = makeDeal({
+  id: 'hv',
+  title: 'HighVal',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: 'high',
+  value_estimate: 10000,
+})
+const lowVal = makeDeal({
+  id: 'lv',
+  title: 'LowVal',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: 'high',
+  value_estimate: 1000,
+})
 const ranked29 = rankTodayItems([lowVal, highVal], TODAY)
 assert(ranked29[0]?.id === 'hv', 'T29: within same tier+priority, higher value_estimate first')
 
 // T30: null priority treated as lowest within tier
-const nullPrio = makeDeal({ id: 'n', title: 'NullPrio', stage: 'Proposal', next_action_due: YESTERDAY, priority: null })
-const medPrio2 = makeDeal({ id: 'm2', title: 'Med2', stage: 'Proposal', next_action_due: YESTERDAY, priority: 'medium' })
+const nullPrio = makeDeal({
+  id: 'n',
+  title: 'NullPrio',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: null,
+})
+const medPrio2 = makeDeal({
+  id: 'm2',
+  title: 'Med2',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+  priority: 'medium',
+})
 const ranked30 = rankTodayItems([nullPrio, medPrio2], TODAY)
 assert(ranked30[0]?.id === 'm2', 'T30: null priority ranks after medium within same tier')
 
@@ -376,37 +489,82 @@ console.log('\n▸ computeStructuredFlags — flag type, severity, label')
 const emptyDocs = new Map<string, string[]>()
 
 // T32: overdue deal produces overdue flag with severity:high
-const overdueDeal = makeDeal({ id: 'od', title: 'OverdueDeal', stage: 'Proposal', next_action_due: YESTERDAY })
+const overdueDeal = makeDeal({
+  id: 'od',
+  title: 'OverdueDeal',
+  stage: 'Proposal',
+  next_action_due: YESTERDAY,
+})
 const odFlags = computeStructuredFlags([overdueDeal], emptyDocs, TODAY)
 const odOverdue = odFlags.find((f) => f.type === 'overdue')
-assert(odOverdue !== undefined && odOverdue.severity === 'high', 'T32: overdue flag has severity:high')
+assert(
+  odOverdue !== undefined && odOverdue.severity === 'high',
+  'T32: overdue flag has severity:high'
+)
 
 // T33: stale deal with high priority → severity:high
-const highStaleDeal = makeDeal({ id: 'hs', title: 'HighStaleDeal', stage: 'Discovery', priority: 'high', stale_since: '2026-06-20' })
+const highStaleDeal = makeDeal({
+  id: 'hs',
+  title: 'HighStaleDeal',
+  stage: 'Discovery',
+  priority: 'high',
+  stale_since: '2026-06-20',
+})
 const hsFlags = computeStructuredFlags([highStaleDeal], emptyDocs, TODAY)
 const hsStale = hsFlags.find((f) => f.type === 'stale')
-assert(hsStale !== undefined && hsStale.severity === 'high', 'T33: stale deal with high priority → severity:high')
+assert(
+  hsStale !== undefined && hsStale.severity === 'high',
+  'T33: stale deal with high priority → severity:high'
+)
 
 // T34: stale deal with medium priority → severity:medium
-const medStaleDeal = makeDeal({ id: 'ms', title: 'MedStaleDeal', stage: 'Discovery', priority: 'medium', stale_since: '2026-06-20' })
+const medStaleDeal = makeDeal({
+  id: 'ms',
+  title: 'MedStaleDeal',
+  stage: 'Discovery',
+  priority: 'medium',
+  stale_since: '2026-06-20',
+})
 const msFlags = computeStructuredFlags([medStaleDeal], emptyDocs, TODAY)
 const msStale = msFlags.find((f) => f.type === 'stale')
-assert(msStale !== undefined && msStale.severity === 'medium', 'T34: stale deal with medium priority → severity:medium')
+assert(
+  msStale !== undefined && msStale.severity === 'medium',
+  'T34: stale deal with medium priority → severity:medium'
+)
 
 // T35: stale deal label includes days count
-const staleDeal = makeDeal({ id: 'sd', title: 'StaleDeal', stage: 'Discovery', stale_since: '2026-06-20' })
+const staleDeal = makeDeal({
+  id: 'sd',
+  title: 'StaleDeal',
+  stage: 'Discovery',
+  stale_since: '2026-06-20',
+})
 const sdFlags = computeStructuredFlags([staleDeal], emptyDocs, TODAY)
 const sdStale = sdFlags.find((f) => f.type === 'stale')
-assert(sdStale !== undefined && sdStale.label.includes('10 days'), 'T35: stale flag label contains days-stale count (10 days)')
+assert(
+  sdStale !== undefined && sdStale.label.includes('10 days'),
+  'T35: stale flag label contains days-stale count (10 days)'
+)
 
 // T36: cadence reminder produces cadence_reminder flag with severity:medium
-const cadenceDeal = makeDeal({ id: 'cd', title: 'CadenceDeal', stage: 'Proposal', next_action: 'Nhắc lần 1: theo dõi — đã 3 ngày' })
+const cadenceDeal = makeDeal({
+  id: 'cd',
+  title: 'CadenceDeal',
+  stage: 'Proposal',
+  next_action: 'Nhắc lần 1: theo dõi — đã 3 ngày',
+})
 const cdFlags = computeStructuredFlags([cadenceDeal], emptyDocs, TODAY)
 const cdCadence = cdFlags.find((f) => f.type === 'cadence_reminder')
-assert(cdCadence !== undefined && cdCadence.severity === 'medium', 'T36: cadence_reminder flag has severity:medium')
+assert(
+  cdCadence !== undefined && cdCadence.severity === 'medium',
+  'T36: cadence_reminder flag has severity:medium'
+)
 
 // T37: cadence_reminder label is the next_action string
-assert(cdCadence !== undefined && cdCadence.label === 'Nhắc lần 1: theo dõi — đã 3 ngày', 'T37: cadence_reminder label is the next_action string')
+assert(
+  cdCadence !== undefined && cdCadence.label === 'Nhắc lần 1: theo dõi — đã 3 ngày',
+  'T37: cadence_reminder label is the next_action string'
+)
 
 // T38: proposal stage missing doc → missing_doc flag
 const proposalDeal = makeDeal({ id: 'pd', title: 'PropDeal', stage: 'Proposal sent' })
@@ -415,11 +573,16 @@ const pdMissing = pdFlags.find((f) => f.type === 'missing_doc')
 assert(pdMissing !== undefined, 'T38: proposal stage with no docs → missing_doc flag generated')
 
 // T39: missing_doc flag has severity:medium
-assert(pdMissing !== undefined && pdMissing.severity === 'medium', 'T39: missing_doc flag has severity:medium')
+assert(
+  pdMissing !== undefined && pdMissing.severity === 'medium',
+  'T39: missing_doc flag has severity:medium'
+)
 
 // T40: missing_doc label contains deal title and doc type
 assert(
-  pdMissing !== undefined && pdMissing.label.includes('PropDeal') && pdMissing.label.includes('proposal'),
+  pdMissing !== undefined &&
+    pdMissing.label.includes('PropDeal') &&
+    pdMissing.label.includes('proposal'),
   'T40: missing_doc label includes deal title and document type'
 )
 
@@ -447,13 +610,20 @@ assert(
 // T44: each flag has all required fields
 const allFlags = computeStructuredFlags([overdueDeal, staleDeal], emptyDocs, TODAY)
 const allHaveFields = allFlags.every(
-  (f) => typeof f.type === 'string' && typeof f.deal_id === 'string' && typeof f.severity === 'string' && typeof f.label === 'string'
+  (f) =>
+    typeof f.type === 'string' &&
+    typeof f.deal_id === 'string' &&
+    typeof f.severity === 'string' &&
+    typeof f.label === 'string'
 )
 assert(allHaveFields, 'T44: every flag has type, deal_id, severity, label fields')
 
 // T45: high_flag_count computed correctly
 const highFlagCount = allFlags.filter((f) => f.severity === 'high').length
-assert(highFlagCount >= 1, 'T45: at least one severity:high flag from overdue + stale-high-priority set')
+assert(
+  highFlagCount >= 1,
+  'T45: at least one severity:high flag from overdue + stale-high-priority set'
+)
 
 // T76: overdue deal with cadence next_action → only overdue flag, no cadence_reminder (P2-3 fix)
 const overdueCadenceDeal = makeDeal({
@@ -464,8 +634,14 @@ const overdueCadenceDeal = makeDeal({
   next_action: 'Nhắc lần 1: theo dõi — đã 3 ngày',
 })
 const ocFlags = computeStructuredFlags([overdueCadenceDeal], emptyDocs, TODAY)
-assert(ocFlags.some((f) => f.type === 'overdue'), 'T76a: overdue deal emits overdue flag')
-assert(!ocFlags.some((f) => f.type === 'cadence_reminder'), 'T76b: overdue deal does NOT also emit cadence_reminder (overdue takes precedence)')
+assert(
+  ocFlags.some((f) => f.type === 'overdue'),
+  'T76a: overdue deal emits overdue flag'
+)
+assert(
+  !ocFlags.some((f) => f.type === 'cadence_reminder'),
+  'T76b: overdue deal does NOT also emit cadence_reminder (overdue takes precedence)'
+)
 
 // ── Tests: file structure — briefingService.ts ────────────────────────────────
 
@@ -475,21 +651,28 @@ const briefingPath = path.join(process.cwd(), 'lib', 'crm', 'briefingService.ts'
 const briefingContent = fs.existsSync(briefingPath) ? fs.readFileSync(briefingPath, 'utf8') : ''
 
 // T46: starts with server-only (AD-11)
-assert(briefingContent.trimStart().startsWith("import 'server-only'"), "T46: briefingService starts with import 'server-only' (AD-11)")
+assert(
+  briefingContent.trimStart().startsWith("import 'server-only'"),
+  "T46: briefingService starts with import 'server-only' (AD-11)"
+)
 
 // T47: imports detectMissingDocumentsByStage from missingDocumentService
 assert(
-  briefingContent.includes('detectMissingDocumentsByStage') && briefingContent.includes('missingDocumentService'),
+  briefingContent.includes('detectMissingDocumentsByStage') &&
+    briefingContent.includes('missingDocumentService'),
   'T47: briefingService imports detectMissingDocumentsByStage from missingDocumentService'
 )
 
 // T48: exports BriefingFlag type
-assert(briefingContent.includes('export interface BriefingFlag'), 'T48: BriefingFlag interface is exported')
+assert(
+  briefingContent.includes('export interface BriefingFlag'),
+  'T48: BriefingFlag interface is exported'
+)
 
 // T49: BriefingFlag has all required flag type values
 assert(
   briefingContent.includes("'overdue' | 'stale' | 'missing_doc' | 'cadence_reminder'"),
-  "T49: BriefingFlag type field includes all four flag types"
+  'T49: BriefingFlag type field includes all four flag types'
 )
 
 // T50: BriefingFlag severity field
@@ -499,20 +682,24 @@ assert(
 )
 
 // T51: DealRow includes id and priority fields
-assert(briefingContent.includes('priority: string | null'), 'T51: DealRow interface includes priority field')
+assert(
+  briefingContent.includes('priority: string | null'),
+  'T51: DealRow interface includes priority field'
+)
 
 // T52: DocRow includes deal_id field
 assert(briefingContent.includes('deal_id: string'), 'T52: DocRow interface includes deal_id field')
 
 // T53: doc query selects deal_id
 assert(
-  briefingContent.includes("'deal_id, type, status'") || briefingContent.includes("deal_id, type"),
+  briefingContent.includes("'deal_id, type, status'") || briefingContent.includes('deal_id, type'),
   'T53: doc query selects deal_id'
 )
 
 // T54: deal query selects id and priority
 assert(
-  briefingContent.includes('id, title, stage, priority') || briefingContent.includes("'id, title, stage, priority"),
+  briefingContent.includes('id, title, stage, priority') ||
+    briefingContent.includes("'id, title, stage, priority"),
   'T54: deal query selects id, title, stage, priority'
 )
 
@@ -520,51 +707,92 @@ assert(
 assert(briefingContent.includes('export function getTier'), 'T55: getTier function is exported')
 
 // T56: rankTodayItems function exported
-assert(briefingContent.includes('export function rankTodayItems'), 'T56: rankTodayItems function is exported')
+assert(
+  briefingContent.includes('export function rankTodayItems'),
+  'T56: rankTodayItems function is exported'
+)
 
 // T57: computeStructuredFlags function exported
-assert(briefingContent.includes('export function computeStructuredFlags'), 'T57: computeStructuredFlags function is exported')
+assert(
+  briefingContent.includes('export function computeStructuredFlags'),
+  'T57: computeStructuredFlags function is exported'
+)
 
 // T58: flags payload has items key
-assert(briefingContent.includes('items: structuredFlags'), 'T58: flags payload includes items: structuredFlags')
+assert(
+  briefingContent.includes('items: structuredFlags'),
+  'T58: flags payload includes items: structuredFlags'
+)
 
 // T59: AD-2 compliance — owner_id on all queries
 const ownerIdCount = (briefingContent.match(/'owner_id'/g) ?? []).length
 assert(ownerIdCount >= 4, 'T59: at least 4 owner_id references across queries (AD-2)')
 
 // T60: uses createServiceClient (AD-13 — cron path)
-assert(briefingContent.includes('createServiceClient()'), 'T60: uses createServiceClient (AD-13 — cron/system path)')
+assert(
+  briefingContent.includes('createServiceClient()'),
+  'T60: uses createServiceClient (AD-13 — cron/system path)'
+)
 
 // T61: uses ARIA_MODELS.economical (AD-4 — Haiku)
-assert(briefingContent.includes('ARIA_MODELS.economical'), 'T61: uses ARIA_MODELS.economical for Haiku (AD-4)')
+assert(
+  briefingContent.includes('ARIA_MODELS.economical'),
+  'T61: uses ARIA_MODELS.economical for Haiku (AD-4)'
+)
 
 // T62-T66: system prompt contains all 5 section keywords
 const promptIdx = briefingContent.indexOf('BRIEFING_SYSTEM_PROMPT')
 const promptSection = briefingContent.slice(promptIdx, promptIdx + 3000)
-assert(promptSection.includes('Today') || promptSection.includes('Hôm nay'), 'T62: system prompt references Today / Hôm nay section')
-assert(promptSection.includes('Pipeline Snapshot') || promptSection.includes('pipeline'), 'T63: system prompt references Pipeline Snapshot section')
-assert(promptSection.includes('Documents Pending') || promptSection.includes('Tài liệu'), 'T64: system prompt references Documents Pending section')
-assert(promptSection.includes('This Week') || promptSection.includes('Trọng tâm'), 'T65: system prompt references This Week Focus section')
-assert(promptSection.includes('Slow') || promptSection.includes('chậm'), 'T66: system prompt references Slow-Moving Deals section')
+assert(
+  promptSection.includes('Today') || promptSection.includes('Hôm nay'),
+  'T62: system prompt references Today / Hôm nay section'
+)
+assert(
+  promptSection.includes('Pipeline Snapshot') || promptSection.includes('pipeline'),
+  'T63: system prompt references Pipeline Snapshot section'
+)
+assert(
+  promptSection.includes('Documents Pending') || promptSection.includes('Tài liệu'),
+  'T64: system prompt references Documents Pending section'
+)
+assert(
+  promptSection.includes('This Week') || promptSection.includes('Trọng tâm'),
+  'T65: system prompt references This Week Focus section'
+)
+assert(
+  promptSection.includes('Slow') || promptSection.includes('chậm'),
+  'T66: system prompt references Slow-Moving Deals section'
+)
 
 // T67: system prompt says max 3 for Today
-assert(promptSection.includes('max 3') || promptSection.includes('3 items'), 'T67: system prompt specifies max 3 Today items')
+assert(
+  promptSection.includes('max 3') || promptSection.includes('3 items'),
+  'T67: system prompt specifies max 3 Today items'
+)
 
 // T68: degraded fallback preserved from Story 4.3
-assert(briefingContent.includes("status: 'degraded'"), "T68: degraded fallback preserved (AD-6)")
+assert(briefingContent.includes("status: 'degraded'"), 'T68: degraded fallback preserved (AD-6)')
 
 // T69: upsert uses onConflict owner_id,date (AD-7)
-assert(briefingContent.includes("onConflict: 'owner_id,date'"), 'T69: upsert uses onConflict owner_id,date (AD-7)')
+assert(
+  briefingContent.includes("onConflict: 'owner_id,date'"),
+  'T69: upsert uses onConflict owner_id,date (AD-7)'
+)
 
 // ── Tests: file structure — missingDocumentService.ts ───────────────────────
 
 console.log('\n▸ missingDocumentService.ts — pure function added')
 
 const missingDocPath = path.join(process.cwd(), 'lib', 'crm', 'missingDocumentService.ts')
-const missingDocContent = fs.existsSync(missingDocPath) ? fs.readFileSync(missingDocPath, 'utf8') : ''
+const missingDocContent = fs.existsSync(missingDocPath)
+  ? fs.readFileSync(missingDocPath, 'utf8')
+  : ''
 
 // T70: starts with server-only (AD-11)
-assert(missingDocContent.trimStart().startsWith("import 'server-only'"), "T70: missingDocumentService starts with import 'server-only' (AD-11)")
+assert(
+  missingDocContent.trimStart().startsWith("import 'server-only'"),
+  "T70: missingDocumentService starts with import 'server-only' (AD-11)"
+)
 
 // T71: detectMissingDocumentsByStage is exported as a non-async function
 assert(
@@ -574,11 +802,18 @@ assert(
 
 // T72: no DB call (no supabase) inside detectMissingDocumentsByStage body
 const pureStart = missingDocContent.indexOf('export function detectMissingDocumentsByStage')
-const pureEnd = missingDocContent.indexOf('\nexport async function detectMissingDocuments', pureStart)
-const pureBody = pureEnd > pureStart
-  ? missingDocContent.slice(pureStart, pureEnd)
-  : missingDocContent.slice(pureStart, pureStart + 800)
-assert(!pureBody.includes('supabase'), 'T72: detectMissingDocumentsByStage has no supabase DB calls (pure function)')
+const pureEnd = missingDocContent.indexOf(
+  '\nexport async function detectMissingDocuments',
+  pureStart
+)
+const pureBody =
+  pureEnd > pureStart
+    ? missingDocContent.slice(pureStart, pureEnd)
+    : missingDocContent.slice(pureStart, pureStart + 800)
+assert(
+  !pureBody.includes('supabase'),
+  'T72: detectMissingDocumentsByStage has no supabase DB calls (pure function)'
+)
 
 // T73: original detectMissingDocuments still present (no regression)
 assert(
@@ -587,7 +822,10 @@ assert(
 )
 
 // T74: pure function uses STAGE_REQUIRED_DOCS (shared rules)
-assert(pureBody.includes('STAGE_REQUIRED_DOCS'), 'T74: pure function uses STAGE_REQUIRED_DOCS (shared rule set)')
+assert(
+  pureBody.includes('STAGE_REQUIRED_DOCS'),
+  'T74: pure function uses STAGE_REQUIRED_DOCS (shared rule set)'
+)
 
 // T75: pure function uses MISSING_DOC_RATIONALE (shared rationale)
 assert(pureBody.includes('MISSING_DOC_RATIONALE'), 'T75: pure function uses MISSING_DOC_RATIONALE')

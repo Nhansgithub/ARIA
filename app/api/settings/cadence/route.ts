@@ -45,7 +45,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   }
 
   // P2-4 fix: reject non-numeric values before merging (typeof guard prevents string coercion bypass)
-  const numericFields = ['daily_cap', 'high_priority_threshold_days', 'standard_threshold_days'] as const
+  const numericFields = [
+    'daily_cap',
+    'high_priority_threshold_days',
+    'standard_threshold_days',
+  ] as const
   for (const field of numericFields) {
     if (field in body && typeof (body as Record<string, unknown>)[field] !== 'number') {
       return NextResponse.json({ error: `${field} must be a number` }, { status: 400 })
@@ -59,12 +63,15 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
   // Validate threshold ordering (AC-10); also guard zero/negative (P2-5)
   if (config.high_priority_threshold_days < 1 || config.standard_threshold_days < 1) {
-    return NextResponse.json({ error: 'Ngưỡng không hoạt động phải ít nhất 1 ngày.' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Ngưỡng không hoạt động phải ít nhất 1 ngày.' },
+      { status: 400 }
+    )
   }
   if (config.high_priority_threshold_days >= config.standard_threshold_days) {
     return NextResponse.json(
       { error: 'Ngưỡng ưu tiên cao nên ngắn hơn ngưỡng thông thường.' },
-      { status: 400 },
+      { status: 400 }
     )
   }
   if (config.daily_cap < 1 || config.daily_cap > 10) {

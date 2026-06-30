@@ -7,7 +7,9 @@ import { generatePdf } from '@/lib/pdf/generatePdf'
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   // 1. Auth
   const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
 
   // 2. Fetch document (owner-scoped, AD-2)
@@ -32,14 +34,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const storagePath = `${user.id}/documents/${params.id}_v${doc.version}.pdf`
   const { error: uploadError } = await supabase.storage
     .from('documents')
-    .upload(storagePath, new Uint8Array(pdfBuffer), { contentType: 'application/pdf', upsert: true })
+    .upload(storagePath, new Uint8Array(pdfBuffer), {
+      contentType: 'application/pdf',
+      upsert: true,
+    })
 
   if (uploadError) {
     return new Response(JSON.stringify({ error: 'PDF upload failed' }), { status: 500 })
   }
 
   // 5. Update file_url on the documents row (direct update — check result for silent failures)
-  const { error: updateError } = await supabase.from('documents')
+  const { error: updateError } = await supabase
+    .from('documents')
     .update({ file_url: storagePath, updated_at: new Date().toISOString() })
     .eq('id', params.id)
     .eq('owner_id', user.id)

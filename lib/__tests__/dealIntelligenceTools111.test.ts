@@ -79,10 +79,7 @@ t('T6 — all 5 tools present in alphabetical order', () => {
   for (const name of expected) {
     assert(EXPECTED_TOOL_NAMES.includes(name), `missing tool: ${name}`)
   }
-  assert(
-    JSON.stringify(EXPECTED_TOOL_NAMES) === JSON.stringify(expected),
-    'order mismatch'
-  )
+  assert(JSON.stringify(EXPECTED_TOOL_NAMES) === JSON.stringify(expected), 'order mismatch')
 })
 
 console.log(`\n${passed} passed, ${failed} failed`)

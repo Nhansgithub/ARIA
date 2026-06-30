@@ -194,10 +194,7 @@ RULES:
 
 // ── Service functions ─────────────────────────────────────────────────────────
 
-export async function getBriefing(
-  ownerId: string,
-  date: string
-): Promise<BriefingRecord | null> {
+export async function getBriefing(ownerId: string, date: string): Promise<BriefingRecord | null> {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('briefings')
@@ -228,7 +225,9 @@ export async function generateBriefingForOwner(
   const [dealsRes, docsRes, activityRes, settingsRes] = await Promise.all([
     supabase
       .from('deals')
-      .select('id, title, stage, priority, value_estimate, next_action, next_action_due, stale_since')
+      .select(
+        'id, title, stage, priority, value_estimate, next_action, next_action_due, stale_since'
+      )
       .eq('owner_id', ownerId)
       .eq('is_stub', false)
       .limit(50),
@@ -245,11 +244,7 @@ export async function generateBriefingForOwner(
       .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       .order('created_at', { ascending: false })
       .limit(50),
-    supabase
-      .from('settings')
-      .select('business_context')
-      .eq('owner_id', ownerId)
-      .maybeSingle(),
+    supabase.from('settings').select('business_context').eq('owner_id', ownerId).maybeSingle(),
   ])
 
   // Filter deals to active stages only
@@ -274,19 +269,21 @@ export async function generateBriefingForOwner(
   // Step 3: Compute ranking + flags in TypeScript before AI call
   const todayItems = rankTodayItems(activeDeals, date)
   const structuredFlags = computeStructuredFlags(activeDeals, docsByDeal, date)
-  const staleDeals = activeDeals.filter((d) => d.stale_since !== null).map((d) => ({
-    title: d.title,
-    stale_since: d.stale_since,
-    // Math.max(0, ...) guards against negative values from clock skew / bad data
-    daysStale: Math.max(
-      0,
-      Math.floor(
-        (new Date(date + 'T00:00:00Z').getTime() -
-          new Date(d.stale_since! + 'T00:00:00Z').getTime()) /
-          86_400_000
-      )
-    ),
-  }))
+  const staleDeals = activeDeals
+    .filter((d) => d.stale_since !== null)
+    .map((d) => ({
+      title: d.title,
+      stale_since: d.stale_since,
+      // Math.max(0, ...) guards against negative values from clock skew / bad data
+      daysStale: Math.max(
+        0,
+        Math.floor(
+          (new Date(date + 'T00:00:00Z').getTime() -
+            new Date(d.stale_since! + 'T00:00:00Z').getTime()) /
+            86_400_000
+        )
+      ),
+    }))
 
   // Compute pipeline snapshot data for AI
   const totalValue = activeDeals.reduce((sum, d) => sum + (d.value_estimate ?? 0), 0)
@@ -332,7 +329,9 @@ export async function generateBriefingForOwner(
       : 'None',
     `\n--- SLOW-MOVING DEALS (stale ≥7 days) ---`,
     staleDeals.length > 0
-      ? staleDeals.map((d) => `${d.title}: ${d.daysStale} days idle (since ${d.stale_since})`).join('\n')
+      ? staleDeals
+          .map((d) => `${d.title}: ${d.daysStale} days idle (since ${d.stale_since})`)
+          .join('\n')
       : 'None',
     `\n--- RECENT ACTIVITY (last 24h, ${recentActivity.length} entries) ---`,
     recentActivity.length > 0
@@ -416,8 +415,7 @@ export async function generateBriefingsForAllOwners(
   const allOwnerIds = (owners ?? []).map((r: { owner_id: string }) => r.owner_id)
   const ownerIds = allOwnerIds.filter((id, idx) => allOwnerIds.indexOf(id) === idx)
 
-  const results: { ownerId: string; status: 'generated' | 'degraded' | 'skipped' | 'error' }[] =
-    []
+  const results: { ownerId: string; status: 'generated' | 'degraded' | 'skipped' | 'error' }[] = []
 
   for (const ownerId of ownerIds) {
     try {

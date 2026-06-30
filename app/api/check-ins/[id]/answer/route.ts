@@ -10,7 +10,7 @@ type AnswerValue = (typeof VALID_ANSWERS)[number]
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const supabase = createServerClient()
   const {

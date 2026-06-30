@@ -26,11 +26,7 @@ export default function DocumentsPanel({ onOpenChat }: DocumentsPanelProps) {
     <div style={{ height: '100%', overflow: 'hidden', background: '#0a0e27' }}>
       {view === 'list' && <DocumentList onSelect={handleSelect} />}
       {view === 'viewer' && selectedDocId && (
-        <DocumentViewer
-          id={selectedDocId}
-          onBack={handleBack}
-          onOpenChat={onOpenChat}
-        />
+        <DocumentViewer id={selectedDocId} onBack={handleBack} onOpenChat={onOpenChat} />
       )}
     </div>
   )

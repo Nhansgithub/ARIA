@@ -18,21 +18,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   let body: unknown
-  try { body = await request.json() } catch {
+  try {
+    body = await request.json()
+  } catch {
     return new NextResponse(null, { status: 400 })
   }
 
   const supabase = createServiceClient()
 
   // Log all inbound webhook events — no business logic in v1
-  await supabase.from('activity_log').insert({
-    owner_id: 'system',
-    entity_type: 'zalo_webhook',
-    entity_id: 'inbound',
-    action: 'zalo_event_received',
-    actor: 'system',
-    payload: body as Record<string, unknown>,
-  }).then(() => {}, () => {})
+  await supabase
+    .from('activity_log')
+    .insert({
+      owner_id: 'system',
+      entity_type: 'zalo_webhook',
+      entity_id: 'inbound',
+      action: 'zalo_event_received',
+      actor: 'system',
+      payload: body as Record<string, unknown>,
+    })
+    .then(
+      () => {},
+      () => {}
+    )
 
   return new NextResponse(null, { status: 200 })
 }

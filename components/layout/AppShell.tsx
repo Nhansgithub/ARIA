@@ -61,7 +61,9 @@ function NavButton({
       }}
     >
       <item.Icon size={18} color={active ? '#14b8a6' : '#94a3b8'} />
-      <span className="aria-sidebar-label" style={{ flex: 1 }}>{item.label}</span>
+      <span className="aria-sidebar-label" style={{ flex: 1 }}>
+        {item.label}
+      </span>
       {badge != null && badge > 0 && (
         <span
           style={{
@@ -82,12 +84,13 @@ function NavButton({
   )
 }
 
-
 function fetchBadgeCount(setter: (n: number) => void): void {
   fetch('/api/notifications/badge-count')
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((d: { count: number }) => setter(d.count))
-    .catch(() => { /* AD-6 */ })
+    .catch(() => {
+      /* AD-6 */
+    })
 }
 
 export default function AppShell() {
@@ -212,10 +215,7 @@ export default function AppShell() {
         }}
       >
         {mode === 'chat' && (
-          <ChatPanel
-            initialPrefill={chatPrefill}
-            onPrefillConsumed={() => setChatPrefill('')}
-          />
+          <ChatPanel initialPrefill={chatPrefill} onPrefillConsumed={() => setChatPrefill('')} />
         )}
         {mode === 'briefing' && (
           <BriefingPanel

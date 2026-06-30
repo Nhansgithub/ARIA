@@ -26,7 +26,7 @@ export async function sendZaloMessage(opts: {
       signal: AbortSignal.timeout(10_000),
       headers: {
         'Content-Type': 'application/json',
-        'access_token': opts.accessToken,
+        access_token: opts.accessToken,
       },
       body: JSON.stringify({
         recipient: { user_id: opts.userId },
@@ -37,7 +37,11 @@ export async function sendZaloMessage(opts: {
       const body = await res.text().catch(() => '')
       return { ok: false, error: `Zalo send ${res.status}: ${body.slice(0, 200)}` }
     }
-    const data = await res.json() as { error?: number; message?: string; data?: { message_id?: string } }
+    const data = (await res.json()) as {
+      error?: number
+      message?: string
+      data?: { message_id?: string }
+    }
     if (data.error && data.error !== 0) {
       return { ok: false, error: `Zalo API error ${data.error}: ${data.message ?? ''}` }
     }

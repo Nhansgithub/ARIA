@@ -3,14 +3,7 @@ export {}
 // Inline types — never import from project lib/ (ts-node test pattern)
 
 type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 type DocumentStatus = 'draft' | 'review' | 'sent' | 'signed' | 'archived'
 type DocumentCreatedBy = 'ai' | 'human'
 

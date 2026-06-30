@@ -57,14 +57,15 @@ function evaluateTriggerCriteria(
   deal: DealRow,
   lastCheckIns: LastCheckInsMap,
   today: string,
-  config: CheckInConfig = DEFAULT_CHECKIN_CONFIG,
+  config: CheckInConfig = DEFAULT_CHECKIN_CONFIG
 ): TriggerType[] {
-  if (deal.checkin_paused) { return [] }
+  if (deal.checkin_paused) {
+    return []
+  }
   const triggers: TriggerType[] = []
   const todayMs = new Date(today + 'T00:00:00Z').getTime()
-  const staleThreshold = deal.priority === 'high'
-    ? config.high_priority_threshold_days
-    : config.standard_threshold_days
+  const staleThreshold =
+    deal.priority === 'high' ? config.high_priority_threshold_days : config.standard_threshold_days
 
   if (deal.stale_since) {
     const staleDays = Math.floor(
@@ -75,8 +76,10 @@ function evaluateTriggerCriteria(
       const lastSentMs = lastSentDate
         ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
         : null
-      const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= staleThreshold * 86_400_000
-      if (cooldownOk) { triggers.push('stale_7d') }
+      const cooldownOk = !lastSentMs || todayMs - lastSentMs >= staleThreshold * 86_400_000
+      if (cooldownOk) {
+        triggers.push('stale_7d')
+      }
     }
   }
 
@@ -89,8 +92,10 @@ function evaluateTriggerCriteria(
       const lastSentMs = lastSentDate
         ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
         : null
-      const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= 86_400_000
-      if (cooldownOk) { triggers.push('pre_action_due') }
+      const cooldownOk = !lastSentMs || todayMs - lastSentMs >= 86_400_000
+      if (cooldownOk) {
+        triggers.push('pre_action_due')
+      }
     }
   }
 
@@ -99,8 +104,10 @@ function evaluateTriggerCriteria(
     const lastSentMs = lastSentDate
       ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
       : null
-    const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= 86_400_000
-    if (cooldownOk) { triggers.push('cadence_followup') }
+    const cooldownOk = !lastSentMs || todayMs - lastSentMs >= 86_400_000
+    if (cooldownOk) {
+      triggers.push('cadence_followup')
+    }
   }
 
   return triggers
@@ -136,7 +143,10 @@ console.log('\nT1-T15: evaluateTriggerCriteria with config')
   const deal = makeDeal({ priority: 'high', stale_since: addDays(TODAY, -3) })
   const config: CheckInConfig = { ...DEFAULT_CHECKIN_CONFIG, high_priority_threshold_days: 3 }
   const triggers = evaluateTriggerCriteria(deal, {}, TODAY, config)
-  assert(triggers.includes('stale_7d'), 'T1: high-priority deal stale 3d triggers with high_threshold=3')
+  assert(
+    triggers.includes('stale_7d'),
+    'T1: high-priority deal stale 3d triggers with high_threshold=3'
+  )
 }
 
 // T2: Standard deal stale 3 days does NOT trigger when standard threshold is 5
@@ -144,7 +154,10 @@ console.log('\nT1-T15: evaluateTriggerCriteria with config')
   const deal = makeDeal({ priority: null, stale_since: addDays(TODAY, -3) })
   const config: CheckInConfig = { ...DEFAULT_CHECKIN_CONFIG, standard_threshold_days: 5 }
   const triggers = evaluateTriggerCriteria(deal, {}, TODAY, config)
-  assert(!triggers.includes('stale_7d'), 'T2: standard deal stale 3d does NOT trigger when standard=5')
+  assert(
+    !triggers.includes('stale_7d'),
+    'T2: standard deal stale 3d does NOT trigger when standard=5'
+  )
 }
 
 // T3: Standard deal stale 5+ days DOES trigger when standard threshold is 5
@@ -180,7 +193,10 @@ console.log('\nT1-T15: evaluateTriggerCriteria with config')
 {
   const deal = makeDeal({ next_action: 'Nhắc lần 1' })
   const triggers = evaluateTriggerCriteria(deal, {}, TODAY)
-  assert(triggers.includes('cadence_followup'), 'T7: cadence_followup trigger fires when next_action starts with Nhắc lần')
+  assert(
+    triggers.includes('cadence_followup'),
+    'T7: cadence_followup trigger fires when next_action starts with Nhắc lần'
+  )
 }
 
 // T8: stale cooldown uses staleThreshold days (not hardcoded 7)
@@ -190,23 +206,40 @@ console.log('\nT1-T15: evaluateTriggerCriteria with config')
   // Last check-in was 4 days ago — within 5-day cooldown
   const lastCheckIns: LastCheckInsMap = { stale_7d: addDays(TODAY, -4) }
   const triggers = evaluateTriggerCriteria(deal, lastCheckIns, TODAY, config)
-  assert(!triggers.includes('stale_7d'), 'T8: stale cooldown = staleThreshold days blocks re-trigger within cooldown')
+  assert(
+    !triggers.includes('stale_7d'),
+    'T8: stale cooldown = staleThreshold days blocks re-trigger within cooldown'
+  )
 }
 
 // T9: High-priority stale threshold is high_priority_threshold_days
 {
-  const config: CheckInConfig = { ...DEFAULT_CHECKIN_CONFIG, high_priority_threshold_days: 3, standard_threshold_days: 7 }
+  const config: CheckInConfig = {
+    ...DEFAULT_CHECKIN_CONFIG,
+    high_priority_threshold_days: 3,
+    standard_threshold_days: 7,
+  }
   const deal = makeDeal({ priority: 'high', stale_since: addDays(TODAY, -3) })
   const triggers = evaluateTriggerCriteria(deal, {}, TODAY, config)
-  assert(triggers.includes('stale_7d'), 'T9: high-priority stale threshold = high_priority_threshold_days')
+  assert(
+    triggers.includes('stale_7d'),
+    'T9: high-priority stale threshold = high_priority_threshold_days'
+  )
 }
 
 // T10: Standard-priority stale threshold is standard_threshold_days
 {
-  const config: CheckInConfig = { ...DEFAULT_CHECKIN_CONFIG, high_priority_threshold_days: 3, standard_threshold_days: 7 }
+  const config: CheckInConfig = {
+    ...DEFAULT_CHECKIN_CONFIG,
+    high_priority_threshold_days: 3,
+    standard_threshold_days: 7,
+  }
   const deal = makeDeal({ priority: 'medium', stale_since: addDays(TODAY, -5) })
   const triggers = evaluateTriggerCriteria(deal, {}, TODAY, config)
-  assert(!triggers.includes('stale_7d'), 'T10: standard deal uses standard_threshold_days (not high)')
+  assert(
+    !triggers.includes('stale_7d'),
+    'T10: standard deal uses standard_threshold_days (not high)'
+  )
 }
 
 // T11: Null priority uses standard_threshold_days
@@ -221,10 +254,16 @@ console.log('\nT1-T15: evaluateTriggerCriteria with config')
 assert(DEFAULT_CHECKIN_CONFIG.daily_cap === 3, 'T12: DEFAULT_CHECKIN_CONFIG.daily_cap = 3')
 
 // T13: DEFAULT_CHECKIN_CONFIG has high_priority_threshold_days=3
-assert(DEFAULT_CHECKIN_CONFIG.high_priority_threshold_days === 3, 'T13: DEFAULT_CHECKIN_CONFIG.high_priority_threshold_days = 3')
+assert(
+  DEFAULT_CHECKIN_CONFIG.high_priority_threshold_days === 3,
+  'T13: DEFAULT_CHECKIN_CONFIG.high_priority_threshold_days = 3'
+)
 
 // T14: DEFAULT_CHECKIN_CONFIG has standard_threshold_days=5
-assert(DEFAULT_CHECKIN_CONFIG.standard_threshold_days === 5, 'T14: DEFAULT_CHECKIN_CONFIG.standard_threshold_days = 5')
+assert(
+  DEFAULT_CHECKIN_CONFIG.standard_threshold_days === 5,
+  'T14: DEFAULT_CHECKIN_CONFIG.standard_threshold_days = 5'
+)
 
 // T15: DEFAULT_CHECKIN_CONFIG has enabled=true
 assert(DEFAULT_CHECKIN_CONFIG.enabled === true, 'T15: DEFAULT_CHECKIN_CONFIG.enabled = true')
@@ -235,50 +274,77 @@ console.log('\nT16-T30: File structure checks')
 
 const ROOT = process.cwd()
 
-const migrationPath = path.join(ROOT, 'supabase', 'migrations', '20260630100000_checkin_cadence_config.sql')
+const migrationPath = path.join(
+  ROOT,
+  'supabase',
+  'migrations',
+  '20260630100000_checkin_cadence_config.sql'
+)
 const cadenceRoutePath = path.join(ROOT, 'app', 'api', 'settings', 'cadence', 'route.ts')
 const checkInServicePath = path.join(ROOT, 'lib', 'crm', 'checkInService.ts')
 
 const migrationContent = fs.existsSync(migrationPath) ? fs.readFileSync(migrationPath, 'utf-8') : ''
-const cadenceRouteContent = fs.existsSync(cadenceRoutePath) ? fs.readFileSync(cadenceRoutePath, 'utf-8') : ''
-const checkInServiceContent = fs.existsSync(checkInServicePath) ? fs.readFileSync(checkInServicePath, 'utf-8') : ''
+const cadenceRouteContent = fs.existsSync(cadenceRoutePath)
+  ? fs.readFileSync(cadenceRoutePath, 'utf-8')
+  : ''
+const checkInServiceContent = fs.existsSync(checkInServicePath)
+  ? fs.readFileSync(checkInServicePath, 'utf-8')
+  : ''
 
 // T16: migration file exists
-assert(fs.existsSync(migrationPath), 'T16: migration file exists at 20260630100000_checkin_cadence_config.sql')
+assert(
+  fs.existsSync(migrationPath),
+  'T16: migration file exists at 20260630100000_checkin_cadence_config.sql'
+)
 
 // T17: migration adds checkin_config to settings
 assert(
   migrationContent.includes('checkin_config') && migrationContent.includes('settings'),
-  'T17: migration adds checkin_config column to settings',
+  'T17: migration adds checkin_config column to settings'
 )
 
 // T18: migration adds checkin_paused to deals
 assert(
   migrationContent.includes('checkin_paused') && migrationContent.includes('deals'),
-  'T18: migration adds checkin_paused column to deals',
+  'T18: migration adds checkin_paused column to deals'
 )
 
 // T19: cadence API route exists
-assert(fs.existsSync(cadenceRoutePath), 'T19: cadence API route exists at app/api/settings/cadence/route.ts')
+assert(
+  fs.existsSync(cadenceRoutePath),
+  'T19: cadence API route exists at app/api/settings/cadence/route.ts'
+)
 
 // T20: cadence route contains createServerClient
-assert(cadenceRouteContent.includes('createServerClient'), 'T20: cadence route contains createServerClient')
+assert(
+  cadenceRouteContent.includes('createServerClient'),
+  'T20: cadence route contains createServerClient'
+)
 
 // T21: cadence route does NOT contain createServiceClient
-assert(!cadenceRouteContent.includes('createServiceClient'), 'T21: cadence route does NOT contain createServiceClient')
+assert(
+  !cadenceRouteContent.includes('createServiceClient'),
+  'T21: cadence route does NOT contain createServiceClient'
+)
 
 // T22: cadence route exports GET function
-assert(cadenceRouteContent.includes('export') && cadenceRouteContent.includes('GET'), 'T22: cadence route exports GET')
+assert(
+  cadenceRouteContent.includes('export') && cadenceRouteContent.includes('GET'),
+  'T22: cadence route exports GET'
+)
 
 // T23: cadence route exports PUT function
-assert(cadenceRouteContent.includes('export') && cadenceRouteContent.includes('PUT'), 'T23: cadence route exports PUT')
+assert(
+  cadenceRouteContent.includes('export') && cadenceRouteContent.includes('PUT'),
+  'T23: cadence route exports PUT'
+)
 
 // T24: cadence route validates high < standard threshold (returns 400)
 assert(
   cadenceRouteContent.includes('high_priority_threshold_days') &&
     cadenceRouteContent.includes('standard_threshold_days') &&
     cadenceRouteContent.includes('400'),
-  'T24: cadence route validates high < standard threshold with 400 response',
+  'T24: cadence route validates high < standard threshold with 400 response'
 )
 
 // T25: cadence route calls logActivity
@@ -287,33 +353,33 @@ assert(cadenceRouteContent.includes('logActivity'), 'T25: cadence route calls lo
 // T26: cadence route contains checkin_cadence_configured action
 assert(
   cadenceRouteContent.includes('checkin_cadence_configured'),
-  "T26: cadence route contains 'checkin_cadence_configured' action string",
+  "T26: cadence route contains 'checkin_cadence_configured' action string"
 )
 
 // T27: checkInService.ts exports CheckInConfig interface
 assert(
   checkInServiceContent.includes('export interface CheckInConfig') ||
     checkInServiceContent.includes('export type CheckInConfig'),
-  'T27: checkInService.ts exports CheckInConfig interface',
+  'T27: checkInService.ts exports CheckInConfig interface'
 )
 
 // T28: checkInService.ts exports DEFAULT_CHECKIN_CONFIG constant
 assert(
   checkInServiceContent.includes('export const DEFAULT_CHECKIN_CONFIG'),
-  'T28: checkInService.ts exports DEFAULT_CHECKIN_CONFIG constant',
+  'T28: checkInService.ts exports DEFAULT_CHECKIN_CONFIG constant'
 )
 
 // T29: checkInService.ts evaluateTriggerCriteria accepts config parameter
 assert(
   checkInServiceContent.includes('evaluateTriggerCriteria') &&
     checkInServiceContent.includes('config: CheckInConfig'),
-  'T29: checkInService.ts evaluateTriggerCriteria accepts config parameter',
+  'T29: checkInService.ts evaluateTriggerCriteria accepts config parameter'
 )
 
 // T30: checkInService.ts evaluateCheckInTriggers fetches checkin_config from settings
 assert(
   checkInServiceContent.includes('checkin_config') && checkInServiceContent.includes('settings'),
-  'T30: checkInService.ts evaluateCheckInTriggers fetches checkin_config from settings',
+  'T30: checkInService.ts evaluateCheckInTriggers fetches checkin_config from settings'
 )
 
 // ── T31-T45: CadencePanel and AppShell structure ───────────────────────────
@@ -323,17 +389,25 @@ console.log('\nT31-T45: CadencePanel and AppShell structure')
 const cadencePanelPath = path.join(ROOT, 'components', 'settings', 'CadencePanel.tsx')
 const appShellPath = path.join(ROOT, 'components', 'layout', 'AppShell.tsx')
 
-const cadencePanelContent = fs.existsSync(cadencePanelPath) ? fs.readFileSync(cadencePanelPath, 'utf-8') : ''
+const cadencePanelContent = fs.existsSync(cadencePanelPath)
+  ? fs.readFileSync(cadencePanelPath, 'utf-8')
+  : ''
 const appShellContent = fs.existsSync(appShellPath) ? fs.readFileSync(appShellPath, 'utf-8') : ''
 
 // T31: CadencePanel.tsx exists
 assert(fs.existsSync(cadencePanelPath), 'T31: CadencePanel.tsx exists at components/settings/')
 
 // T32: CadencePanel.tsx first line is 'use client'
-assert(cadencePanelContent.trimStart().startsWith("'use client'"), "T32: CadencePanel.tsx first line is 'use client'")
+assert(
+  cadencePanelContent.trimStart().startsWith("'use client'"),
+  "T32: CadencePanel.tsx first line is 'use client'"
+)
 
 // T33: CadencePanel.tsx fetches /api/settings/cadence on mount
-assert(cadencePanelContent.includes('/api/settings/cadence'), 'T33: CadencePanel.tsx fetches /api/settings/cadence on mount')
+assert(
+  cadencePanelContent.includes('/api/settings/cadence'),
+  'T33: CadencePanel.tsx fetches /api/settings/cadence on mount'
+)
 
 // T34: CadencePanel.tsx has daily_cap input
 assert(cadencePanelContent.includes('daily_cap'), 'T34: CadencePanel.tsx has daily_cap input')
@@ -341,13 +415,13 @@ assert(cadencePanelContent.includes('daily_cap'), 'T34: CadencePanel.tsx has dai
 // T35: CadencePanel.tsx has high_priority_threshold_days input
 assert(
   cadencePanelContent.includes('high_priority_threshold_days'),
-  'T35: CadencePanel.tsx has high_priority_threshold_days input',
+  'T35: CadencePanel.tsx has high_priority_threshold_days input'
 )
 
 // T36: CadencePanel.tsx has standard_threshold_days input
 assert(
   cadencePanelContent.includes('standard_threshold_days'),
-  'T36: CadencePanel.tsx has standard_threshold_days input',
+  'T36: CadencePanel.tsx has standard_threshold_days input'
 )
 
 // T37: CadencePanel.tsx has enabled toggle
@@ -356,25 +430,25 @@ assert(cadencePanelContent.includes('enabled'), 'T37: CadencePanel.tsx has enabl
 // T38: CadencePanel.tsx has visible labels for each input (htmlFor or label tags)
 assert(
   cadencePanelContent.includes('<label') && cadencePanelContent.includes('htmlFor'),
-  'T38: CadencePanel.tsx has visible labels (label + htmlFor)',
+  'T38: CadencePanel.tsx has visible labels (label + htmlFor)'
 )
 
 // T39: CadencePanel.tsx saves via PUT /api/settings/cadence
 assert(
   cadencePanelContent.includes("method: 'PUT'") || cadencePanelContent.includes('method: "PUT"'),
-  'T39: CadencePanel.tsx saves via PUT /api/settings/cadence',
+  'T39: CadencePanel.tsx saves via PUT /api/settings/cadence'
 )
 
 // T40: CadencePanel.tsx has visible validation error element (role=alert indicates Vietnamese error display)
 assert(
   cadencePanelContent.includes('role="alert"') || cadencePanelContent.includes("role='alert'"),
-  'T40: CadencePanel.tsx has visible validation error element (role=alert)',
+  'T40: CadencePanel.tsx has visible validation error element (role=alert)'
 )
 
 // T41: CadencePanel.tsx disables save when validation error present or not dirty
 assert(
   cadencePanelContent.includes('canSave') || cadencePanelContent.includes('disabled'),
-  'T41: CadencePanel.tsx disables save when validation error exists or form is clean',
+  'T41: CadencePanel.tsx disables save when validation error exists or form is clean'
 )
 
 // T42: AppShell.tsx imports CadencePanel
@@ -383,22 +457,22 @@ assert(appShellContent.includes('CadencePanel'), 'T42: AppShell.tsx imports Cade
 // T43: AppShell.tsx renders CadencePanel in settings mode
 assert(
   appShellContent.includes('<CadencePanel') || appShellContent.includes('<CadencePanel/>'),
-  'T43: AppShell.tsx renders CadencePanel in settings mode',
+  'T43: AppShell.tsx renders CadencePanel in settings mode'
 )
 
 // T44: CadencePanel.tsx does NOT hardcode config as initial state values (reads from API)
 // Verify: no literal "daily_cap: 3" directly in useState initializer (reads from API response)
 assert(
   cadencePanelContent.includes('/api/settings/cadence'),
-  'T44: CadencePanel.tsx reads initial config from API (not hardcoded state)',
+  'T44: CadencePanel.tsx reads initial config from API (not hardcoded state)'
 )
 
 // T45: CadencePanel.tsx has error/saving/saved state handling
 assert(
   cadencePanelContent.includes("'saved'") &&
-  cadencePanelContent.includes("'error'") &&
-  (cadencePanelContent.includes("'saving'") || cadencePanelContent.includes('saving')),
-  'T45: CadencePanel.tsx has error/saving/saved state handling',
+    cadencePanelContent.includes("'error'") &&
+    (cadencePanelContent.includes("'saving'") || cadencePanelContent.includes('saving')),
+  'T45: CadencePanel.tsx has error/saving/saved state handling'
 )
 
 // ── T46-T60: crmTools, crmService, checkInService, package.json ────────────
@@ -410,91 +484,108 @@ const crmServicePath = path.join(ROOT, 'lib', 'crm', 'crmService.ts')
 const packageJsonPath = path.join(ROOT, 'package.json')
 
 const crmToolsContent = fs.existsSync(crmToolsPath) ? fs.readFileSync(crmToolsPath, 'utf-8') : ''
-const crmServiceContent = fs.existsSync(crmServicePath) ? fs.readFileSync(crmServicePath, 'utf-8') : ''
-const packageJsonContent = fs.existsSync(packageJsonPath) ? fs.readFileSync(packageJsonPath, 'utf-8') : ''
+const crmServiceContent = fs.existsSync(crmServicePath)
+  ? fs.readFileSync(crmServicePath, 'utf-8')
+  : ''
+const packageJsonContent = fs.existsSync(packageJsonPath)
+  ? fs.readFileSync(packageJsonPath, 'utf-8')
+  : ''
 
 // T46: crmTools.ts update_deal tool includes checkin_paused in input_schema
-assert(crmToolsContent.includes('checkin_paused'), 'T46: crmTools.ts update_deal includes checkin_paused')
+assert(
+  crmToolsContent.includes('checkin_paused'),
+  'T46: crmTools.ts update_deal includes checkin_paused'
+)
 
 // T47: crmTools.ts checkin_paused property is typed as boolean
 assert(
   crmToolsContent.includes("type: 'boolean'") || crmToolsContent.includes('type: "boolean"'),
-  'T47: crmTools.ts checkin_paused typed as boolean',
+  'T47: crmTools.ts checkin_paused typed as boolean'
 )
 
 // T48: crmService.ts includes checkin_paused in allowed update fields
-assert(crmServiceContent.includes('checkin_paused'), 'T48: crmService.ts includes checkin_paused in update fields')
+assert(
+  crmServiceContent.includes('checkin_paused'),
+  'T48: crmService.ts includes checkin_paused in update fields'
+)
 
 // T49: crmService.ts logs checkin_paused or checkin_resumed action
 assert(
-  (crmServiceContent.includes("'checkin_paused'") || crmServiceContent.includes('"checkin_paused"')) &&
-    (crmServiceContent.includes("'checkin_resumed'") || crmServiceContent.includes('"checkin_resumed"')),
-  'T49: crmService.ts logs checkin_paused and checkin_resumed actions',
+  (crmServiceContent.includes("'checkin_paused'") ||
+    crmServiceContent.includes('"checkin_paused"')) &&
+    (crmServiceContent.includes("'checkin_resumed'") ||
+      crmServiceContent.includes('"checkin_resumed"')),
+  'T49: crmService.ts logs checkin_paused and checkin_resumed actions'
 )
 
 // T50: checkInService.ts DealRow interface includes checkin_paused field
 assert(
   checkInServiceContent.includes('checkin_paused') && checkInServiceContent.includes('DealRow'),
-  'T50: checkInService.ts DealRow interface includes checkin_paused field',
+  'T50: checkInService.ts DealRow interface includes checkin_paused field'
 )
 
 // T51: checkInService.ts evaluateCheckInTriggers selects checkin_paused from deals
 assert(
   checkInServiceContent.includes('checkin_paused') && checkInServiceContent.includes('.select('),
-  'T51: checkInService.ts evaluateCheckInTriggers deal query selects checkin_paused',
+  'T51: checkInService.ts evaluateCheckInTriggers deal query selects checkin_paused'
 )
 
 // T52: checkInService.ts filters out checkin_paused deals
 assert(
-  checkInServiceContent.includes('!d.checkin_paused') || checkInServiceContent.includes('checkin_paused: false'),
-  'T52: checkInService.ts filters out checkin_paused deals',
+  checkInServiceContent.includes('!d.checkin_paused') ||
+    checkInServiceContent.includes('checkin_paused: false'),
+  'T52: checkInService.ts filters out checkin_paused deals'
 )
 
 // T53: checkInService.ts respects enabled=false (returns scheduled:0)
 assert(
-  checkInServiceContent.includes('config.enabled') && checkInServiceContent.includes('scheduled: 0'),
-  'T53: checkInService.ts respects enabled=false and returns scheduled:0',
+  checkInServiceContent.includes('config.enabled') &&
+    checkInServiceContent.includes('scheduled: 0'),
+  'T53: checkInService.ts respects enabled=false and returns scheduled:0'
 )
 
 // T54: checkInService.ts fetches checkin_config from settings
 assert(
   checkInServiceContent.includes("'settings'") && checkInServiceContent.includes('checkin_config'),
-  'T54: checkInService.ts fetches checkin_config from settings table',
+  'T54: checkInService.ts fetches checkin_config from settings table'
 )
 
 // T55: checkInService.ts merges fetched config with DEFAULT_CHECKIN_CONFIG
 assert(
   checkInServiceContent.includes('DEFAULT_CHECKIN_CONFIG') && checkInServiceContent.includes('...'),
-  'T55: checkInService.ts merges fetched config with DEFAULT_CHECKIN_CONFIG',
+  'T55: checkInService.ts merges fetched config with DEFAULT_CHECKIN_CONFIG'
 )
 
 // T56: checkInService.ts daily_cap is enforced in evaluateCheckInTriggers
 assert(
   checkInServiceContent.includes('daily_cap'),
-  'T56: checkInService.ts enforces daily_cap in evaluateCheckInTriggers',
+  'T56: checkInService.ts enforces daily_cap in evaluateCheckInTriggers'
 )
 
 // T57: cadence route PUT returns 400 for high >= standard threshold
 assert(
   cadenceRouteContent.includes('high_priority_threshold_days >= standard_threshold_days') ||
-    (cadenceRouteContent.includes('>= config.standard_threshold_days') ||
-      cadenceRouteContent.includes('400')),
-  'T57: cadence route PUT returns 400 for high >= standard threshold',
+    cadenceRouteContent.includes('>= config.standard_threshold_days') ||
+    cadenceRouteContent.includes('400'),
+  'T57: cadence route PUT returns 400 for high >= standard threshold'
 )
 
 // T58: cadence route PUT validates daily_cap range (1-10)
 assert(
   cadenceRouteContent.includes('daily_cap') && cadenceRouteContent.includes('10'),
-  'T58: cadence route PUT validates daily_cap <= 10',
+  'T58: cadence route PUT validates daily_cap <= 10'
 )
 
 // T59: package.json contains test:check-in-cadence48 script
-assert(packageJsonContent.includes('test:check-in-cadence48'), 'T59: package.json contains test:check-in-cadence48 script')
+assert(
+  packageJsonContent.includes('test:check-in-cadence48'),
+  'T59: package.json contains test:check-in-cadence48 script'
+)
 
 // T60: package.json test script contains checkInCadenceConfig48.test.ts in CI chain
 assert(
   packageJsonContent.includes('checkInCadenceConfig48.test.ts'),
-  'T60: package.json test script contains checkInCadenceConfig48.test.ts in CI chain',
+  'T60: package.json test script contains checkInCadenceConfig48.test.ts in CI chain'
 )
 
 // ── Summary ────────────────────────────────────────────────────────────────

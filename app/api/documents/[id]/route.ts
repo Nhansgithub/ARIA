@@ -2,10 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { getDocument } from '@/lib/crm/documentService'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createServerClient()
   const {
     data: { user },

@@ -12,10 +12,8 @@ export interface CheckInEmailOutput {
   text: string
 }
 
-const UNSUBSCRIBE_VI =
-  'Để huỷ nhận email, đăng nhập ARIA > Cài đặt > Kênh thông báo.'
-const UNSUBSCRIBE_EN =
-  'To unsubscribe, sign in to ARIA > Settings > Notification Channels.'
+const UNSUBSCRIBE_VI = 'Để huỷ nhận email, đăng nhập ARIA > Cài đặt > Kênh thông báo.'
+const UNSUBSCRIBE_EN = 'To unsubscribe, sign in to ARIA > Settings > Notification Channels.'
 
 const REPLY_INSTRUCTIONS_VI = `Trả lời 1, 2, hoặc 3 trong app ARIA:
 1. Có
@@ -29,7 +27,7 @@ const REPLY_INSTRUCTIONS_EN = `Reply 1, 2, or 3 in the ARIA app:
 
 export function formatCheckInEmail(
   checkIn: CheckInEmailInput,
-  lang: 'vi' | 'en' = 'vi',
+  lang: 'vi' | 'en' = 'vi'
 ): CheckInEmailOutput {
   const subject =
     lang === 'vi'
@@ -44,7 +42,9 @@ export function formatCheckInEmail(
 
   const prompt =
     checkIn.prompt_template ||
-    (lang === 'vi' ? 'Bạn có cập nhật nào cho deal này không?' : 'Do you have any updates for this deal?')
+    (lang === 'vi'
+      ? 'Bạn có cập nhật nào cho deal này không?'
+      : 'Do you have any updates for this deal?')
 
   const replyInstructions = lang === 'vi' ? REPLY_INSTRUCTIONS_VI : REPLY_INSTRUCTIONS_EN
   const footer = lang === 'vi' ? UNSUBSCRIBE_VI : UNSUBSCRIBE_EN

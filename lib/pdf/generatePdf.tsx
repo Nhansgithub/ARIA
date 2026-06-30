@@ -82,9 +82,7 @@ export async function generatePdf(contentMd: string, meta: PdfMeta): Promise<Buf
           <View style={styles.subheader}>
             <Text style={styles.subheaderText}>{capitalizedType}</Text>
             <Text style={styles.subheaderText}>Version {meta.version}</Text>
-            {meta.ownerName && (
-              <Text style={styles.subheaderText}>{meta.ownerName}</Text>
-            )}
+            {meta.ownerName && <Text style={styles.subheaderText}>{meta.ownerName}</Text>}
           </View>
 
           {/* Body text — raw contentMd, not parsed Markdown */}

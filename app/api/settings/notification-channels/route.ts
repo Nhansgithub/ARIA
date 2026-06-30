@@ -27,7 +27,10 @@ const DEFAULTS: NotificationChannelSettings = {
 export async function GET(): Promise<NextResponse> {
   const supabase = createServerClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -53,15 +56,21 @@ export async function GET(): Promise<NextResponse> {
     : DEFAULTS
 
   return NextResponse.json(
-    { settings, zalo_server_configured: !!(process.env.ZALO_APP_ID && process.env.ZALO_SECRET_KEY) },
-    { headers: { 'Cache-Control': 'no-store' } },
+    {
+      settings,
+      zalo_server_configured: !!(process.env.ZALO_APP_ID && process.env.ZALO_SECRET_KEY),
+    },
+    { headers: { 'Cache-Control': 'no-store' } }
   )
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   const supabase = createServerClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -81,12 +90,12 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   // Reject any key outside the explicit allowlist — denylist approach misses future sensitive columns
   const unknownKeys = Object.keys(raw).filter(
-    (k) => !(OWNER_WRITABLE_FIELDS as readonly string[]).includes(k),
+    (k) => !(OWNER_WRITABLE_FIELDS as readonly string[]).includes(k)
   )
   if (unknownKeys.length > 0) {
     return NextResponse.json(
       { error: `Unknown or read-only fields: ${unknownKeys.join(', ')}` },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -101,7 +110,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   if ('zalo_setup_note_shown' in raw) {
     if (typeof raw.zalo_setup_note_shown !== 'boolean') {
-      return NextResponse.json({ error: 'zalo_setup_note_shown must be a boolean' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'zalo_setup_note_shown must be a boolean' },
+        { status: 400 }
+      )
     }
     patch.zalo_setup_note_shown = raw.zalo_setup_note_shown as boolean
   }
@@ -115,7 +127,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .from('settings')
     .upsert(
       { owner_id: user.id, ...patch, updated_at: new Date().toISOString() },
-      { onConflict: 'owner_id' },
+      { onConflict: 'owner_id' }
     )
 
   if (error) {

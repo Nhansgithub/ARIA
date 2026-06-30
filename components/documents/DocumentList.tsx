@@ -5,14 +5,7 @@ import { useState, useEffect } from 'react'
 // Inline types (no lib/ import — AD-11)
 type DocumentStatus = 'draft' | 'review' | 'sent' | 'signed' | 'archived'
 type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 interface DocumentRow {
   id: string
@@ -79,7 +72,11 @@ function formatRelativeDate(dateStr: string): string {
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 30) return `${diffDays}d ago`
-  return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d)
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(d)
 }
 
 interface DocumentListProps {
@@ -98,9 +95,7 @@ export default function DocumentList({ onSelect }: DocumentListProps) {
       setFetchError(null)
       try {
         const url =
-          activeFilter === 'all'
-            ? '/api/documents'
-            : `/api/documents?status=${activeFilter}`
+          activeFilter === 'all' ? '/api/documents' : `/api/documents?status=${activeFilter}`
         const res = await fetch(url)
         if (!res.ok) {
           setFetchError('Failed to load documents. Please try again.')
@@ -274,7 +269,14 @@ export default function DocumentList({ onSelect }: DocumentListProps) {
                 e.currentTarget.style.background = 'transparent'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  justifyContent: 'space-between',
+                }}
+              >
                 {/* Title */}
                 <span
                   style={{

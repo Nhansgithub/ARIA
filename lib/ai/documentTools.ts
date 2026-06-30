@@ -20,8 +20,7 @@ export const DOCUMENT_TOOLS = [
         },
         type: {
           type: 'string',
-          description:
-            'Document type: proposal|contract|brief|sop|report|invoice|onboarding|other',
+          description: 'Document type: proposal|contract|brief|sop|report|invoice|onboarding|other',
         },
         content_md: {
           type: 'string',

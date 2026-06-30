@@ -27,7 +27,7 @@ export async function GET(): Promise<NextResponse> {
     // P2-2 fix: use == null (covers both null and undefined)
     briefing && briefing.seen_at == null
       ? ((briefing.flags as { items?: Array<{ severity: string }> } | null)?.items ?? []).filter(
-          (f) => f.severity === 'high',
+          (f) => f.severity === 'high'
         ).length
       : 0
 

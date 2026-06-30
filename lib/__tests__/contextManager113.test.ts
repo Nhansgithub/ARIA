@@ -26,8 +26,7 @@ function trimMessages(messages: ChatTurn[]): TrimResult {
 
 // --- RenderItem union type (inline copy from ChatPanel.tsx) ---
 type RenderItem =
-  | { kind: 'message'; msg: ChatTurn }
-  | { kind: 'divider'; id: string; label: string }
+  { kind: 'message'; msg: ChatTurn } | { kind: 'divider'; id: string; label: string }
 
 // --- Test harness ---
 let passed = 0,

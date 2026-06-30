@@ -8,9 +8,13 @@ import { evaluateCheckInTriggers } from '@/lib/crm/checkInService'
 
 function validateCronSecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET
-  if (!cronSecret) { return false }
+  if (!cronSecret) {
+    return false
+  }
   const authHeader = request.headers.get('authorization')
-  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) { return false }
+  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
+    return false
+  }
   const token = authHeader.replace(/^Bearer\s+/i, '')
   // Constant-time comparison prevents timing-oracle brute-force of the secret
   const a = Buffer.from(token)

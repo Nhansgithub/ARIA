@@ -14,10 +14,7 @@ const STATUS_TRANSITIONS: Record<DocumentStatus, DocumentStatus[]> = {
 
 const VALID_STATUSES = new Set<DocumentStatus>(['draft', 'review', 'sent', 'signed', 'archived'])
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createServerClient()
   const {
     data: { user },
@@ -27,7 +24,7 @@ export async function PATCH(
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
   }
 
-  const body = await req.json() as { status: DocumentStatus }
+  const body = (await req.json()) as { status: DocumentStatus }
   const { status } = body
 
   if (!status || !VALID_STATUSES.has(status)) {
@@ -43,7 +40,9 @@ export async function PATCH(
   const allowed = STATUS_TRANSITIONS[current.status]
   if (!allowed.includes(status)) {
     return new Response(
-      JSON.stringify({ error: `Transition from '${current.status}' to '${status}' is not allowed` }),
+      JSON.stringify({
+        error: `Transition from '${current.status}' to '${status}' is not allowed`,
+      }),
       { status: 422 }
     )
   }

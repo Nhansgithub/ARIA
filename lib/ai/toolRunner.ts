@@ -105,24 +105,42 @@ export async function runTools(
         output = await archiveStub(ownerId, block.input as ArchiveStubInput)
       } else if (block.name === 'create_document') {
         // created_by is not in the tool schema — always stamp 'ai' server-side
-        const inp = block.input as Omit<CreateDocumentInput, 'created_by'> & { client_name?: string }
+        const inp = block.input as Omit<CreateDocumentInput, 'created_by'> & {
+          client_name?: string
+        }
         const result = await createDocument(ownerId, { ...inp, created_by: 'ai' })
-        output = { id: result.id, title: result.title, status: result.status, version: result.version }
+        output = {
+          id: result.id,
+          title: result.title,
+          status: result.status,
+          version: result.version,
+        }
       } else if (block.name === 'get_document') {
         const inp = block.input as { id: string }
         const result = await getDocument(ownerId, { id: inp.id })
         output = result ?? { error: 'Document not found' }
       } else if (block.name === 'save_document_revision') {
-        const inp = block.input as { document_id?: string; content_md?: string; revision_instruction?: string }
+        const inp = block.input as {
+          document_id?: string
+          content_md?: string
+          revision_instruction?: string
+        }
         if (!inp.document_id || !inp.content_md || !inp.revision_instruction) {
-          throw new Error('save_document_revision: missing required fields (document_id, content_md, revision_instruction)')
+          throw new Error(
+            'save_document_revision: missing required fields (document_id, content_md, revision_instruction)'
+          )
         }
         const result = await saveDocumentRevision(ownerId, {
           source_id: inp.document_id,
           content_md: inp.content_md,
           revision_instruction: inp.revision_instruction,
         })
-        output = { id: result.id, version: result.version, title: result.title, status: result.status }
+        output = {
+          id: result.id,
+          version: result.version,
+          title: result.title,
+          status: result.status,
+        }
       } else {
         throw new Error(`Unknown tool: ${block.name}`)
       }

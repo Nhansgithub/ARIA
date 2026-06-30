@@ -6,7 +6,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { date: string } },
+  { params }: { params: { date: string } }
 ): Promise<NextResponse> {
   const supabase = createServerClient()
   const {

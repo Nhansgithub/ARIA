@@ -12,7 +12,7 @@ export interface CheckIn {
   owner_id: string
   deal_id: string
   trigger_type: CheckInTriggerType
-  due_date: string        // YYYY-MM-DD
+  due_date: string // YYYY-MM-DD
   status: 'pending' | 'sent' | 'skipped'
   created_at: string
 }
@@ -46,9 +46,9 @@ interface DealRow {
   stage: string
   priority: string | null
   next_action: string | null
-  next_action_due: string | null   // YYYY-MM-DD
-  stale_since: string | null       // YYYY-MM-DD
-  checkin_paused: boolean          // Story 4.8 — per-deal pause
+  next_action_due: string | null // YYYY-MM-DD
+  stale_since: string | null // YYYY-MM-DD
+  checkin_paused: boolean // Story 4.8 — per-deal pause
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export function evaluateTriggerCriteria(
   deal: DealRow,
   lastCheckIns: LastCheckInsMap,
   today: string,
-  config: CheckInConfig = DEFAULT_CHECKIN_CONFIG,
+  config: CheckInConfig = DEFAULT_CHECKIN_CONFIG
 ): CheckInTriggerType[] {
   // Per-deal pause (Story 4.8)
   if (deal.checkin_paused) return []
@@ -91,9 +91,7 @@ export function evaluateTriggerCriteria(
 
   // Stale threshold: high-priority deals use high_priority_threshold_days; others use standard
   const staleThreshold =
-    deal.priority === 'high'
-      ? config.high_priority_threshold_days
-      : config.standard_threshold_days
+    deal.priority === 'high' ? config.high_priority_threshold_days : config.standard_threshold_days
 
   // ── stale_7d ──────────────────────────────────────────────────────────────
   // Condition: stale_since is set AND today − stale_since >= staleThreshold
@@ -107,8 +105,10 @@ export function evaluateTriggerCriteria(
       const lastSentMs = lastSentDate
         ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
         : null
-      const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= staleThreshold * 86_400_000
-      if (cooldownOk) { triggers.push('stale_7d') }
+      const cooldownOk = !lastSentMs || todayMs - lastSentMs >= staleThreshold * 86_400_000
+      if (cooldownOk) {
+        triggers.push('stale_7d')
+      }
     }
   }
 
@@ -124,8 +124,10 @@ export function evaluateTriggerCriteria(
       const lastSentMs = lastSentDate
         ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
         : null
-      const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= 86_400_000
-      if (cooldownOk) { triggers.push('pre_action_due') }
+      const cooldownOk = !lastSentMs || todayMs - lastSentMs >= 86_400_000
+      if (cooldownOk) {
+        triggers.push('pre_action_due')
+      }
     }
   }
 
@@ -137,8 +139,10 @@ export function evaluateTriggerCriteria(
     const lastSentMs = lastSentDate
       ? new Date(toUtcDate(lastSentDate) + 'T00:00:00Z').getTime()
       : null
-    const cooldownOk = !lastSentMs || (todayMs - lastSentMs) >= 86_400_000
-    if (cooldownOk) { triggers.push('cadence_followup') }
+    const cooldownOk = !lastSentMs || todayMs - lastSentMs >= 86_400_000
+    if (cooldownOk) {
+      triggers.push('cadence_followup')
+    }
   }
 
   return triggers
@@ -153,7 +157,7 @@ export function evaluateTriggerCriteria(
  */
 export async function evaluateCheckInTriggers(
   ownerId: string,
-  today: string,
+  today: string
 ): Promise<{ scheduled: number }> {
   const supabase = createServiceClient()
 
@@ -182,16 +186,23 @@ export async function evaluateCheckInTriggers(
     .eq('is_stub', false)
     .limit(100)
 
-  if (dealsError) { throw new Error(`evaluateCheckInTriggers: ${dealsError.message}`) }
+  if (dealsError) {
+    throw new Error(`evaluateCheckInTriggers: ${dealsError.message}`)
+  }
 
-  const activeDeals = ((rawDeals ?? []) as DealRow[])
-    .filter((d) => isActiveStage(d.stage) && !d.checkin_paused)  // skip paused deals
+  const activeDeals = ((rawDeals ?? []) as DealRow[]).filter(
+    (d) => isActiveStage(d.stage) && !d.checkin_paused
+  ) // skip paused deals
 
-  if (activeDeals.length === 0) { return { scheduled: 0 } }
+  if (activeDeals.length === 0) {
+    return { scheduled: 0 }
+  }
 
   // Warn if truncated — 100 is the per-owner deal cap (MVP constraint)
   if ((rawDeals?.length ?? 0) >= 100) {
-    console.warn(`[ARIA/checkIn] owner ${ownerId}: deal query hit 100-row limit — some deals may be skipped`)
+    console.warn(
+      `[ARIA/checkIn] owner ${ownerId}: deal query hit 100-row limit — some deals may be skipped`
+    )
   }
 
   const dealIds = activeDeals.map((d) => d.id)
@@ -210,7 +221,9 @@ export async function evaluateCheckInTriggers(
   for (const ci of allCheckIns ?? []) {
     const dealId = ci.deal_id as string
     const tt = ci.trigger_type as CheckInTriggerType
-    if (!checkInsByDeal.has(dealId)) { checkInsByDeal.set(dealId, {}) }
+    if (!checkInsByDeal.has(dealId)) {
+      checkInsByDeal.set(dealId, {})
+    }
     const map = checkInsByDeal.get(dealId)!
     if (!map[tt]) {
       // created_at is an ISO datetime; store as date string for midnight-snapped cooldowns
@@ -255,7 +268,7 @@ export async function scheduleCheckIn(
   dealId: string,
   triggerType: CheckInTriggerType,
   dueDate: string,
-  supabaseClient?: SupabaseClient,
+  supabaseClient?: SupabaseClient
 ): Promise<void> {
   const supabase = supabaseClient ?? createServiceClient()
 
@@ -275,7 +288,9 @@ export async function scheduleCheckIn(
     .select('id, created_at')
     .single()
 
-  if (error) { throw new Error(`scheduleCheckIn: ${error.message}`) }
+  if (error) {
+    throw new Error(`scheduleCheckIn: ${error.message}`)
+  }
 
   // Fire-and-forget activity log — best-effort in cron context (logActivity uses server client)
   logActivity(ownerId, {
@@ -303,6 +318,8 @@ export async function getPendingCheckIns(ownerId: string): Promise<CheckIn[]> {
     .lte('due_date', today)
     .order('due_date', { ascending: true })
 
-  if (error) { throw new Error(`getPendingCheckIns: ${error.message}`) }
+  if (error) {
+    throw new Error(`getPendingCheckIns: ${error.message}`)
+  }
   return (data ?? []) as CheckIn[]
 }

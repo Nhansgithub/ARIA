@@ -32,18 +32,28 @@ export async function exchangeCredentialsForTokens(): Promise<ZaloTokenResult> {
     const res = await fetch(ZALO_TOKEN_URL, {
       method: 'POST',
       signal: AbortSignal.timeout(10_000),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'secret_key': secretKey },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', secret_key: secretKey },
       body: new URLSearchParams({ app_id: appId, grant_type: 'authorization_code' }),
     })
     if (!res.ok) {
       const body = await res.text().catch(() => '')
       return { ok: false, error: `Zalo token exchange ${res.status}: ${body.slice(0, 200)}` }
     }
-    const data = await res.json() as { access_token?: string; refresh_token?: string; expires_in?: number; error?: number }
+    const data = (await res.json()) as {
+      access_token?: string
+      refresh_token?: string
+      expires_in?: number
+      error?: number
+    }
     if (data.error || !data.access_token) {
       return { ok: false, error: `Zalo error: ${JSON.stringify(data)}` }
     }
-    return { ok: true, access_token: data.access_token, refresh_token: data.refresh_token, expires_in: data.expires_in }
+    return {
+      ok: true,
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: data.expires_in,
+    }
   } catch (err) {
     return { ok: false, error: String(err) }
   }
@@ -62,18 +72,32 @@ export async function refreshAccessToken(refreshToken: string): Promise<ZaloToke
     const res = await fetch(ZALO_TOKEN_URL, {
       method: 'POST',
       signal: AbortSignal.timeout(10_000),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'secret_key': secretKey },
-      body: new URLSearchParams({ app_id: appId, grant_type: 'refresh_token', refresh_token: refreshToken }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', secret_key: secretKey },
+      body: new URLSearchParams({
+        app_id: appId,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
     })
     if (!res.ok) {
       const body = await res.text().catch(() => '')
       return { ok: false, error: `Zalo refresh ${res.status}: ${body.slice(0, 200)}` }
     }
-    const data = await res.json() as { access_token?: string; refresh_token?: string; expires_in?: number; error?: number }
+    const data = (await res.json()) as {
+      access_token?: string
+      refresh_token?: string
+      expires_in?: number
+      error?: number
+    }
     if (data.error || !data.access_token) {
       return { ok: false, error: `Zalo refresh error: ${JSON.stringify(data)}` }
     }
-    return { ok: true, access_token: data.access_token, refresh_token: data.refresh_token ?? refreshToken, expires_in: data.expires_in }
+    return {
+      ok: true,
+      access_token: data.access_token,
+      refresh_token: data.refresh_token ?? refreshToken,
+      expires_in: data.expires_in,
+    }
   } catch (err) {
     return { ok: false, error: String(err) }
   }

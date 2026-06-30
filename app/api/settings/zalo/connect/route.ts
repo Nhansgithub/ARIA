@@ -8,19 +8,27 @@ import { isZaloConfigured, exchangeCredentialsForTokens } from '@/lib/zalo/zaloT
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isZaloConfigured()) {
     return NextResponse.json(
-      { error: 'Zalo OA chưa được cấu hình trên máy chủ. Liên hệ admin để thêm ZALO_APP_ID và ZALO_SECRET_KEY.' },
-      { status: 503 },
+      {
+        error:
+          'Zalo OA chưa được cấu hình trên máy chủ. Liên hệ admin để thêm ZALO_APP_ID và ZALO_SECRET_KEY.',
+      },
+      { status: 503 }
     )
   }
 
   const supabase = createServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   let body: unknown
-  try { body = await request.json() } catch {
+  try {
+    body = await request.json()
+  } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
@@ -37,30 +45,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const tokenResult = await exchangeCredentialsForTokens()
   if (!tokenResult.ok) {
     return NextResponse.json(
-      { error: `Không thể kết nối Zalo OA — kiểm tra App ID / Secret Key. (${tokenResult.error ?? 'unknown'})` },
-      { status: 502 },
+      {
+        error: `Không thể kết nối Zalo OA — kiểm tra App ID / Secret Key. (${tokenResult.error ?? 'unknown'})`,
+      },
+      { status: 502 }
     )
   }
 
   const now = new Date().toISOString()
-  const { error: dbError } = await supabase
-    .from('settings')
-    .upsert(
-      {
-        owner_id: user.id,
-        zalo_user_id: zaloUserId.trim(),
-        zalo_access_token: tokenResult.access_token,
-        encrypted_zalo_refresh_token: tokenResult.refresh_token ?? null,
-        zalo_token_issued_at: now,
-        zalo_status: 'connected',
-        updated_at: now,
-      },
-      { onConflict: 'owner_id' },
-    )
+  const { error: dbError } = await supabase.from('settings').upsert(
+    {
+      owner_id: user.id,
+      zalo_user_id: zaloUserId.trim(),
+      zalo_access_token: tokenResult.access_token,
+      encrypted_zalo_refresh_token: tokenResult.refresh_token ?? null,
+      zalo_token_issued_at: now,
+      zalo_status: 'connected',
+      updated_at: now,
+    },
+    { onConflict: 'owner_id' }
+  )
 
   if (dbError) {
     return NextResponse.json({ error: 'Database error' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true, message: 'Zalo OA đã kết nối — ARIA sẽ gửi thông báo qua Zalo.' })
+  return NextResponse.json({
+    ok: true,
+    message: 'Zalo OA đã kết nối — ARIA sẽ gửi thông báo qua Zalo.',
+  })
 }

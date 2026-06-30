@@ -125,11 +125,7 @@ function TodayCard({
   const borderColor = isUrgent ? '#f59e0b' : '#14b8a6'
   const badgeColor = flag.type === 'overdue' ? '#f59e0b' : '#14b8a6'
   const badgeLabel =
-    flag.type === 'overdue'
-      ? 'Quá hạn'
-      : flag.type === 'cadence_reminder'
-        ? 'Nhắc nhở'
-        : 'Trì hoãn'
+    flag.type === 'overdue' ? 'Quá hạn' : flag.type === 'cadence_reminder' ? 'Nhắc nhở' : 'Trì hoãn'
 
   return (
     <button
@@ -149,12 +145,8 @@ function TodayCard({
         cursor: 'pointer',
         transition: 'background 0.15s',
       }}
-      onMouseEnter={(e) =>
-        ((e.currentTarget as HTMLButtonElement).style.background = '#1e2a45')
-      }
-      onMouseLeave={(e) =>
-        ((e.currentTarget as HTMLButtonElement).style.background = '#141a2e')
-      }
+      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = '#1e2a45')}
+      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = '#141a2e')}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span
@@ -193,7 +185,11 @@ function TodayCard({
 
 type PanelState = 'loading' | 'generating' | 'loaded' | 'empty' | 'error'
 
-export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: BriefingPanelProps) {
+export default function BriefingPanel({
+  onOpenChat,
+  onEmpty,
+  onHighFlagCount,
+}: BriefingPanelProps) {
   const [panelState, setPanelState] = useState<PanelState>('loading')
   const [briefing, setBriefing] = useState<BriefingData | null>(null)
   const [refreshing, setRefreshing] = useState(false)
@@ -202,7 +198,9 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
 
   useEffect(() => {
     mountedRef.current = true
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   const applyBriefing = useCallback(
@@ -224,7 +222,10 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
     async function load() {
       try {
         const res = await fetch('/api/briefing/today')
-        if (!res.ok) { if (mountedRef.current) setPanelState('error'); return }
+        if (!res.ok) {
+          if (mountedRef.current) setPanelState('error')
+          return
+        }
         const { briefing: data } = (await res.json()) as { briefing: BriefingData | null }
 
         if (mountedRef.current) {
@@ -235,8 +236,13 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
             generateAttemptedRef.current = true
             setPanelState('generating')
             const genRes = await fetch('/api/briefing/today?generate=true')
-            if (!genRes.ok) { if (mountedRef.current) setPanelState('error'); return }
-            const { briefing: generated } = (await genRes.json()) as { briefing: BriefingData | null }
+            if (!genRes.ok) {
+              if (mountedRef.current) setPanelState('error')
+              return
+            }
+            const { briefing: generated } = (await genRes.json()) as {
+              briefing: BriefingData | null
+            }
             if (mountedRef.current) {
               if (generated) {
                 applyBriefing(generated)
@@ -254,8 +260,8 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
     }
 
     void load()
-  // onEmpty and applyBriefing are stable callbacks; mountedRef/generateAttemptedRef are refs
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // onEmpty and applyBriefing are stable callbacks; mountedRef/generateAttemptedRef are refs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleRefresh() {
@@ -291,7 +297,14 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
     return (
       <div style={sharedWrap}>
         <div style={{ padding: '24px 24px 0', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <span
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: '#e2e8f0',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
             {panelState === 'generating' ? 'Đang tạo briefing…' : 'Briefing hôm nay'}
           </span>
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
@@ -308,7 +321,9 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
   if (panelState === 'error') {
     return (
       <div style={{ ...sharedWrap, alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 14, color: '#94a3b8', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <span
+          style={{ fontSize: 14, color: '#94a3b8', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           Không thể tải briefing. Vui lòng thử lại sau.
         </span>
       </div>
@@ -322,9 +337,7 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
     .sort((a, b) => todayFlagTier(a) - todayFlagTier(b))
     .slice(0, 3)
 
-  const issuedAt = briefing.generated_at
-    ? formatTime(briefing.generated_at)
-    : null
+  const issuedAt = briefing.generated_at ? formatTime(briefing.generated_at) : null
 
   return (
     <div style={sharedWrap}>
@@ -360,12 +373,17 @@ export default function BriefingPanel({ onOpenChat, onEmpty, onHighFlagCount }: 
           flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <span
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#e2e8f0',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+          }}
+        >
           Briefing {formatDate(briefing.date)}
         </span>
-        {issuedAt && (
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>Tạo lúc {issuedAt}</span>
-        )}
+        {issuedAt && <span style={{ fontSize: 12, color: '#94a3b8' }}>Tạo lúc {issuedAt}</span>}
       </div>
 
       {/* Scrollable body */}

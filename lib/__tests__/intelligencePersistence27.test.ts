@@ -183,10 +183,7 @@ console.log('T4 — getActivityLog: default limit=50')
 // T5 — DI_TOOLS contains get_activity_log
 console.log('T5 — DI_TOOLS: contains get_activity_log')
 {
-  check(
-    EXPECTED_DI_TOOL_NAMES.includes('get_activity_log'),
-    'get_activity_log is in DI_TOOLS'
-  )
+  check(EXPECTED_DI_TOOL_NAMES.includes('get_activity_log'), 'get_activity_log is in DI_TOOLS')
 }
 
 // T6 — DI_TOOLS is alphabetically sorted (AD-5)
@@ -211,22 +208,10 @@ console.log('T7 — get_activity_log schema')
     },
     required: ['entity_id'],
   }
-  check(
-    expectedSchema.required.includes('entity_id'),
-    'entity_id is required in schema'
-  )
-  check(
-    !expectedSchema.required.includes('limit'),
-    'limit is optional in schema'
-  )
-  check(
-    'entity_id' in expectedSchema.properties,
-    'entity_id property exists in schema'
-  )
-  check(
-    'limit' in expectedSchema.properties,
-    'limit property exists in schema'
-  )
+  check(expectedSchema.required.includes('entity_id'), 'entity_id is required in schema')
+  check(!expectedSchema.required.includes('limit'), 'limit is optional in schema')
+  check('entity_id' in expectedSchema.properties, 'entity_id property exists in schema')
+  check('limit' in expectedSchema.properties, 'limit property exists in schema')
 }
 
 // T8 — updateIntelligenceFields no-op when similar_deals unchanged (AD-14 idempotency)
@@ -255,7 +240,10 @@ console.log('T9 — freshness: write when similar_deals differ')
 
   const changedFields: string[] = []
   if (hasChanged(incoming, stored)) changedFields.push('similar_deals')
-  check(changedFields.includes('similar_deals'), 'similar_deals in changedFields → DB write triggered')
+  check(
+    changedFields.includes('similar_deals'),
+    'similar_deals in changedFields → DB write triggered'
+  )
 }
 
 // T10 — Actor attribution: ai → "I", user → "You"

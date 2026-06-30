@@ -50,7 +50,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   let failed = 0
 
   for (const owner of owners ?? []) {
-    if (!owner.encrypted_zalo_refresh_token) { failed++; continue }
+    if (!owner.encrypted_zalo_refresh_token) {
+      failed++
+      continue
+    }
 
     const result = await refreshAccessToken(owner.encrypted_zalo_refresh_token)
     const now = new Date().toISOString()
@@ -70,14 +73,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         failed++
       } else {
         // AD-14: activity_log is append-only — log via direct insert (cron context)
-        await supabase.from('activity_log').insert({
-          owner_id: owner.owner_id,
-          entity_type: 'settings',
-          entity_id: owner.owner_id,
-          action: 'zalo_token_refreshed',
-          actor: 'ai',
-          payload: {},
-        }).then(() => {}, (err: unknown) => console.warn('[ARIA/refresh-zalo-token] log failed:', err))
+        await supabase
+          .from('activity_log')
+          .insert({
+            owner_id: owner.owner_id,
+            entity_type: 'settings',
+            entity_id: owner.owner_id,
+            action: 'zalo_token_refreshed',
+            actor: 'ai',
+            payload: {},
+          })
+          .then(
+            () => {},
+            (err: unknown) => console.warn('[ARIA/refresh-zalo-token] log failed:', err)
+          )
         refreshed++
       }
     } else {
@@ -87,16 +96,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .update({ zalo_status: 'token_expired', updated_at: now })
         .eq('owner_id', owner.owner_id)
       if (statusErr) {
-        console.warn('[ARIA/refresh-zalo-token] token_expired status update failed:', statusErr.message)
+        console.warn(
+          '[ARIA/refresh-zalo-token] token_expired status update failed:',
+          statusErr.message
+        )
       }
-      await supabase.from('activity_log').insert({
-        owner_id: owner.owner_id,
-        entity_type: 'settings',
-        entity_id: owner.owner_id,
-        action: 'zalo_token_refresh_failed',
-        actor: 'ai',
-        payload: { error: result.error ?? 'unknown' },
-      }).then(() => {}, () => {})
+      await supabase
+        .from('activity_log')
+        .insert({
+          owner_id: owner.owner_id,
+          entity_type: 'settings',
+          entity_id: owner.owner_id,
+          action: 'zalo_token_refresh_failed',
+          actor: 'ai',
+          payload: { error: result.error ?? 'unknown' },
+        })
+        .then(
+          () => {},
+          () => {}
+        )
       failed++
     }
   }

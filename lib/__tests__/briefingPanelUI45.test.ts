@@ -5,7 +5,9 @@ import path from 'path'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-function pass(label: string): void { console.log('  PASS: ' + label) }
+function pass(label: string): void {
+  console.log('  PASS: ' + label)
+}
 function fail(label: string, detail?: string): void {
   console.error('  FAIL: ' + label + (detail ? ': ' + detail : ''))
   process.exitCode = 1
@@ -28,15 +30,25 @@ interface BriefingFlag {
 }
 
 function isTodayEligible(flag: BriefingFlag): boolean {
-  if (flag.type === 'overdue') { return true }
-  if (flag.type === 'cadence_reminder') { return true }
-  if (flag.type === 'stale' && flag.severity === 'high') { return true }
+  if (flag.type === 'overdue') {
+    return true
+  }
+  if (flag.type === 'cadence_reminder') {
+    return true
+  }
+  if (flag.type === 'stale' && flag.severity === 'high') {
+    return true
+  }
   return false
 }
 
 function todayFlagTier(flag: BriefingFlag): number {
-  if (flag.type === 'overdue') { return 0 }
-  if (flag.type === 'cadence_reminder') { return 2 }
+  if (flag.type === 'overdue') {
+    return 0
+  }
+  if (flag.type === 'cadence_reminder') {
+    return 2
+  }
   return 3
 }
 
@@ -54,17 +66,49 @@ function composePrequeueMessage(flag: BriefingFlag): string {
 }
 
 function countHighFlags(items: BriefingFlag[]): number {
-  return items.filter(function(f) { return f.severity === 'high' }).length
+  return items.filter(function (f) {
+    return f.severity === 'high'
+  }).length
 }
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
-const overdueFlag: BriefingFlag = { type: 'overdue', deal_id: 'd1', severity: 'high', label: 'Deal A qua han' }
-const cadenceFlag: BriefingFlag = { type: 'cadence_reminder', deal_id: 'd2', severity: 'medium', label: 'Nhac lan 1' }
-const highStaleFlag: BriefingFlag = { type: 'stale', deal_id: 'd3', severity: 'high', label: 'Deal C tri hoan 14 ngay' }
-const medStaleFlag: BriefingFlag = { type: 'stale', deal_id: 'd4', severity: 'medium', label: 'Deal D tri hoan 5 ngay' }
-const missingDocFlag: BriefingFlag = { type: 'missing_doc', deal_id: 'd5', severity: 'medium', label: 'Thieu hop dong' }
-const genericStaleFlag: BriefingFlag = { type: 'stale', deal_id: 'dx', severity: 'medium', label: 'Deal X tri hoan' }
+const overdueFlag: BriefingFlag = {
+  type: 'overdue',
+  deal_id: 'd1',
+  severity: 'high',
+  label: 'Deal A qua han',
+}
+const cadenceFlag: BriefingFlag = {
+  type: 'cadence_reminder',
+  deal_id: 'd2',
+  severity: 'medium',
+  label: 'Nhac lan 1',
+}
+const highStaleFlag: BriefingFlag = {
+  type: 'stale',
+  deal_id: 'd3',
+  severity: 'high',
+  label: 'Deal C tri hoan 14 ngay',
+}
+const medStaleFlag: BriefingFlag = {
+  type: 'stale',
+  deal_id: 'd4',
+  severity: 'medium',
+  label: 'Deal D tri hoan 5 ngay',
+}
+const missingDocFlag: BriefingFlag = {
+  type: 'missing_doc',
+  deal_id: 'd5',
+  severity: 'medium',
+  label: 'Thieu hop dong',
+}
+const genericStaleFlag: BriefingFlag = {
+  type: 'stale',
+  deal_id: 'dx',
+  severity: 'medium',
+  label: 'Deal X tri hoan',
+}
 
 // ── T1-T5: isTodayEligible ────────────────────────────────────────────────────
 
@@ -90,22 +134,45 @@ assert(todayFlagTier(cadenceFlag) < todayFlagTier(highStaleFlag), 'T10: cadence 
 
 console.log('\n[T11-T17] Today items sort+slice')
 
-const allFlags: BriefingFlag[] = [highStaleFlag, cadenceFlag, overdueFlag, medStaleFlag, missingDocFlag]
+const allFlags: BriefingFlag[] = [
+  highStaleFlag,
+  cadenceFlag,
+  overdueFlag,
+  medStaleFlag,
+  missingDocFlag,
+]
 
 const todayItems = allFlags
   .filter(isTodayEligible)
-  .sort(function(a, b) { return todayFlagTier(a) - todayFlagTier(b) })
+  .sort(function (a, b) {
+    return todayFlagTier(a) - todayFlagTier(b)
+  })
   .slice(0, 3)
 
 assert(todayItems.length === 3, 'T11: max 3 today items returned')
 assert(todayItems[0]?.type === 'overdue', 'T12: index-0 is overdue (tier 0)')
 assert(todayItems[1]?.type === 'cadence_reminder', 'T13: index-1 is cadence (tier 2)')
 assert(todayItems[2]?.type === 'stale', 'T14: index-2 is high-stale (tier 3)')
-assert(!todayItems.some(function(f) { return f.type === 'missing_doc' }), 'T15: missing_doc excluded')
-assert(!todayItems.some(function(f) { return f.type === 'stale' && f.severity === 'medium' }), 'T16: medium-stale excluded')
+assert(
+  !todayItems.some(function (f) {
+    return f.type === 'missing_doc'
+  }),
+  'T15: missing_doc excluded'
+)
+assert(
+  !todayItems.some(function (f) {
+    return f.type === 'stale' && f.severity === 'medium'
+  }),
+  'T16: medium-stale excluded'
+)
 
 const twoFlags = [overdueFlag, cadenceFlag]
-const twoItems = twoFlags.filter(isTodayEligible).sort(function(a, b) { return todayFlagTier(a) - todayFlagTier(b) }).slice(0, 3)
+const twoItems = twoFlags
+  .filter(isTodayEligible)
+  .sort(function (a, b) {
+    return todayFlagTier(a) - todayFlagTier(b)
+  })
+  .slice(0, 3)
 assert(twoItems.length === 2, 'T17: fewer than 3 items returns all eligible')
 
 // ── T18-T24: composePrequeueMessage ──────────────────────────────────────────
@@ -134,7 +201,10 @@ console.log('\n[T25-T29] Badge count = severity:high flags')
 assert(countHighFlags([]) === 0, 'T25: empty list -> badge count 0')
 assert(countHighFlags([overdueFlag]) === 1, 'T26: one high flag -> badge 1')
 assert(countHighFlags([overdueFlag, highStaleFlag]) === 2, 'T27: two high flags -> badge 2')
-assert(countHighFlags([cadenceFlag, medStaleFlag, missingDocFlag]) === 0, 'T28: only medium flags -> badge 0')
+assert(
+  countHighFlags([cadenceFlag, medStaleFlag, missingDocFlag]) === 0,
+  'T28: only medium flags -> badge 0'
+)
 assert(countHighFlags([overdueFlag, cadenceFlag]) === 1, 'T29: mixed -> only high counted')
 
 // ── T30-T36: API route file checks ───────────────────────────────────────────
@@ -149,8 +219,14 @@ if (routeExists) {
   const route = fs.readFileSync(routePath, 'utf-8')
   assert(route.includes('export async function GET'), 'T31: exports GET handler')
   assert(route.includes('createServerClient'), 'T32: uses createServerClient (AD-13)')
-  assert(!route.includes('createServiceClient'), 'T33: route.ts does not directly import createServiceClient (service role scoped to briefingService)')
-  assert(route.includes('generateBriefingForOwner'), 'T34: calls generateBriefingForOwner for generation')
+  assert(
+    !route.includes('createServiceClient'),
+    'T33: route.ts does not directly import createServiceClient (service role scoped to briefingService)'
+  )
+  assert(
+    route.includes('generateBriefingForOwner'),
+    'T34: calls generateBriefingForOwner for generation'
+  )
   assert(route.includes('forceRefresh'), 'T35: handles forceRefresh param')
   assert(route.includes('generate'), 'T36: handles generate param')
 }
@@ -166,7 +242,10 @@ assert(panelExists, 'T37: BriefingPanel.tsx file exists')
 if (panelExists) {
   const panel = fs.readFileSync(panelPath, 'utf-8')
   assert(panel.startsWith("'use client'"), 'T38: starts with use client directive')
-  assert(panel.includes('export default function BriefingPanel'), 'T39: exports default BriefingPanel')
+  assert(
+    panel.includes('export default function BriefingPanel'),
+    'T39: exports default BriefingPanel'
+  )
   assert(panel.includes('onOpenChat'), 'T40: accepts onOpenChat prop')
   assert(panel.includes('onEmpty'), 'T41: accepts onEmpty prop')
   assert(panel.includes('onHighFlagCount'), 'T42: accepts onHighFlagCount prop')
@@ -208,7 +287,7 @@ if (shellExists) {
   assert(shell.includes('briefingBadgeCount'), 'T59: briefingBadgeCount state present')
   assert(shell.includes('setBriefingBadgeCount'), 'T60: badge count setter present')
   assert(shell.includes('onHighFlagCount'), 'T61: wires onHighFlagCount to badge state')
-  assert(shell.includes("onEmpty"), 'T62: wires onEmpty to setMode chat')
+  assert(shell.includes('onEmpty'), 'T62: wires onEmpty to setMode chat')
 }
 
 // ── T63-T68: AppShell badge lifecycle checks ─────────────────────────────────
@@ -221,7 +300,10 @@ if (shellExists) {
   assert(shell.includes('setChatPrefill'), 'T64: onOpenChat sets chatPrefill')
   assert(shell.includes("setMode('chat')"), 'T65: onOpenChat switches to chat mode')
   assert(shell.includes('setBriefingBadgeCount(0)'), 'T66: badge clears on nav away or chat open')
-  assert(shell.includes("badge={item.id === 'briefing'"), 'T67: badge prop wired to briefing nav item only')
+  assert(
+    shell.includes("badge={item.id === 'briefing'"),
+    'T67: badge prop wired to briefing nav item only'
+  )
   assert(shell.includes('aria-selected'), 'T68: mobile tab bar has aria-selected for a11y')
 }
 
@@ -234,7 +316,10 @@ if (panelExists) {
   assert(panel.includes('onOpenChat('), 'T69: panel calls onOpenChat (not auto-submit)')
   if (shellExists) {
     const shell = fs.readFileSync(shellPath, 'utf-8')
-    assert(shell.includes('initialPrefill={chatPrefill}'), 'T70: chatPrefill passed as initialPrefill to ChatPanel')
+    assert(
+      shell.includes('initialPrefill={chatPrefill}'),
+      'T70: chatPrefill passed as initialPrefill to ChatPanel'
+    )
     assert(shell.includes('onPrefillConsumed'), 'T71: prefill lifecycle managed by ChatPanel')
   }
   assert(!panel.includes("fetch('/api/chat"), 'T72: BriefingPanel never calls chat API directly')
@@ -256,7 +341,10 @@ if (pkgExists) {
   const parsed = JSON.parse(pkg) as { scripts?: Record<string, string> }
   const testScript = parsed.scripts?.['test'] ?? ''
   assert(testScript.includes('briefingPanelUI45.test.ts'), 'T76: test is part of main CI chain')
-  assert(testScript.includes('briefingStructure44.test.ts'), 'T77: story 4.4 test still in chain (no regression)')
+  assert(
+    testScript.includes('briefingStructure44.test.ts'),
+    'T77: story 4.4 test still in chain (no regression)'
+  )
 }
 
 console.log('\nAll Story 4.5 tests complete.\n')

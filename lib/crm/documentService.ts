@@ -5,14 +5,7 @@ import { logActivity } from '@/lib/crm/activityLogService'
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type DocumentType =
-  | 'proposal'
-  | 'contract'
-  | 'brief'
-  | 'sop'
-  | 'report'
-  | 'invoice'
-  | 'onboarding'
-  | 'other'
+  'proposal' | 'contract' | 'brief' | 'sop' | 'report' | 'invoice' | 'onboarding' | 'other'
 
 export type DocumentStatus = 'draft' | 'review' | 'sent' | 'signed' | 'archived'
 export type DocumentCreatedBy = 'ai' | 'human'
@@ -354,7 +347,12 @@ export async function listDocumentVersions(
     throw new Error(`listDocumentVersions: document not found or unauthorized`)
   }
 
-  const row = target as { deal_id: string | null; client_id: string | null; type: string; title: string }
+  const row = target as {
+    deal_id: string | null
+    client_id: string | null
+    type: string
+    title: string
+  }
 
   // Derive the stable title prefix ({ClientName}_{Type}_) to isolate this document family.
   // Without a root_document_id column, grouping by deal_id+type alone would mix multiple

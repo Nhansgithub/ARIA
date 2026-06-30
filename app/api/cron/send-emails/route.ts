@@ -25,7 +25,7 @@ async function logFailure(
   supabase: ReturnType<typeof createServiceClient>,
   ownerId: string,
   entityId: string,
-  error: string,
+  error: string
 ): Promise<void> {
   // Log directly with service client — logActivity() uses createServerClient() which fails in cron context
   await supabase
@@ -38,7 +38,10 @@ async function logFailure(
       actor: 'ai',
       payload: { error },
     })
-    .then(() => {}, (err: unknown) => console.warn('[ARIA/send-emails] activity log failed:', err))
+    .then(
+      () => {},
+      (err: unknown) => console.warn('[ARIA/send-emails] activity log failed:', err)
+    )
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -69,11 +72,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   for (const b of briefings ?? []) {
     const { data: userRecord } = await supabase.auth.admin.getUserById(b.owner_id)
     const email = userRecord?.user?.email
-    if (!email) { failedCount++; continue }
+    if (!email) {
+      failedCount++
+      continue
+    }
 
     const { subject, text } = formatBriefingEmail(
-      { date: b.date, content_md: b.content_md, flags: b.flags as { items?: Array<{ severity: 'high' | 'medium'; type: string }> } | null },
-      'vi',
+      {
+        date: b.date,
+        content_md: b.content_md,
+        flags: b.flags as { items?: Array<{ severity: 'high' | 'medium'; type: string }> } | null,
+      },
+      'vi'
     )
 
     const result = await sendEmail({ to: email, subject, text })
@@ -82,7 +92,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .from('briefings')
         .update({ email_sent_at: new Date().toISOString() })
         .eq('id', b.id)
-      if (updateErr) console.warn('[ARIA/send-emails] failed to stamp briefing email_sent_at:', updateErr.message)
+      if (updateErr)
+        console.warn(
+          '[ARIA/send-emails] failed to stamp briefing email_sent_at:',
+          updateErr.message
+        )
       briefingsSent++
     } else {
       await logFailure(supabase, b.owner_id, b.id, result.error ?? 'unknown')
@@ -106,18 +120,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   for (const ci of checkIns ?? []) {
     const { data: userRecord } = await supabase.auth.admin.getUserById(ci.owner_id)
     const email = userRecord?.user?.email
-    if (!email) { failedCount++; continue }
+    if (!email) {
+      failedCount++
+      continue
+    }
 
     const dealsRaw = ci.deals as unknown
-    const rawTitle = (
-      Array.isArray(dealsRaw)
+    const rawTitle =
+      (Array.isArray(dealsRaw)
         ? (dealsRaw as Array<{ title: string }>)[0]?.title
-        : (dealsRaw as { title: string } | null)?.title
-    ) ?? ci.deal_id
+        : (dealsRaw as { title: string } | null)?.title) ?? ci.deal_id
     const dealTitle = rawTitle.replace(/[\r\n]+/g, ' ').slice(0, 200)
     const { subject, text } = formatCheckInEmail(
       { deal_title: dealTitle, prompt_template: ci.prompt_template },
-      'vi',
+      'vi'
     )
 
     const result = await sendEmail({ to: email, subject, text })
@@ -126,7 +142,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .from('check_ins')
         .update({ email_sent_at: new Date().toISOString() })
         .eq('id', ci.id)
-      if (updateErr) console.warn('[ARIA/send-emails] failed to stamp check_in email_sent_at:', updateErr.message)
+      if (updateErr)
+        console.warn(
+          '[ARIA/send-emails] failed to stamp check_in email_sent_at:',
+          updateErr.message
+        )
       checkInsSent++
     } else {
       await logFailure(supabase, ci.owner_id, ci.id, result.error ?? 'unknown')

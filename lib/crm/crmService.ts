@@ -62,7 +62,7 @@ export interface UpdateDealInput {
   priority?: 'high' | 'medium' | 'low'
   is_stub?: boolean
   status?: string
-  checkin_paused?: boolean  // Story 4.8 — per-deal pause
+  checkin_paused?: boolean // Story 4.8 — per-deal pause
 }
 
 export interface UpdateDealResult {
@@ -100,7 +100,7 @@ export async function updateDeal(
     'priority',
     'is_stub',
     'status',
-    'checkin_paused',  // Story 4.8 — per-deal pause
+    'checkin_paused', // Story 4.8 — per-deal pause
   ] as const
 
   const hasChanged = (a: unknown, b: unknown) => JSON.stringify(a) !== JSON.stringify(b)
