@@ -17,8 +17,10 @@ SELECT cron.schedule(
   '15 * * * *',  -- every hour at :15 UTC — after Zalo at :05
   $$
     SELECT net.http_get(
-      url     := 'https://aria-consult.vercel.app/api/cron/send-emails',
-      headers := '{"Authorization": "Bearer Jz3Jy2DvLWE3VBNtrPMa8UGALnkWf27KkpcZu1yT9gg="}'::jsonb,
+      url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'aria_base_url') || '/api/cron/send-emails',
+      headers := jsonb_build_object(
+                   'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'aria_cron_secret')
+                 ),
       timeout_milliseconds := 55000
     );
   $$

@@ -26,13 +26,18 @@ $$;
 
 -- Schedule: daily at 00:00 UTC (07:00 Asia/Ho_Chi_Minh, AD-7)
 -- Uses net.http_get — route handler is exported as GET (not POST)
+-- IMPORTANT: Before running this migration, store secrets in Supabase Vault via SQL editor:
+--   SELECT vault.create_secret('https://your-app.vercel.app', 'aria_base_url', 'ARIA app URL');
+--   SELECT vault.create_secret('your-cron-secret', 'aria_cron_secret', 'ARIA cron auth');
 SELECT cron.schedule(
   'generate-daily-briefing',
   '0 0 * * *',
   $$
     SELECT net.http_get(
-      url     := 'https://aria-consult.vercel.app/api/cron/briefing',
-      headers := '{"Authorization": "Bearer Jz3Jy2DvLWE3VBNtrPMa8UGALnkWf27KkpcZu1yT9gg="}'::jsonb,
+      url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'aria_base_url') || '/api/cron/briefing',
+      headers := jsonb_build_object(
+                   'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'aria_cron_secret')
+                 ),
       timeout_milliseconds := 30000
     );
   $$
