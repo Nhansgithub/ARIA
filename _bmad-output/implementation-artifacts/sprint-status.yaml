@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-25
-last_updated: 2026-06-30 (story 5.2 ready-for-dev)
+last_updated: 2026-07-01 (all epics done; deployed to aria-consult.cloud)
 project: ARIA
 project_key: NOKEY
 tracking_system: file-system
@@ -49,7 +49,7 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # ─── Epic 0: Foundation ───────────────────────────────────────────────────
-  epic-0: in-progress
+  epic-0: done
   0-1-project-scaffold-ci-and-vercel-deploy: done
   0-2-supabase-project-schema-and-owner-id-on-every-table: done
   0-3-row-level-security-policies-on-all-tables: done
@@ -112,7 +112,7 @@ development_status:
   epic-4-retrospective: optional
 
   # ─── Epic 5: Delivery Channels ───────────────────────────────────────────
-  epic-5: in-progress
+  epic-5: done
   5-1-in-app-delivery-record-notification-indicator: done
   5-2-email-delivery-briefing-and-check-in-formats: done
   5-3-zalo-oa-setup-owner-follow-token-refresh-job: done

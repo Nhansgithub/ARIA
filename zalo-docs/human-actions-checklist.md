@@ -243,7 +243,23 @@ have not followed the OA.
 
 ---
 
-## 9 — First login and account setup
+## 9 — Supabase Auth: set production URL [CRITICAL]
+
+If you skip this, Supabase confirmation emails link back to `localhost:3000`
+and the OTP token expires before you can use it.
+
+Supabase dashboard → **Authentication → URL Configuration**:
+
+1. **Site URL** — change from `http://localhost:3000` to `https://www.aria-consult.cloud`
+2. **Redirect URLs** — add `https://www.aria-consult.cloud/**`
+
+Save. Then resend your confirmation email (sign up again with the same address,
+or use Supabase dashboard → **Authentication → Users** → find your user →
+**Send confirmation email**).
+
+---
+
+## 10 — First login and account setup
 
 1. Open your deployed ARIA URL.
 2. Sign up with your email address.
@@ -264,11 +280,12 @@ have not followed the OA.
 |---|--------|----------|--------|
 | 0 | Rotate CRON_SECRET | **Yes** | Security |
 | 1 | Enable pg_cron + pg_net | **Yes** | All crons |
-| 2 | Set `app.base_url` + `app.cron_secret` in DB | **Yes** | All crons |
+| 2 | Store secrets in Supabase Vault | **Yes** | All crons |
 | 3 | Set Vercel env vars | **Yes** | Everything |
 | 4 | Get Anthropic API key | **Yes** | AI features |
 | 5 | Verify Resend domain | **Yes** | Email delivery |
 | 6 | Custom domain | No | Nice-to-have |
 | 7 | Verify cron jobs | No | Debugging |
 | 8 | Zalo OA setup | No | Zalo only |
-| 9 | First login + settings | **Yes** | Using the app |
+| 9 | Supabase Auth Site URL | **Yes** | Sign-up email links |
+| 10 | First login + settings | **Yes** | Using the app |
