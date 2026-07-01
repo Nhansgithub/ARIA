@@ -16,10 +16,8 @@ SELECT cron.schedule(
   '5 * * * *',  -- every hour at :05 past
   $$
     SELECT net.http_get(
-      url     := current_setting('app.base_url') || '/api/cron/refresh-zalo-token',
-      headers := jsonb_build_object(
-                   'Authorization', 'Bearer ' || current_setting('app.cron_secret')
-                 ),
+      url     := 'https://aria-consult.vercel.app/api/cron/refresh-zalo-token',
+      headers := '{"Authorization": "Bearer Jz3Jy2DvLWE3VBNtrPMa8UGALnkWf27KkpcZu1yT9gg="}'::jsonb,
       timeout_milliseconds := 30000
     );
   $$

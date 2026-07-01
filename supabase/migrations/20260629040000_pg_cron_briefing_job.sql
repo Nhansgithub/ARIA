@@ -5,10 +5,6 @@
 --
 -- Prerequisites:
 --   1. Supabase project has pg_cron and pg_net extensions enabled.
---   2. App settings configured in database:
---        ALTER DATABASE postgres SET app.base_url = 'https://your-app.vercel.app';
---        ALTER DATABASE postgres SET app.cron_secret = 'your-secret-here';
---      Or set via Supabase Dashboard → Project Settings → Database → Config vars.
 --
 -- To verify after migration:
 --   SELECT * FROM cron.job;
@@ -35,10 +31,8 @@ SELECT cron.schedule(
   '0 0 * * *',
   $$
     SELECT net.http_get(
-      url     := current_setting('app.base_url') || '/api/cron/briefing',
-      headers := jsonb_build_object(
-                   'Authorization', 'Bearer ' || current_setting('app.cron_secret')
-                 ),
+      url     := 'https://aria-consult.vercel.app/api/cron/briefing',
+      headers := '{"Authorization": "Bearer Jz3Jy2DvLWE3VBNtrPMa8UGALnkWf27KkpcZu1yT9gg="}'::jsonb,
       timeout_milliseconds := 30000
     );
   $$
